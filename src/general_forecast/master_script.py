@@ -15,6 +15,7 @@ def main():
     VAL  = 'anual'
     YEAR = '2024'
     TABLES = ['_2024', '_2025', 'actual_data_2024_without_bad_otzar_only', 'actual_data_2024_with_bad_otzar_only']
+    BYPROD = ['forcast', 'actual', 'result']
 
 
 
@@ -45,12 +46,9 @@ def main():
 
         forcasts.to_csv('ALL_' + table_type + '.csv')
 
-        TABLES = ['forcast', 'actual', 'result']
-
-
 
     for f in os.listdir():
-        for table_type in TABLES:
+        for table_type in BYPROD:
             if f.startswith(table_type) and f.endswith('.csv'):
                 os.remove(f)
 
