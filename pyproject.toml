@@ -16,3 +16,5 @@ dependencies = [
 
 [project.scripts]
 forecast = "general_forecast.master_script:main"
+train = "re_forecast:train"
+infer = "re_forecast:infer"
