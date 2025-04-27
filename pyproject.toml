@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mof-class-forecaster"
+dynamic = ["version"]
+dependencies = [
+	"pandas",
+	"numpy",
+	"statsmodels",
+	"pmdarima",
+	"scikit-learn",
+	]
+
+
+[project.scripts]
+forecast = "kvutzut_sahar.master_script:main"
