@@ -11,6 +11,7 @@ dependencies = [
 	"statsmodels",
 	"pmdarima",
 	"scikit-learn",
+	"xgboost",
 	]
 
 
