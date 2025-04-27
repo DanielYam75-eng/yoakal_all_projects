@@ -155,10 +155,10 @@ def train():
     parser = argparse.ArgumentParser()
     parser.add_argument('paths', nargs=2)
     parser.add_argument('-o', '--output', nargs=1, required=True)
-    parser.parse_args()
-    path1 = parser.paths[0]
-    path2 = parser.paths[1]
-    target_model_path = parser.output
+    args = parser.parse_args()
+    path1 = args.paths[0]
+    path2 = args.paths[1]
+    target_model_path = args.output[0]
     table1, table2 = read(path1, path2)
     print("Preprocessing Finished")
 
@@ -175,14 +175,14 @@ def infer():
     parser.add_argument('-m', '--model', nargs=1, required=True)
     parser.add_argument('-y', '--year', nargs=1, required=True, type=int)
     parser.add_argument('-o', '--output', nargs=1, required=True)
-    parser.parse_args()
-    model_path = parser.model
+    args = parser.parse_args()
+    model_path = args.model[0]
     model = pickle.load(open(model_path, 'rb'))
-    target_year = parser.year
+    target_year = args.year[0]
     feature_list = ['po_type', 'fingroup', 'procurment_organization', 'N', 'po_net_value_category', 'quarter']
-    path1 = parser.paths[0]
-    path2 = parser.paths[1]
-    output_path = parser.output
+    path1 = args.paths[0]
+    path2 = args.paths[1]
+    output_path = args.output[0]
     table1, table2 = read(path1, path2)
     wrapper = Wrapper(model, feature_list, table1.columns)
 
