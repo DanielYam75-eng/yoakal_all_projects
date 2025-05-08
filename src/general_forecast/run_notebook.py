@@ -142,7 +142,7 @@ class TSModel4:
         for i, group in enumerate(self.data_by_ozar_groups.columns):
             group_data = data_by_ozar_groups[group]
             group_data = group_data.dropna()
-            if (group_data.dropna().count() <= size_of_validation_data*2) or (data_by_ozar_groups[group].dropna().index[-1] < pd.Timestamp("2024-01-31")):
+            if (group_data.count() < 2 * size_of_validation_data) or (group_data.iloc[-2 * size_of_validation_data:] == 0) or (group_data.index[-1] < pd.Timestamp("2024-01-31"):
                 self.bad_otzar_groups.append(group)
             else:
                 train_data, test_data = group_data[:-size_of_validation_data], group_data[-size_of_validation_data:]
