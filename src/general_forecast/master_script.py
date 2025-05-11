@@ -39,10 +39,10 @@ def main():
 
         forcasts.to_csv('ALL_' + table_type + '.csv')
 
-    for f in os.listdir():
-        for table_type in BYPROD:
-            if f.startswith(table_type) and f.endswith('.csv'):
-                os.remove(f)
+    #for f in os.listdir():
+    #    for table_type in BYPROD:
+     #       if f.startswith(table_type) and f.endswith('.csv'):
+     #           os.remove(f)
 
     forcasts = pd.read_csv(f'ALL__{past_YEAR_to_forcast}.csv', index_col = IND)
     actual   = pd.read_csv(f'ALL_actual_data_{past_YEAR_to_forcast}_bad_otzar_only.csv', index_col = IND)

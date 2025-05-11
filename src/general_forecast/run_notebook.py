@@ -132,12 +132,12 @@ class TSModel4:
         self.forecastData = {}
         self.tillpastYearData = {}
         self.bad_otzar_groups = []
-        self.year_to_forecast = year_to_forecast
+        self.year_to_forecast = year_to_forcast
 
     def fit(self, size_of_validation_data,modelType):
         for i, group in enumerate(self.data_by_ozar_groups.columns):
             group_data = self.data_by_ozar_groups[group].dropna()
-            if (group_data.count() < 2 * size_of_validation_data) or (group_data.iloc[-2 * size_of_validation_data:] == 0) or (group_data.index[-1].year < self.year_to_forecast:
+            if (group_data.count() < 2 * size_of_validation_data) or (group_data.iloc[-2 * size_of_validation_data:].sum() == 0) or (group_data.index[-1].year < self.year_to_forecast):
                 self.bad_otzar_groups.append(group)
             else:
                 train_data, test_data = group_data[:-size_of_validation_data], group_data[-size_of_validation_data:]
