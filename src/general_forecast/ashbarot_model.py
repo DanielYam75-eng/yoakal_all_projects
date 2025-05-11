@@ -165,5 +165,5 @@ forcast_ashbarot_2025_in=forcast_ashbarot_2025_in*(-1)
 combinnd_forcast_ashbarot_2025 = pd.concat([forcast_ashbarot_2025_in, forcast_ashbarot_2025_out], axis=1)
 combinnd_forcast_ashbarot_2025=pd.DataFrame(combinnd_forcast_ashbarot_2025)
 combinnd_forcast_ashbarot_2025.columns = ['ZH_in', 'ZH_out']
-forcast_ashbarot_2025.index.name = IND
-forcast_ashbarot_2025.to_csv('ashbarot_2025.csv')
+combinnd_forcast_ashbarot_2025.index.name = IND
+combinnd_forcast_ashbarot_2025.to_csv('ashbarot_2025.csv')
