@@ -31,17 +31,18 @@ def main():
     with ThreadPoolExecutor(max_workers = len(tables)) as executor:  executor.map(run_table, tables)
 
     for table_type in TABLES:
+
         files = [f for f in os.listdir() if (not f.startswith('ALL') and f.endswith(table_type + '.csv')) or f.startswith(table_type)]
 
         forcasts = pd.concat([pd.read_csv(f) for f in files])
-
-        if table_type in TO_ASHB:
-            forcasts = forcasts.merge(hasbarot, how = 'inner', left_on = IND, right_on = IND)
 
         months = forcasts.columns.difference([IND, COL])
         forcasts[VAL] = forcasts[months].sum(axis = 1)
 
         forcasts = forcasts.pivot_table(index = IND, columns = COL, values = VAL, aggfunc = 'sum')
+
+        if table_type in TO_ASHB:
+            forcasts = forcasts.merge(hasbarot, how = 'inner', left_on = IND, right_on = IND)
 
         forcasts['sum'] = forcasts.select_dtypes(include = 'number').fillna(0).sum(axis = 1)
 
