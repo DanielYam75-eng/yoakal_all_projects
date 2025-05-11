@@ -6,10 +6,12 @@ from pmdarima.arima import auto_arima
 import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
+import warnings
+warnings.filterwarnings("ignore")
 
 
-# %% [markdown]
-# # export DATA
+# %%
+IND = 'kvotzat otzar'
 
 # %%
 data = pd.read_csv("ZH_data_as_tuple.csv")
@@ -192,3 +194,7 @@ data_so_far_2025_sum = forcast_ashbarot_2025.sum(axis=1).sum()
 forcast_ashbarot_2025=forcast_ashbarot_2025.sum(axis=0).groupby(level=0).sum()
 forcast_ashbarot_2025=pd.DataFrame(forcast_ashbarot_2025).rename(columns={0:'ZH'})
 
+
+# %%
+forcast_ashbarot_2025.index.name = IND
+forcast_ashbarot_2025.rename('ZH').to_csv('ashbarot_2025.csv')
