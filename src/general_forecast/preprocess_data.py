@@ -38,12 +38,11 @@ data.loc[data['expenditure_type'].astype(str).str.startswith('2'), 'type'] = 'ne
 
 
 # %%
-names = ['salary', 'cor', 'KM', 'KT', 'ZH', 'nesah', 'rest']
+names = ['salary', 'cor', 'KM', 'KT', 'nesah', 'rest']
 frames = [data[data['type'] == 'salary'],
 data[data['type'] == 'cor'],
 data[data['type'] == 'market'],
 data[data['type'] == 'KT'],
-data[data['type'] == 'ZH'],
 data[data['type'] == 'nesah'],
 data[data['type'] == 'any']]
 
