@@ -54,6 +54,9 @@ def main():
     actual   =   actual[sorted(actual.columns)  ].sort_index()
 
 
+    print(subprocess.run(["python", "evaluate.py", '-f', f"ALL__{past_YEAR_to_forcast}.csv", '-t', f"ALL_actual_data_{past_YEAR_to_forcast}.csv", '-o', f"{past_YEAR_to_forcast}_grades.csv"], capture_output=True, text=True).stderr)    
+
+
 if __name__ == "__main__":
     main()
 
