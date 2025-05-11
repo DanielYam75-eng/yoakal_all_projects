@@ -114,40 +114,6 @@ templates = {
    'mean': MeanModel,
    'SimpleExpSmoothing' : SimpleExpSmoothing
 }
-
-# %% [markdown]
-# # PREPROCESS
-# 
-
-# %% [markdown]
-# # biggest sums went into kvotzot otzar in 2024 compare to 2023
-#  
-
-# %%
-temp = data_as_frame.resample("YE").sum().loc['2023':'2024'].T.groupby(level=1).sum()
-increment = temp['2024-12-31'] - temp['2023-12-31']
-increment=increment.sort_values(ascending=False)
-
-# %%
-increment_df = pd.DataFrame(increment)
-increment_df['name'] = increment_df.index
-increment_df.iloc[9:, 1] = 'Others'
-increment_df = increment_df.groupby('name').sum()
-
-
-# %% [markdown]
-# # Comparison of Sum of Top vs Bottom kvotzot otzar
-
-# %%
-sums_anomaly_by_year_data = {}
-for (i,j) in data_as_frame:
-    sum_2023 = data_as_frame[(i, j)].resample('YE').sum().loc["2023-12-31"]
-    sum_2024 = data_as_frame[(i, j)].resample('YE').sum().loc["2024-12-31"]
-    diff_between_sum = sum_2024 - sum_2023
-    sums_anomaly_by_year_data[(i,j)] = diff_between_sum
-increments_by_MOF_class = (pd.DataFrame(list(sums_anomaly_by_year_data.items()), columns=['kvotzat otzar', 'Value'])).sort_values(by=['Value'], ascending=False).set_index('kvotzat otzar')
-
-
 # %% [markdown]
 # #  data forcast 2025 year
 
@@ -192,3 +158,17 @@ data_so_far_2025_sum = forcast_ashbarot_2025.sum(axis=1).sum()
 forcast_ashbarot_2025=forcast_ashbarot_2025.sum(axis=0).groupby(level=0).sum()
 forcast_ashbarot_2025=pd.DataFrame(forcast_ashbarot_2025).rename(columns={0:'ZH'})
 
+
+
+
+data_so_far_2025 = data_as_frame[data_as_frame.index>"2024-12-31"]
+forcast_ashbarot_2025 = pd.concat([data_so_far_2025, pd.DataFrame(forcast_data_2025)], axis=0)
+data_so_far_2025_sum = forcast_ashbarot_2025.sum(axis=1).sum() 
+forcast_ashbarot_2025_in=forcast_ashbarot_2025.sum(axis=0).groupby(level=1).sum()
+forcast_ashbarot_2025_in=pd.DataFrame(forcast_ashbarot_2025_in).rename(columns={0:'ZH'})
+forcast_ashbarot_2025_out=forcast_ashbarot_2025.sum(axis=0).groupby(level=0).sum()
+forcast_ashbarot_2025_out=pd.DataFrame(forcast_ashbarot_2025_out).rename(columns={0:'ZH'})
+forcast_ashbarot_2025_in=forcast_ashbarot_2025_in*(-1)
+combinnd_forcast_ashbarot_2025 = pd.concat([forcast_ashbarot_2025_in, forcast_ashbarot_2025_out], axis=1)
+combinnd_forcast_ashbarot_2025=pd.DataFrame(combinnd_forcast_ashbarot_2025)
+combinnd_forcast_ashbarot_2025.columns = ['ZH_in', 'ZH_out']
