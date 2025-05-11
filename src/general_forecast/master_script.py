@@ -12,7 +12,7 @@ def main():
     VAL  = 'anual'
     past_YEAR_to_forcast = '2021'
     TABLES = [f'_{past_YEAR_to_forcast}', '_2025', f'actual_data_{past_YEAR_to_forcast}_bad_otzar_only', f'actual_data_2025_bad_otzar_only']
-    BYPROD = ['forcast', 'actual', 'result']
+    BYPROD = ['forcast', 'actual', 'result', 'full_actual']
 
     print(subprocess.run(["python", "preprocess_data.py"], capture_output=True, text=True).stderr)
 
@@ -25,6 +25,7 @@ def main():
     tables = [table for table in os.listdir() if table.endswith('data-preprocessed-by-posting-date.csv')]
 
     with ThreadPoolExecutor(max_workers = len(tables)) as executor:  executor.map(run_table, tables)
+
     for table_type in TABLES:
         files = [f for f in os.listdir() if (not f.startswith('ALL') and f.endswith(table_type + '.csv')) or f.startswith(table_type)]
 
@@ -37,7 +38,9 @@ def main():
 
         forcasts['sum'] = forcasts.select_dtypes(include = 'number').fillna(0).sum(axis = 1)
 
-        forcasts.to_csv('ALL_' + table_type + '.csv')
+        forcasts['sum'].to_csv('ALL_' + table_type + '.csv')
+
+    pd.concat([pd.read_csv(f, index_col = IND) for f in os.listdir() if f.startswith('full_actual')], axis = 1).fillna(0).sum(axis = 1).sort_index().to_csv(f'ALL_actual_data_{past_YEAR_to_forcast}.csv')
 
     for f in os.listdir():
         for table_type in BYPROD:
@@ -49,6 +52,9 @@ def main():
 
     forcasts = forcasts[sorted(forcasts.columns)].sort_index()
     actual   =   actual[sorted(actual.columns)  ].sort_index()
+
+
+    print(subprocess.run(["python", "evaluate.py", '-f', f"ALL__{past_YEAR_to_forcast}.csv", '-t', f"ALL_actual_data_{past_YEAR_to_forcast}.csv", '-o', f"{past_YEAR_to_forcast}_grades.csv"], capture_output=True, text=True).stderr)    
 
 
 if __name__ == "__main__":

@@ -246,10 +246,14 @@ data_so_far_2025 = data_by_ozar_groups['2025-01-01':]
 
 expanditure_name = PATH.split('-')[1]
 
-forcast_data_specific_year = pd.DataFrame(forcast_data_specific_year).T 
-forcast_data_specific_year.insert(0, 'kvuzat sahar', f"forcast_{expanditure_name}_{year_to_predict}.csv")
-forcast_data_specific_year.index.name = 'kvotzat otzar'
-forcast_data_specific_year.to_csv(f"forcast_{expanditure_name}_{year_to_predict}.csv")
+actual_spesific_year = actual_data_specific_year.sum(axis = 0).rename('actual')
+actual_spesific_year.index.name = 'kvotzat otzar'
+actual_spesific_year.to_csv(f"full_actual_{expanditure_name}_{year_to_predict}.csv")
+
+forcast_specific_year = pd.DataFrame(forcast_data_specific_year).T 
+forcast_specific_year.insert(0, 'kvuzat sahar', f"forcast_{expanditure_name}_{year_to_predict}.csv")
+forcast_specific_year.index.name = 'kvotzat otzar'
+forcast_specific_year.to_csv(f"forcast_{expanditure_name}_{year_to_predict}.csv")
 
 forcast_data_2025_year = pd.DataFrame(forcast_data_2025_year).fillna(0)
 data_so_far_2025=data_by_ozar_groups['2025-01-01':]
