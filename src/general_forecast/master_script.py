@@ -10,7 +10,7 @@ def main():
     IND  = 'kvotzat otzar'
     COL  = 'kvuzat sahar'
     VAL  = 'anual'
-    past_YEAR_to_forcast = '2020'
+    past_YEAR_to_forcast = '2021'
     TABLES = [f'_{past_YEAR_to_forcast}', '_2025', f'actual_data_{past_YEAR_to_forcast}_bad_otzar_only', f'actual_data_2025_bad_otzar_only']
     BYPROD = ['forcast', 'actual', 'result']
 
@@ -42,8 +42,8 @@ def main():
     for f in os.listdir():
         for table_type in BYPROD:
             if f.startswith(table_type) and f.endswith('.csv'):
-                os.remove(f)
-
+               os.remove(f)
+   
     forcasts = pd.read_csv(f'ALL__{past_YEAR_to_forcast}.csv', index_col = IND)
     actual   = pd.read_csv(f'ALL_actual_data_{past_YEAR_to_forcast}_bad_otzar_only.csv', index_col = IND)
 
