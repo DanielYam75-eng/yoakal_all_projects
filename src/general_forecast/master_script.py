@@ -37,7 +37,7 @@ def main():
 
         forcasts['sum'] = forcasts.select_dtypes(include = 'number').fillna(0).sum(axis = 1)
 
-        forcasts.to_csv('ALL_' + table_type + '.csv')
+        forcasts['sum'].to_csv('ALL_' + table_type + '.csv')
 
     for f in os.listdir():
         for table_type in BYPROD:
