@@ -42,7 +42,7 @@ def main():
         forcasts = forcasts.pivot_table(index = IND, columns = COL, values = VAL, aggfunc = 'sum')
 
         if table_type in TO_ASHB:
-            forcasts = forcasts.merge(hasbarot, how = 'inner', left_on = IND, right_on = IND)
+            forcasts = forcasts.merge(hasbarot, how = 'left', left_on = IND, right_on = IND)
 
         forcasts['sum'] = forcasts.select_dtypes(include = 'number').fillna(0).sum(axis = 1)
 
