@@ -18,7 +18,7 @@ parser.add_argument("--path",        type=str, required=True, help="Path to the 
 parser.add_argument("--past_year",   type=int, required=True, help="Year to forecast")
 parser.add_argument("--curr_year",   type=int, required=True, help="Current Year")
 parser.add_argument("--curr_month",  type=int, required=True, help="Current Month")
-parser.add_argument("--months_back", type=int, required=False, default = 12, help="Month to train on")
+parser.add_argument("--months_back", type=int, required=False, default = -1, help="Month to train on")
 
 
 year_to_predict                     = parser.parse_args().past_year
@@ -26,7 +26,7 @@ how_much_month_in_curr_year_in_data = parser.parse_args().curr_month
 how_much_month_back_to_use          = parser.parse_args().months_back
 current_year                        = parser.parse_args().curr_year
 how_much_months_in_year             = 12
-flag_for_using_only_part_of_data    = how_much_month_back_to_use != how_much_months_in_year
+flag_for_using_only_part_of_data    = how_much_month_back_to_use != -1
 
 PATH    = parser.parse_args().path
 TSCOL   = "IIT_INVOICE_LO_AL_SMAH_NO_EMF_AD_KO"

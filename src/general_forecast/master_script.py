@@ -12,7 +12,7 @@ def main():
     parser.add_argument("--past_year", type=str, required=True, help="Year to forecast")
     parser.add_argument("--curr_year", type=str, required=True, help="Current Year")
     parser.add_argument("--curr_month", type=str, required=True, help="Current Month")
-    parser.add_argument("--months_back", type=str, required=False, default = '12', help="Month to train on")
+    parser.add_argument("--months_back", type=str, required=False, default = '-1', help="Month to train on")
 
     past_year = parser.parse_args().past_year
     months_back = parser.parse_args().months_back
