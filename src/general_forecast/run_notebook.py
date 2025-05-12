@@ -11,9 +11,22 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-parser = argparse.ArgumentParser(description="Forecasting script")
-parser.add_argument("--path", type=str, required=True, help="Path to the CSV file")
 
+
+parser = argparse.ArgumentParser(description="Forecasting script")
+parser.add_argument("--path",        type=str, required=True, help="Path to the CSV file")
+parser.add_argument("--past_year",   type=int, required=True, help="Year to forecast")
+parser.add_argument("--curr_year",   type=int, required=True, help="Current Year")
+parser.add_argument("--curr_month",  type=int, required=True, help="Current Month")
+parser.add_argument("--months_back", type=int, required=False, default = 12, help="Month to train on")
+
+
+year_to_predict                     = parser.parse_args().past_year
+how_much_month_in_curr_year_in_data = parser.parse_args().curr_month
+how_much_month_back_to_use          = parser.parse_args().months_back
+current_year                        = parser.parse_args().curr_year
+how_much_months_in_year             = 12
+flag_for_using_only_part_of_data    = how_much_month_back_to_use != how_much_months_in_year
 
 PATH    = parser.parse_args().path
 TSCOL   = "IIT_INVOICE_LO_AL_SMAH_NO_EMF_AD_KO"
@@ -210,16 +223,11 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
     return kvotzot_otzar_got_changed
 
 
-year_to_predict = 2021
-how_much_months_in_year=12
-how_much_month_in_2025_in_data=2
-current_year = 2025
+
 how_many_years_look_back_to_find_specific_year = (current_year - year_to_predict) * how_much_months_in_year
-actual_data_specific_year = data_by_ozar_groups.iloc[len(data_by_ozar_groups)-how_much_month_in_2025_in_data-how_many_years_look_back_to_find_specific_year : len(data_by_ozar_groups)-how_much_month_in_2025_in_data-how_many_years_look_back_to_find_specific_year+how_much_months_in_year].fillna(0)
-data_we_got_to_use_in_prediction_specific_year = data_by_ozar_groups[:-(how_much_month_in_2025_in_data+how_many_years_look_back_to_find_specific_year)].fillna(0)
+actual_data_specific_year = data_by_ozar_groups.iloc[len(data_by_ozar_groups)-how_much_month_in_curr_year_in_data-how_many_years_look_back_to_find_specific_year : len(data_by_ozar_groups)-how_much_month_in_curr_year_in_data-how_many_years_look_back_to_find_specific_year+how_much_months_in_year].fillna(0)
+data_we_got_to_use_in_prediction_specific_year = data_by_ozar_groups[:-(how_much_month_in_curr_year_in_data+how_many_years_look_back_to_find_specific_year)].fillna(0)
 data_we_got_to_use_in_prediction_2025_year = data_by_ozar_groups
-flag_for_using_only_part_of_data = False
-how_much_month_back_to_use = 14
 # forcast by specific year
 
 r2_score_values_data_specific_year, bad_otzar_groups_specific_year = find_r2_score_values_data(how_much_months_in_year,data_by_ozar_groups, year_to_predict)
@@ -235,8 +243,8 @@ forcast_data_sum_specific_year = pd.DataFrame(forcast_data_specific_year).sum(ax
 
 r2_score_values_data_2025_year, bad_otzar_groups_2025_year = find_r2_score_values_data(how_much_months_in_year,data_by_ozar_groups, current_year)
 wining_model_2025_year, r2_of_wining_models_2025_year = find_wining_models(r2_score_values_data_2025_year)
-forcast_data_2025_year = forcast_data(how_much_months_in_year - how_much_month_in_2025_in_data,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
-kvotzot_otzar_got_changed_2025_year = changing_kvotzat_otzar(how_much_months_in_year - how_much_month_in_2025_in_data,forcast_data_2025_year,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
+forcast_data_2025_year = forcast_data(how_much_months_in_year - how_much_month_in_curr_year_in_data,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
+kvotzot_otzar_got_changed_2025_year = changing_kvotzat_otzar(how_much_months_in_year - how_much_month_in_curr_year_in_data,forcast_data_2025_year,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
 
 
 data_so_far_2025 = data_by_ozar_groups['2025-01-01':]
