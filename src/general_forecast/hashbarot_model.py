@@ -236,11 +236,17 @@ forcast_ashbarot_2025_out.index.name = 'ZH_out'
 forcast_ashbarot_bad_otzar_pairs_2025_out = forcast_ashbarot_2025_out.where(forcast_ashbarot_2025_out == 0, np.nan)
 forcast_ashbarot_bad_otzar_pairs_2025_in = forcast_ashbarot_2025_in.where(forcast_ashbarot_2025_in == 0, np.nan)
 
+
+actual_ashbarot_specific_year_out_yearly = actual_data_specific_year.sum(axis=0).groupby(level=0).sum()
+actual_ashbarot_specific_year_out_yearly = pd.DataFrame(actual_ashbarot_specific_year_out_yearly)
+actual_ashbarot_specific_year_in_yearly = actual_data_specific_year.sum(axis=0).groupby(level=1).sum() *(-1)
+actual_ashbarot_specific_year_in_yearly = pd.DataFrame(actual_ashbarot_specific_year_in_yearly)
 # %%
 
-#actual_spesific_year = actual_data_specific_year.sum(axis = 0).rename('actual')
-#actual_spesific_year.index.name = IND
-#actual_spesific_year.reset_index().to_csv(f"full_actual_{'ZH'}_{year_to_predict}.csv")
+for name, frame in zip(['ZH_in', 'ZH_out'], [actual_ashbarot_specific_year_in_yearly, actual_ashbarot_specific_year_out_yearly]):
+    frame.columns = ['actual']
+    frame.index.name = IND
+    frame.reset_index().to_csv(f"full_actual_{name}_{year_to_predict}.csv")
 
 for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_specific_year_in, forcast_ashbarot_specific_year_out]):
     frame.insert(0, 'kvuzat sahar', f"forcast_{name}_{year_to_predict}.csv")
