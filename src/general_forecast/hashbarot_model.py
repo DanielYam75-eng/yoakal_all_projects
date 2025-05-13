@@ -19,7 +19,7 @@ parser.add_argument("--curr_month",  type=int, required=True, help="Current Mont
 parser.add_argument("--months_back", type=int, required=False, default = -1, help="Month to train on")
 
 year_to_predict                  = parser.parse_args().past_year
-how_much_month_in_2025_in_data   = parser.parse_args().curr_month
+how_much_month_in_current_year_in_data   = parser.parse_args().curr_month
 current_year                     = parser.parse_args().curr_year
 how_much_month_back_to_use       = parser.parse_args().months_back
 flag_for_using_only_part_of_data = how_much_month_back_to_use != -1
@@ -202,9 +202,9 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
 
 # %%
 how_many_years_look_back_to_find_specific_year = (current_year - year_to_predict) * how_much_months_in_year
-actual_data_specific_year = data_as_frame.iloc[len(data_as_frame)-how_much_month_in_2025_in_data-how_many_years_look_back_to_find_specific_year : len(data_as_frame)-how_much_month_in_2025_in_data-how_many_years_look_back_to_find_specific_year+how_much_months_in_year].fillna(0)
-data_we_got_to_use_in_prediction_specific_year = data_as_frame[:-(how_much_month_in_2025_in_data+how_many_years_look_back_to_find_specific_year)].fillna(0)
-data_we_got_to_use_in_prediction_2025_year = data_as_frame
+actual_data_specific_year = data_as_frame.iloc[len(data_as_frame)-how_much_month_in_current_year_in_data-how_many_years_look_back_to_find_specific_year : len(data_as_frame)-how_much_month_in_current_year_in_data-how_many_years_look_back_to_find_specific_year+how_much_months_in_year].fillna(0)
+data_we_got_to_use_in_prediction_specific_year = data_as_frame[:-(how_much_month_in_current_year_in_data+how_many_years_look_back_to_find_specific_year)].fillna(0)
+data_we_got_to_use_in_prediction_current_year_year = data_as_frame
 
 # %% [markdown]
 # # data forcaast specific year
@@ -222,19 +222,19 @@ forcast_data_sum_specific_year = pd.DataFrame(forcast_data_specific_year).sum(ax
 
 
 # %% [markdown]
-# #  data forcast 2025 year
+# #  data forcast current_year year
 
 # %%
-r2_score_values_data_2025_year = find_r2_score_values_data(how_much_months_in_year,data_as_frame, current_year)
-wining_model_2025_year, r2_of_wining_models_2025_year = find_wining_models(r2_score_values_data_2025_year)
-forcast_data_2025_year = forcast_data(how_much_months_in_year - how_much_month_in_2025_in_data,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
-pair_of_kvotzot_otzar_got_changed_2025_year = changing_kvotzat_otzar(how_much_months_in_year - how_much_month_in_2025_in_data,forcast_data_2025_year,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
+r2_score_values_data_current_year_year = find_r2_score_values_data(how_much_months_in_year,data_as_frame, current_year)
+wining_model_current_year_year, r2_of_wining_models_current_year_year = find_wining_models(r2_score_values_data_current_year_year)
+forcast_data_current_year_year = forcast_data(how_much_months_in_year - how_much_month_in_current_year_in_data,wining_model_current_year_year,data_we_got_to_use_in_prediction_current_year_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
+pair_of_kvotzot_otzar_got_changed_current_year_year = changing_kvotzat_otzar(how_much_months_in_year - how_much_month_in_current_year_in_data,forcast_data_current_year_year,wining_model_current_year_year,data_we_got_to_use_in_prediction_current_year_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
 
 
-data_so_far_2025 = data_as_frame['2025-01-01':]
-data_so_far_2025 = data_as_frame[data_as_frame.index>"2024-12-31"]
-data_2025 = pd.concat([data_so_far_2025, pd.DataFrame(forcast_data_2025_year)], axis=0)
-data_so_far_2025_sum = data_2025.sum(axis=1).sum() 
+data_so_far_current_year = data_as_frame[f'{current_year}-01-01':]
+data_so_far_current_year = data_as_frame[data_as_frame.index>"2024-12-31"]
+data_current_year = pd.concat([data_so_far_current_year, pd.DataFrame(forcast_data_current_year_year)], axis=0)
+data_so_far_current_year_sum = data_current_year.sum(axis=1).sum() 
 
 # %%
 forcast_ashbarot_specific_year_in = pd.DataFrame(forcast_data_specific_year).T.groupby(level=1).sum()
@@ -246,16 +246,16 @@ forcast_ashbarot_specific_year_out.index.name = 'ZH_out'
 forcast_ashbarot_bad_otzar_pairs_specific_year_out = forcast_ashbarot_specific_year_out.where(forcast_ashbarot_specific_year_out == 0, np.nan)
 forcast_ashbarot_bad_otzar_pairs_specific_year_in = forcast_ashbarot_specific_year_in.where(forcast_ashbarot_specific_year_in == 0, np.nan)
 
-data_so_far_2025 = data_as_frame[data_as_frame.index>"2024-12-31"]
-forcast_ashbarot_2025 = pd.concat([data_so_far_2025, pd.DataFrame(forcast_data_2025_year)], axis=0)
-forcast_ashbarot_2025_in = pd.DataFrame(forcast_ashbarot_2025).T.groupby(level=1).sum()
-forcast_ashbarot_2025_in.index.name = 'ZH_in'
-forcast_ashbarot_2025_in=forcast_ashbarot_2025_in*(-1)
-forcast_ashbarot_2025_out = pd.DataFrame(forcast_ashbarot_2025).T.groupby(level=0).sum()
-forcast_ashbarot_2025_out.index.name = 'ZH_out'
+data_so_far_current_year = data_as_frame[data_as_frame.index>"2024-12-31"]
+forcast_ashbarot_current_year = pd.concat([data_so_far_current_year, pd.DataFrame(forcast_data_current_year_year)], axis=0)
+forcast_ashbarot_current_year_in = pd.DataFrame(forcast_ashbarot_current_year).T.groupby(level=1).sum()
+forcast_ashbarot_current_year_in.index.name = 'ZH_in'
+forcast_ashbarot_current_year_in=forcast_ashbarot_current_year_in*(-1)
+forcast_ashbarot_current_year_out = pd.DataFrame(forcast_ashbarot_current_year).T.groupby(level=0).sum()
+forcast_ashbarot_current_year_out.index.name = 'ZH_out'
 
-forcast_ashbarot_bad_otzar_pairs_2025_out = forcast_ashbarot_2025_out.where(forcast_ashbarot_2025_out == 0, np.nan)
-forcast_ashbarot_bad_otzar_pairs_2025_in = forcast_ashbarot_2025_in.where(forcast_ashbarot_2025_in == 0, np.nan)
+forcast_ashbarot_bad_otzar_pairs_current_year_out = forcast_ashbarot_current_year_out.where(forcast_ashbarot_current_year_out == 0, np.nan)
+forcast_ashbarot_bad_otzar_pairs_current_year_in = forcast_ashbarot_current_year_in.where(forcast_ashbarot_current_year_in == 0, np.nan)
 
 # %%
 
@@ -268,17 +268,17 @@ for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_specific_year_in, 
     frame.index.name = IND
     frame.reset_index().to_csv(f"forcast_{name}_{year_to_predict}.csv")
 
-for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_2025_in, forcast_ashbarot_2025_out]):
-    frame.insert(0, 'kvuzat sahar', f'forcast_{name}_2025')
+for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_current_year_in, forcast_ashbarot_current_year_out]):
+    frame.insert(0, 'kvuzat sahar', f'forcast_{name}_{current_year}')
     frame.index.name = IND
-    frame.reset_index().to_csv(f"forcast_{name}_2025.csv")
+    frame.reset_index().to_csv(f"forcast_{name}_{current_year}.csv")
 
 for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_bad_otzar_pairs_specific_year_in, forcast_ashbarot_bad_otzar_pairs_specific_year_out]):
     frame.insert(0, 'kvuzat sahar', f'actual_data_{year_to_predict}_bad_otzar_only_{name}')
     frame.index.name = IND
     frame.reset_index().to_csv(f"actual_data_{year_to_predict}_bad_otzar_only_{name}.csv")
 
-for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_bad_otzar_pairs_2025_in, forcast_ashbarot_bad_otzar_pairs_2025_out]):
-    frame.insert(0, 'kvuzat sahar', f'actual_data_2025_bad_otzar_only_{name}')
+for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_bad_otzar_pairs_current_year_in, forcast_ashbarot_bad_otzar_pairs_current_year_out]):
+    frame.insert(0, 'kvuzat sahar', f'actual_data_{current_year}_bad_otzar_only_{name}')
     frame.index.name = IND
-    frame.reset_index().to_csv(f"actual_data_2025_bad_otzar_only_{name}.csv")
+    frame.reset_index().to_csv(f"actual_data_{current_year}_bad_otzar_only_{name}.csv")
