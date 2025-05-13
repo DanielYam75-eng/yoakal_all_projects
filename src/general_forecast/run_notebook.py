@@ -201,7 +201,7 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
     kvotzot_otzar_got_changed=[]
     for kvotzat_otzar_sahar in forcast_data_specific_year:
         if wining_model_specific_year[kvotzat_otzar_sahar][0] == 'holt' or wining_model_specific_year[kvotzat_otzar_sahar][0] == 'ExponentialSmoothing':
-            if forcast_data_specific_year[kvotzat_otzar_sahar].sum() < 0:
+            if forcast_data_specific_year[kvotzat_otzar_sahar].sum() == 0:
                 kvotzot_otzar_got_changed.append(kvotzat_otzar_sahar)
                 if(flag_for_using_only_part_of_data):
                     model = NaiveModel(data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][-how_much_month_back_to_use:])
@@ -211,7 +211,7 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
                 forecast = model_fit.forecast(month_to_predict)
                 forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
         else:
-            if forcast_data_specific_year[kvotzat_otzar_sahar].sum() < 0:
+            if forcast_data_specific_year[kvotzat_otzar_sahar].sum() == 0:
                 kvotzot_otzar_got_changed.append(kvotzat_otzar_sahar)
                 if(flag_for_using_only_part_of_data):
                     model = SeasonalNaiveModel(data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][-how_much_month_back_to_use:])

@@ -29,7 +29,7 @@ def main():
     print(subprocess.run(["python", "preprocess_data.py"], capture_output=True, text=True).stderr)
     print("Finished preprocessing data")
     print("Working on hashbarot...")
-    print(subprocess.run(["python", "temp_hashbarot.py", "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back], capture_output=True, text=True).stderr)
+    print(subprocess.run(["python", "hashbarot_model.py", "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back], capture_output=True, text=True).stderr)
     print("Finished hashbarot")
     print("Working on forcasting the rest...")
 
@@ -66,7 +66,7 @@ def main():
     for f in os.listdir():
         for table_type in BYPROD:
             if f.startswith(table_type) and f.endswith('.csv'):
-               os.remove(f)
+              os.remove(f)
    
     forcasts = pd.read_csv(f'ALL__{past_year}.csv', index_col = IND)
     actual   = pd.read_csv(f'ALL_actual_data_{past_year}_bad_otzar_only.csv', index_col = IND)

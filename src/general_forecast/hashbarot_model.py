@@ -171,31 +171,14 @@ def find_wining_models(r2_score_values_data_specific_year):
 def forcast_data(month_to_predict,wining_model_specific_year,data_we_got_to_use_in_prediction,flag_for_using_only_part_of_data,how_much_month_back_to_use):
     forcast_data_specific_year = {}
     for i, kvotzat_otzar_sahar in enumerate(wining_model_specific_year):
-        model = templates[wining_model_specific_year[kvotzat_otzar_sahar][0]](data_we_got_to_use_in_prediction[kvotzat_otzar_sahar])
+        if(flag_for_using_only_part_of_data):
+            model = templates[wining_model_specific_year[kvotzat_otzar_sahar][0]](data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][-how_much_month_back_to_use:])
+        else:
+            model = templates[wining_model_specific_year[kvotzat_otzar_sahar][0]](data_we_got_to_use_in_prediction[kvotzat_otzar_sahar])
         model_fit = model.fit()
         forecast = model_fit.forecast(month_to_predict)
         forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
     return forcast_data_specific_year
-
-def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_model_specific_year, data_we_got_to_use_in_prediction,flag_for_using_only_part_of_data,how_much_month_back_to_use):
-    kvotzot_otzar_got_changed=[]
-    for kvotzat_otzar_sahar in forcast_data_specific_year:
-        if wining_model_specific_year[kvotzat_otzar_sahar][0] == 'holt' or wining_model_specific_year[kvotzat_otzar_sahar][0] == 'ExponentialSmoothing':
-            if forcast_data_specific_year[kvotzat_otzar_sahar].sum() < 0:
-                kvotzot_otzar_got_changed.append(kvotzat_otzar_sahar)
-                model = NaiveModel(data_we_got_to_use_in_prediction[kvotzat_otzar_sahar])
-                model_fit = model.fit()
-                forecast = model_fit.forecast(month_to_predict)
-                forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
-        else:
-            if forcast_data_specific_year[kvotzat_otzar_sahar].sum() < 0:
-                kvotzot_otzar_got_changed.append(kvotzat_otzar_sahar)
-                model = SeasonalNaiveModel(data_we_got_to_use_in_prediction[kvotzat_otzar_sahar]) 
-                model_fit = model.fit()
-                forecast = model_fit.forecast(month_to_predict)
-                forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
-    return kvotzot_otzar_got_changed
-
 
 # %% [markdown]
 # # pre process for forecasting by specific year
@@ -213,8 +196,6 @@ data_we_got_to_use_in_prediction_2025_year = data_as_frame
 r2_score_values_data_specific_year = find_r2_score_values_data(how_much_months_in_year,data_as_frame, year_to_predict)
 wining_model_specific_year, r2_of_wining_models_specific_year = find_wining_models(r2_score_values_data_specific_year)
 forcast_data_specific_year = forcast_data(how_much_months_in_year,wining_model_specific_year,data_we_got_to_use_in_prediction_specific_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
-pair_of_kvotzot_otzar_got_changed_specific_year = changing_kvotzat_otzar(how_much_months_in_year,forcast_data_specific_year,wining_model_specific_year,data_we_got_to_use_in_prediction_specific_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
-
 
 # %%
 actual_data_sum_specific_year = actual_data_specific_year.sum(axis=1).resample('YE').sum() / 1e9
@@ -228,8 +209,6 @@ forcast_data_sum_specific_year = pd.DataFrame(forcast_data_specific_year).sum(ax
 r2_score_values_data_2025_year = find_r2_score_values_data(how_much_months_in_year,data_as_frame, current_year)
 wining_model_2025_year, r2_of_wining_models_2025_year = find_wining_models(r2_score_values_data_2025_year)
 forcast_data_2025_year = forcast_data(how_much_months_in_year - how_much_month_in_2025_in_data,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
-pair_of_kvotzot_otzar_got_changed_2025_year = changing_kvotzat_otzar(how_much_months_in_year - how_much_month_in_2025_in_data,forcast_data_2025_year,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
-
 
 data_so_far_2025 = data_as_frame['2025-01-01':]
 data_so_far_2025 = data_as_frame[data_as_frame.index>"2024-12-31"]
