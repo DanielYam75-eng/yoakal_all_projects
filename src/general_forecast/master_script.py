@@ -22,14 +22,17 @@ def main():
     IND  = 'kvotzat otzar'
     COL  = 'kvuzat sahar'
     VAL  = 'anual'
-    TABLES = [f'_{past_year}', f'_{curr_year}', f'actual_data_{past_year}_bad_otzar_only', f'actual_data_2025_bad_otzar_only']
-    TO_ASHB = {TABLES[1], TABLES[3]}
+    TABLES = [f'_{past_year}', f'_{curr_year}', f'actual_data_{past_year}_bad_otzar_only', f'actual_data_{curr_year}_bad_otzar_only']
     TO_EVAL = TABLES[0]
-    BYPROD = ['forcast', 'actual', 'result', 'full_actual']
+    BYPROD = ['forcast', 'actual', 'result', 'full']
 
     print(subprocess.run(["python", "preprocess_data.py"], capture_output=True, text=True).stderr)
-    print(subprocess.run(["python", "ashbarot_model.py"], capture_output=True, text=True).stderr)
-    hasbarot = pd.read_csv('ashbarot_2025.csv', index_col = IND)
+    print("Finished preprocessing data")
+    print("Working on hashbarot...")
+    print(subprocess.run(["python", "temp_hashbarot.py", "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back], capture_output=True, text=True).stderr)
+    print("Finished hashbarot")
+    print("Working on forcasting the rest...")
+
 
     def run_table(table):
         result = subprocess.run(["python", "run_notebook.py", "--path", table, "--past_year", past_year, "--curr_year", curr_year, "--curr_month", curr_month, "--months_back", months_back], capture_output=True, text=True)
@@ -43,7 +46,7 @@ def main():
 
     for table_type in TABLES:
 
-        files = [f for f in os.listdir() if (not f.startswith('ALL') and f.endswith(table_type + '.csv')) or f.startswith(table_type)]
+        files = [f for f in os.listdir() if (f.startswith('forcast') and f.endswith(table_type + '.csv')) or f.startswith(table_type)]
 
         forcasts = pd.concat([pd.read_csv(f) for f in files])
 
@@ -51,9 +54,6 @@ def main():
         forcasts[VAL] = forcasts[months].sum(axis = 1)
 
         forcasts = forcasts.pivot_table(index = IND, columns = COL, values = VAL, aggfunc = 'sum')
-
-        if table_type in TO_ASHB:
-            forcasts = forcasts.merge(hasbarot, how = 'left', left_on = IND, right_on = IND)
 
         forcasts['sum'] = forcasts.select_dtypes(include = 'number').fillna(0).sum(axis = 1)
 
