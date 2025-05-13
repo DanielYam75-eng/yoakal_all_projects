@@ -29,7 +29,7 @@ def main():
     print(subprocess.run(["python", "preprocess_data.py"], capture_output=True, text=True).stderr)
     print("Finished preprocessing data")
     print("Working on hashbarot...")
-    print(subprocess.run(["python", "temp_hashbarot.py", "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back], capture_output=True, text=True).stderr)
+    print(subprocess.run(["python", "hashbarot_model.py", "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back], capture_output=True, text=True).stderr)
     print("Finished hashbarot")
     print("Working on forcasting the rest...")
 
