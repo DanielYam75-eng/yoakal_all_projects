@@ -67,7 +67,10 @@ def main():
 
     pd.concat([pd.read_csv(f, index_col = IND) for f in os.listdir() if f.startswith('full_actual')], axis = 1).fillna(0).sum(axis = 1).sort_index().to_csv(f'ALL_actual_data_{past_year}.csv')
 
-    print(subprocess.run(["python", "evaluate.py", '-f', f"ALL__{past_year}.csv", '-t', f"ALL_actual_data_{past_year}.csv", '-o', f"{past_year}_grades.csv"], capture_output=True, text=True).stderr)    
+    print("Grading...")
+    print(subprocess.run(["python", "evaluate.py", '-f', f"ALL__{past_year}.csv", '-t', f"ALL_actual_data_{past_year}.csv", '-o', f"{past_year}_grades.csv"], capture_output=True, text=True).stderr)
+    print("Cleaning...")
+    print(subprocess.run(["python", "clean.py"], capture_output=True, text=True).stderr)    
 
 
 if __name__ == "__main__":
