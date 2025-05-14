@@ -4,7 +4,8 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 import argparse
 import pandas as pd
-
+import warnings
+warnings.filterwarnings("ignore")
 
 def main():
 

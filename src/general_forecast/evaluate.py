@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import r2_score, root_mean_squared_error
 import argparse
+import warnings
+warnings.filterwarnings("ignore")
 
 
 IND    = 'MOF_class'
