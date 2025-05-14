@@ -10,29 +10,32 @@ warnings.filterwarnings("ignore")
 def main():
 
     parser = argparse.ArgumentParser(description="The Main Program")
-    parser.add_argument("--past_year", type=str, required=True, help="Year to forecast")
-    parser.add_argument("--curr_year", type=str, required=True, help="Current Year")
-    parser.add_argument("--curr_month", type=str, required=True, help="Current Month")
-    parser.add_argument("--months_back", type=str, required=False, default = '-1', help="Month to train on")
+    parser.add_argument("--past_year",       type=str,  required=True,                   help="Year to forecast")
+    parser.add_argument("--curr_year",       type=str,  required=True,                   help="Current Year")
+    parser.add_argument("--curr_month",      type=str,  required=True,                   help="Current Month")
+    parser.add_argument("--months_back",     type=str,  required=False, default = '-1',  help="Month to train on")
+    parser.add_argument("--experiment_mode", type=bool, required=False, default = False, help="Experiment mode")
 
     past_year = parser.parse_args().past_year
     months_back = parser.parse_args().months_back
     curr_year = parser.parse_args().curr_year
     curr_month = parser.parse_args().curr_month
+    exp_mode = parser.parse_args().experiment_mode
 
     IND  = 'kvotzat otzar'
     COL  = 'kvuzat sahar'
     VAL  = 'anual'
-    TABLES = [f'_{past_year}', f'_{curr_year}', f'actual_data_{past_year}_bad_otzar_only', f'actual_data_{curr_year}_bad_otzar_only']
+    TABLES = [f'_{curr_year}'] if exp_mode else [f'_{past_year}', f'_{curr_year}', f'actual_data_{past_year}_bad_otzar_only', f'actual_data_{curr_year}_bad_otzar_only']
     TO_EVAL = TABLES[0]
 
     print("Comencing program...")
     print("Close all relevent tables !!")
     print(subprocess.run(["python", "preprocess_data.py"], capture_output=True, text=True).stderr)
     print("Finished preprocessing data")
-    print("Working on hashbarot...")
-    print(subprocess.run(["python", "hashbarot_model.py", "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back], capture_output=True, text=True).stderr)
-    print("Finished hashbarot")
+    if not exp_mode:
+        print("Working on hashbarot...")
+        print(subprocess.run(["python", "hashbarot_model.py", "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back], capture_output=True, text=True).stderr)
+        print("Finished hashbarot")
     print("Working on forcasting the rest...")
 
 
@@ -60,18 +63,24 @@ def main():
 
         forcasts['sum'] = forcasts.select_dtypes(include = 'number').fillna(0).sum(axis = 1)
 
-        if table_type == TO_EVAL: forcasts = forcasts['sum']
-            
-        forcasts.to_csv('ALL_' + table_type + '.csv')
+        if table_type == TO_EVAL and not exp_mode: forcasts = forcasts['sum']
+
+        if exp_mode:    
+            forcasts.to_csv(r'Data\ALL_' + table_type + f'_{curr_year}_' + f'_{curr_month}_' + f'_{months_back}' + '.csv')
+        else:
+            forcasts.to_csv(r'Data\ALL_' + table_type + '.csv')
 
 
-    pd.concat([pd.read_csv(f, index_col = IND) for f in os.listdir() if f.startswith('full_actual')], axis = 1).fillna(0).sum(axis = 1).sort_index().to_csv(f'ALL_actual_data_{past_year}.csv')
+    if not exp_mode:
+        pd.concat([pd.read_csv(f, index_col = IND) for f in os.listdir() if f.startswith('full_actual')], axis = 1).fillna(0).sum(axis = 1).sort_index().to_csv(rf'Data\ALL_actual_data_{past_year}.csv')
 
-    print("Grading...")
-    print(subprocess.run(["python", "evaluate.py", '-f', f"ALL__{past_year}.csv", '-t', f"ALL_actual_data_{past_year}.csv", '-o', f"{past_year}_grades.csv"], capture_output=True, text=True).stderr)
+    if not exp_mode:
+        print("Grading...")
+        print(subprocess.run(["python", "evaluate.py", '-f', rf"Data\ALL__{past_year}.csv", '-t', rf"Data\ALL_actual_data_{past_year}.csv", '-o', rf"Data\{past_year}_grades.csv"], capture_output=True, text=True).stderr)
     print("Cleaning...")
-    subprocess.run(["python", "clean.py"], capture_output=True, text=True)  
+    subprocess.run(["python", "clean.py"], capture_output=True, text=True)
 
 
 if __name__ == "__main__":
     main()
+    print("Done")
