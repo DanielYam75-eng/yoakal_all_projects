@@ -1,5 +1,4 @@
 import subprocess
-subprocess.run(["rm", "*ALL*.csv"])
 subprocess.run(["rm", "*forcast*.csv"])
 subprocess.run(["rm", "*actual*.csv"])
 subprocess.run(["rm", "*full*.csv"])
