@@ -70,7 +70,7 @@ def main():
     print("Grading...")
     print(subprocess.run(["python", "evaluate.py", '-f', f"ALL__{past_year}.csv", '-t', f"ALL_actual_data_{past_year}.csv", '-o', f"{past_year}_grades.csv"], capture_output=True, text=True).stderr)
     print("Cleaning...")
-    print(subprocess.run(["python", "clean.py"], capture_output=True, text=True).stderr)    
+    subprocess.run(["python", "clean.py"], capture_output=True, text=True)  
 
 
 if __name__ == "__main__":

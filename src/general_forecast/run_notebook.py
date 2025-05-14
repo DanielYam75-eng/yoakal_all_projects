@@ -9,6 +9,7 @@ from sklearn.metrics import r2_score
 from statsmodels.tsa.holtwinters import Holt
 import warnings
 warnings.filterwarnings("ignore")
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 
 
 
@@ -156,6 +157,15 @@ class TSModel4:
     def r2_score(self):
         return self.r2_score_values
 
+class MeanModel:    
+    def __init__(self, data):
+        self.data = data
+
+    def fit(self):
+        return self
+
+    def forecast(self, steps_to_forecast) -> pd.Series:
+        return pd.Series(self.data.mean(), index=pd.date_range(self.data.index[-1] + pd.offsets.MonthEnd(1), periods=steps_to_forecast, freq='ME'))
 
 templates = {
  "holt": Holt,
@@ -163,6 +173,9 @@ templates = {
    'naive': NaiveModel,
   'snaive': SeasonalNaiveModel,
    "ExponentialSmoothing": ExponentialSmoothing,
+  # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+   'mean': MeanModel,
+
 }
 
 def find_r2_score_values_data(how_much_months_in_year,data_by_ozar_groups,year_to_predict):
@@ -193,7 +206,7 @@ def forcast_data(month_to_predict,wining_model_specific_year,data_we_got_to_use_
         else:
             model = templates[wining_model_specific_year[kvotzat_otzar_sahar][0]](data_we_got_to_use_in_prediction[kvotzat_otzar_sahar])
         model_fit = model.fit()
-        forecast = model_fit.forecast(month_to_predict)
+        forecast = model_fit.forecast(month_to_predict+1)
         forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
     return forcast_data_specific_year
 
@@ -263,10 +276,7 @@ forcast_specific_year.insert(0, 'kvuzat sahar', f"forcast_{expanditure_name}_{ye
 forcast_specific_year.index.name = 'kvotzat otzar'
 forcast_specific_year.to_csv(f"forcast_{expanditure_name}_{year_to_predict}.csv")
 
-forcast_data_2025_year = pd.DataFrame(forcast_data_2025_year).fillna(0)
-data_so_far_2025=data_by_ozar_groups['2025-01-01':]
-data_so_far_2025=data_so_far_2025.T[data_so_far_2025.columns.isin(forcast_data_2025_year.columns)].T
-forcast_2025_combined = pd.concat([data_so_far_2025,forcast_data_2025_year]).T
+forcast_2025_combined = pd.concat([pd.DataFrame(data_so_far_2025), pd.DataFrame(forcast_data_2025_year)]).T
 forcast_2025_combined.insert(0, 'kvuzat sahar', f'forcast_{expanditure_name}_2025')
 forcast_2025_combined.index.name = 'kvotzat otzar'
 forcast_2025_combined.to_csv(f"forcast_{expanditure_name}_2025.csv")
