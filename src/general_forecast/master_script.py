@@ -25,7 +25,8 @@ def main():
     TABLES = [f'_{past_year}', f'_{curr_year}', f'actual_data_{past_year}_bad_otzar_only', f'actual_data_{curr_year}_bad_otzar_only']
     TO_EVAL = TABLES[0]
 
-
+    print("Comencing program...")
+    print("Close all relevent tables !!")
     print(subprocess.run(["python", "preprocess_data.py"], capture_output=True, text=True).stderr)
     print("Finished preprocessing data")
     print("Working on hashbarot...")
