@@ -2,7 +2,7 @@
 import pandas as pd
 
 # %%
-data = pd.read_csv("entry_date_data.csv")
+data = pd.read_csv(r"Data\\entry_date_data.csv")
 
 # %%
 data = data.melt(id_vars=['financial_year', 'economy', 'expenditure_type', 'doc_type', 'fund_code', 'fingroup'], var_name='month', value_name='volume')
@@ -59,5 +59,3 @@ for frame in frames:
 # %%
 for name, frame in zip(names, frames):
     frame.to_csv('result-' + name + '-data-preprocessed-by-posting-date.csv')
-
-
