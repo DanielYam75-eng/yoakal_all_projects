@@ -2,7 +2,7 @@
 import pandas as pd
 
 # %%
-data = pd.read_csv(r"Data\\entry_date_data.csv")
+data = pd.read_csv(r"Data\\new version.csv")
 
 # %%
 data = data.melt(id_vars=['financial_year', 'economy', 'expenditure_type', 'doc_type', 'fund_code', 'fingroup'], var_name='month', value_name='volume')
@@ -29,21 +29,24 @@ data = data[data['fund_code'] != 1410]
 data['type'] = 'any'
 
 # %%
-data.loc[(~data['fund_code'].isin([1400, 1403, 1405, 1406, 1407, 1423, 1425])) & (~data['doc_type'].isin(['KM', 'KT', 'ZH'])) & (data['expenditure_type'] == 3010), 'type'] = 'salary'
-data.loc[(data['fund_code'].isin([1400, 1403, 1405, 1406, 1407, 1423, 1425])) & (~data['doc_type'].isin(['KM', 'KT', 'ZH'])), 'type'] = 'cor'
+data.loc[(data['fund_code'].isin([1401, 1402, 1408, 1409, 1411, 1412, 1413, 1414, 1415, 1416, 1099, 1523])) & (data['doc_type'].isin(['ZC', 'ZW'])) & (data['expenditure_type'] == 3010), 'type'] = 'salary'
+data.loc[(data['fund_code'].isin([1400, 1403, 1405, 1406, 1407, 1423, 1425])) & (~data['doc_type'].isin(['KM', 'KT', 'ZH'])) & (~ data['expenditure_type'].isin([2010, 2045])), 'type'] = 'cor'
 data.loc[data['doc_type'].isin(['KM']), 'type'] = 'market'
+data.loc[data['doc_type'].isin(['ZD']), 'type'] = 'arnona'
 data.loc[data['doc_type'].isin(['KT']), 'type'] = 'KT'
 data.loc[data['doc_type'].isin(['ZH']), 'type'] = 'ZH'
-data.loc[data['expenditure_type'].astype(str).str.startswith('2'), 'type'] = 'nesah'
+
+
 
 
 # %%
-names = ['salary', 'cor', 'KM', 'KT', 'nesah', 'rest']
-frames = [data[data['type'] == 'salary'],
+names = ['salary', 'cor', 'arnona', 'KM', 'KT', 'rest']
+frames = [
+data[data['type'] == 'salary'],
 data[data['type'] == 'cor'],
+data[data['type'] == 'arnona'],
 data[data['type'] == 'market'],
 data[data['type'] == 'KT'],
-data[data['type'] == 'nesah'],
 data[data['type'] == 'any']]
 
 # %%
