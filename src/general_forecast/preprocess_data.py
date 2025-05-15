@@ -1,8 +1,11 @@
 # %%
+import argparse
 import pandas as pd
 
 # %%
-data = pd.read_csv(r"Data\\new version.csv")
+parser = argparse.ArgumentParser(description="Forecasting script")
+parser.add_argument("--path", type=str, required=True, help="Path to the CSV file")
+data = pd.read_csv(r"Data\\" + parser.parse_args().path)
 
 # %%
 data = data.melt(id_vars=['financial_year', 'economy', 'expenditure_type', 'doc_type', 'fund_code', 'fingroup'], var_name='month', value_name='volume')

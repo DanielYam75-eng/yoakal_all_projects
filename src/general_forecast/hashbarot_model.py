@@ -13,6 +13,7 @@ warnings.filterwarnings("ignore")
 IND  = 'kvotzat otzar'
 
 parser = argparse.ArgumentParser(description="Forecasting script")
+parser.add_argument("--path", type=str, required=True, help="Path to the CSV file")
 parser.add_argument("--past_year",   type=int, required=True, help="Year to forecast")
 parser.add_argument("--curr_year",   type=int, required=True, help="Current Year")
 parser.add_argument("--curr_month",  type=int, required=True, help="Current Month")
@@ -29,7 +30,7 @@ how_much_months_in_year          = 12
 # # export DATA
 
 # %%
-data = pd.read_csv(r"Data\ZH_data_as_tuple.csv")
+data = pd.read_csv(r"Data\\" + parser.parse_args().path)
 data = data.dropna(subset=['MOF_class_in'])
 data['date'] = pd.to_datetime(data['year'].astype(str) + '-' + data['month'].astype(str), format='%Y-%m') + pd.offsets.MonthEnd(0)
 time_serieses = data.groupby(['MOF_class_out', 'MOF_class_in', 'date'])['value'].sum()

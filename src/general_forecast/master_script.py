@@ -12,6 +12,8 @@ warnings.filterwarnings("ignore")
 def main():
 
     parser = argparse.ArgumentParser(description="The Main Program")
+    parser.add_argument("--hashbarot_data",  type=str,  required=True,                   help="Path to the hashbarot data")
+    parser.add_argument("--main_data",       type=str,  required=True,                   help="Path to the main data")
     parser.add_argument("--past_year",       type=str,  required=True,                   help="Year to forecast")
     parser.add_argument("--curr_year",       type=str,  required=True,                   help="Current Year")
     parser.add_argument("--curr_month",      type=str,  required=True,                   help="Current Month")
@@ -32,11 +34,11 @@ def main():
 
     print("Comencing program...")
     print("Close all relevent tables !!")
-    print(subprocess.run(["python", "preprocess_data.py"], capture_output=True, text=True).stderr)
+    print(subprocess.run(["python", "preprocess_data.py", "--path", parser.parse_args().main_data], capture_output=True, text=True).stderr)
     print("Finished preprocessing data")
     if not exp_mode:
         print("Working on hashbarot...")
-        print(subprocess.run(["python", "hashbarot_model.py", "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back], capture_output=True, text=True).stderr)
+        print(subprocess.run(["python", "hashbarot_model.py", "--path", parser.parse_args().hashbarot_data, "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back], capture_output=True, text=True).stderr)
         print("Finished hashbarot")
     print("Working on forcasting the rest...")
 
