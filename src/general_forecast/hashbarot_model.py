@@ -29,7 +29,7 @@ how_much_months_in_year          = 12
 # # export DATA
 
 # %%
-data = pd.read_csv(r"Data\ZH_data_as_tuple.csv")
+data = pd.read_csv("ZH_data_as_tuple.csv")
 data = data.dropna(subset=['MOF_class_in'])
 data['date'] = pd.to_datetime(data['year'].astype(str) + '-' + data['month'].astype(str), format='%Y-%m') + pd.offsets.MonthEnd(0)
 time_serieses = data.groupby(['MOF_class_out', 'MOF_class_in', 'date'])['value'].sum()
@@ -185,9 +185,9 @@ def forcast_data(month_to_predict,wining_model_specific_year,data_we_got_to_use_
 
 # %%
 how_many_years_look_back_to_find_specific_year = (current_year - year_to_predict) * how_much_months_in_year
-actual_data_specific_year = data_as_frame.iloc[len(data_as_frame)-how_much_month_in_current_year_in_data-how_many_years_look_back_to_find_specific_year : len(data_as_frame)-how_much_month_in_current_year_in_data-how_many_years_look_back_to_find_specific_year+how_much_months_in_year].fillna(0)
-data_we_got_to_use_in_prediction_specific_year = data_as_frame[:-(how_much_month_in_current_year_in_data+how_many_years_look_back_to_find_specific_year)].fillna(0)
-data_we_got_to_use_in_prediction_current_year_year = data_as_frame
+actual_data_specific_year = data_as_frame.loc[str(year_to_predict)].fillna(0)
+data_we_got_to_use_in_prediction_specific_year =  data_as_frame.loc[:str(year_to_predict-1)].fillna(0)
+data_we_got_to_use_in_prediction_current_year_year =  pd.concat([data_as_frame.loc[:str(current_year-1)],data_as_frame.loc[str(current_year)].head(how_much_month_in_current_year_in_data)]).fillna(0)
 
 # %% [markdown]
 # # data forcaast specific year

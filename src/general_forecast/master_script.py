@@ -66,17 +66,17 @@ def main():
         if table_type == TO_EVAL and not exp_mode: forcasts = forcasts['sum']
 
         if exp_mode:    
-            forcasts.to_csv(r'Data\ALL_' + table_type + f'_{curr_year}_' + f'_{curr_month}_' + f'_{months_back}' + '.csv')
+            forcasts.to_csv('ALL_' + table_type + f'_{curr_year}_' + f'_{curr_month}_' + f'_{months_back}' + '.csv')
         else:
-            forcasts.to_csv(r'Data\ALL_' + table_type + '.csv')
+            forcasts.to_csv('ALL_' + table_type + '.csv')
 
 
     if not exp_mode:
-        pd.concat([pd.read_csv(f, index_col = IND) for f in os.listdir() if f.startswith('full_actual')], axis = 1).fillna(0).sum(axis = 1).sort_index().to_csv(rf'Data\ALL_actual_data_{past_year}.csv')
+        pd.concat([pd.read_csv(f, index_col = IND) for f in os.listdir() if f.startswith('full_actual')], axis = 1).fillna(0).sum(axis = 1).sort_index().to_csv('ALL_actual_data_{past_year}.csv')
 
     if not exp_mode:
         print("Grading...")
-        print(subprocess.run(["python", "evaluate.py", '-f', rf"Data\ALL__{past_year}.csv", '-t', rf"Data\ALL_actual_data_{past_year}.csv", '-o', rf"Data\{past_year}_grades.csv"], capture_output=True, text=True).stderr)
+        print(subprocess.run(["python", "evaluate.py", '-f', "ALL__{past_year}.csv", '-t', "ALL_actual_data_{past_year}.csv", '-o', "{past_year}_grades.csv"], capture_output=True, text=True).stderr)
     print("Cleaning...")
     subprocess.run(["python", "clean.py"], capture_output=True, text=True)
 

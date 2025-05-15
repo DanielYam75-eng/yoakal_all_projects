@@ -36,7 +36,6 @@ INDCOLS = ['OTZAR_GROUP', 'DT']
 data = pd.read_csv(PATH, index_col = INDCOLS)
 data.columns = [TSCOL]
 data.index = data.index.set_levels(pd.to_datetime(data.index.levels[1], format="%Y-%m-%d"), level=1)
-data = data[data.index.get_level_values(1) <= "28-02-2025"]
 
 
 class TSPreprocessor:
@@ -174,7 +173,7 @@ templates = {
   'snaive': SeasonalNaiveModel,
    "ExponentialSmoothing": ExponentialSmoothing,
   # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-   'mean': MeanModel,
+   #'mean': MeanModel,
 
 }
 
@@ -206,7 +205,7 @@ def forcast_data(month_to_predict,wining_model_specific_year,data_we_got_to_use_
         else:
             model = templates[wining_model_specific_year[kvotzat_otzar_sahar][0]](data_we_got_to_use_in_prediction[kvotzat_otzar_sahar])
         model_fit = model.fit()
-        forecast = model_fit.forecast(month_to_predict+1)
+        forecast = model_fit.forecast(month_to_predict)
         forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
     return forcast_data_specific_year
 
@@ -236,11 +235,14 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
     return kvotzot_otzar_got_changed
 
 
+# data for forcast 
+
 
 how_many_years_look_back_to_find_specific_year = (current_year - year_to_predict) * how_much_months_in_year
-actual_data_specific_year = data_by_ozar_groups.iloc[len(data_by_ozar_groups)-how_much_month_in_curr_year_in_data-how_many_years_look_back_to_find_specific_year : len(data_by_ozar_groups)-how_much_month_in_curr_year_in_data-how_many_years_look_back_to_find_specific_year+how_much_months_in_year].fillna(0)
-data_we_got_to_use_in_prediction_specific_year = data_by_ozar_groups[:-(how_much_month_in_curr_year_in_data+how_many_years_look_back_to_find_specific_year)].fillna(0)
-data_we_got_to_use_in_prediction_2025_year = data_by_ozar_groups
+actual_data_specific_year = data_by_ozar_groups.loc[str(year_to_predict)].fillna(0)
+data_we_got_to_use_in_prediction_specific_year = data_by_ozar_groups.loc[:str(year_to_predict-1)].fillna(0)
+data_we_got_to_use_in_prediction_2025_year = pd.concat([data_by_ozar_groups.loc[:str(current_year-1)],data_by_ozar_groups.loc[str(current_year)].head(how_much_month_in_curr_year_in_data)]).fillna(0)
+
 # forcast by specific year
 
 r2_score_values_data_specific_year, bad_otzar_groups_specific_year = find_r2_score_values_data(how_much_months_in_year,data_by_ozar_groups, year_to_predict)
@@ -260,8 +262,8 @@ forcast_data_2025_year = forcast_data(how_much_months_in_year - how_much_month_i
 kvotzot_otzar_got_changed_2025_year = changing_kvotzat_otzar(how_much_months_in_year - how_much_month_in_curr_year_in_data,forcast_data_2025_year,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
 
 
-data_so_far_2025 = data_by_ozar_groups['2025-01-01':]
-
+data_so_far_2025 = data_by_ozar_groups.loc["2025"].head(how_much_month_in_curr_year_in_data)
+forcast_2025_combined = pd.concat([pd.DataFrame(data_so_far_2025), pd.DataFrame(forcast_data_2025_year)]).T
 
 # exporting data
 
@@ -276,7 +278,6 @@ forcast_specific_year.insert(0, 'kvuzat sahar', f"forcast_{expanditure_name}_{ye
 forcast_specific_year.index.name = 'kvotzat otzar'
 forcast_specific_year.to_csv(f"forcast_{expanditure_name}_{year_to_predict}.csv")
 
-forcast_2025_combined = pd.concat([pd.DataFrame(data_so_far_2025), pd.DataFrame(forcast_data_2025_year)]).T
 forcast_2025_combined.insert(0, 'kvuzat sahar', f'forcast_{expanditure_name}_2025')
 forcast_2025_combined.index.name = 'kvotzat otzar'
 forcast_2025_combined.to_csv(f"forcast_{expanditure_name}_2025.csv")
