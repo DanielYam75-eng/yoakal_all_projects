@@ -2,7 +2,7 @@
 import pandas as pd
 
 # %%
-data = pd.read_csv("new version.csv")
+data = pd.read_csv(r"Data\\new version.csv")
 
 # %%
 data = data.melt(id_vars=['financial_year', 'economy', 'expenditure_type', 'doc_type', 'fund_code', 'fingroup'], var_name='month', value_name='volume')

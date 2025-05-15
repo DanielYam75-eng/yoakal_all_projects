@@ -29,7 +29,7 @@ how_much_months_in_year          = 12
 # # export DATA
 
 # %%
-data = pd.read_csv("ZH_data_as_tuple.csv")
+data = pd.read_csv(r"Data\ZH_data_as_tuple.csv")
 data = data.dropna(subset=['MOF_class_in'])
 data['date'] = pd.to_datetime(data['year'].astype(str) + '-' + data['month'].astype(str), format='%Y-%m') + pd.offsets.MonthEnd(0)
 time_serieses = data.groupby(['MOF_class_out', 'MOF_class_in', 'date'])['value'].sum()
