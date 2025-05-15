@@ -8,6 +8,7 @@ from sklearn.metrics import r2_score
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 import warnings
 warnings.filterwarnings("ignore")
+from sklearn.linear_model import LinearRegression
 
 
 IND  = 'kvotzat otzar'
@@ -124,6 +125,10 @@ class TSModel4:
                         
     def r2_score(self):
         return self.r2_score_values
+
+
+
+
 
 templates = {
    'naive': NaiveModel,

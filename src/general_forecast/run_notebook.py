@@ -10,7 +10,8 @@ from statsmodels.tsa.holtwinters import Holt
 import warnings
 warnings.filterwarnings("ignore")
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
-
+from sklearn.linear_model import LinearRegression
+import numpy as np
 
 
 
@@ -166,12 +167,55 @@ class MeanModel:
     def forecast(self, steps_to_forecast) -> pd.Series:
         return pd.Series(self.data.mean(), index=pd.date_range(self.data.index[-1] + pd.offsets.MonthEnd(1), periods=steps_to_forecast, freq='ME'))
 
+
+class MonthlylModel:
+    def __init__(self, data):
+        self.data = data
+        self.season = data.groupby(data.index.month).mean()
+
+    def fit(self):
+        return self
+    
+    def predict(self, index):
+        prediction = pd.Series(index=index)
+        for i in index:
+            prediction.loc[i] = self.season.loc[i.month]
+        return prediction
+    
+    def forecast(self, steps_to_forecast):
+        last_date = self.data.index[-1]
+        forecast_index = pd.date_range(start=last_date + pd.offsets.MonthEnd(1), periods=steps_to_forecast, freq='ME')
+        return self.predict(forecast_index)
+
+class SeasonalLinearModel:
+    def __init__(self, data):
+        self.data = data.loc
+        self.data_size = None
+        self.TrendModel = LinearRegression()
+        self.SeasonalModel = None
+    
+    def fit(self):
+        y = self.data.rolling(12).mean()
+        X = np.arange(len(y)).reshape(-1, 1) - 11  # Adjusting for the loss of the first 11 months due to rolling mean
+        self.TrendModel.fit(np.arange(len(y.dropna())).reshape(-1, 1), y.dropna())
+        self.data_size = len(y.dropna())
+        self.SeasonalModel = MonthlylModel(self.data / pd.Series(self.TrendModel.predict(X), index=y.index)).fit()
+        return self
+        
+    def forecast(self, steps_to_forecast):
+        last_date = self.data.index[-1]
+        forecast_index = pd.date_range(start=last_date + pd.offsets.MonthEnd(1), periods=steps_to_forecast, freq='ME')
+        forecast_tensor = np.arange(self.data_size, self.data_size + steps_to_forecast).reshape(-1, 1)
+        return pd.Series(self.TrendModel.predict(forecast_tensor).reshape(-1) * self.SeasonalModel.predict(forecast_index), index=forecast_index)
+    
+
 templates = {
  "holt": Holt,
   'sarima': SARIMAX,
    'naive': NaiveModel,
   'snaive': SeasonalNaiveModel,
    "ExponentialSmoothing": ExponentialSmoothing,
+   "SeasonalLinear": SeasonalLinearModel,
   # 'SimpleExpSmoothing' : SimpleExpSmoothing,
    #'mean': MeanModel,
 
