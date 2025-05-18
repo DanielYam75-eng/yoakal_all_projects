@@ -190,7 +190,7 @@ elif type_ == "rest":
 
     }
 else:
-    raise Exception(f"Type {type} doesn't exist for path {PATH}.")
+    raise Exception(f"Type {type_} doesn't exist for path {PATH}.")
 
 
 data = pd.read_csv(PATH, index_col = INDCOLS)
