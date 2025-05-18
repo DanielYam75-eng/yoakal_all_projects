@@ -31,6 +31,9 @@ current_year                        = parser.parse_args().curr_year
 type_                               = parser.parse_args().type
 how_much_months_in_year             = 12
 flag_for_using_only_part_of_data    = how_much_month_back_to_use != -1
+PATH    = parser.parse_args().path
+TSCOL   = "IIT_INVOICE_LO_AL_SMAH_NO_EMF_AD_KO"
+INDCOLS = ['OTZAR_GROUP', 'DT']
 
 if type_ == "salary":
     templates = {
@@ -187,11 +190,8 @@ elif type_ == "rest":
 
     }
 else:
-    raise Exception(f"Type {type} doesn't exist for path {path}.")
+    raise Exception(f"Type {type} doesn't exist for path {PATH}.")
 
-PATH    = parser.parse_args().path
-TSCOL   = "IIT_INVOICE_LO_AL_SMAH_NO_EMF_AD_KO"
-INDCOLS = ['OTZAR_GROUP', 'DT']
 
 data = pd.read_csv(PATH, index_col = INDCOLS)
 data.columns = [TSCOL]
