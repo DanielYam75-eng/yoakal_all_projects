@@ -83,4 +83,5 @@ for frame in frames:
 
 # %%
 for name, frame in zip(names, frames):
-    frame.to_csv('result-' + name + '-data-preprocessed-by-posting-date.csv')
+    if not frame.empty:
+        frame.to_csv('result-' + name + '-data-preprocessed-by-posting-date.csv')
