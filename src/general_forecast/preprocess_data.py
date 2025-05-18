@@ -8,7 +8,7 @@ parser.add_argument("--path", type=str, required=True, help="Path to the CSV fil
 data = pd.read_csv(r"Data\\" + parser.parse_args().path)
 
 # %%
-data = data.melt(id_vars=['financial_year', 'economy', 'expenditure_type', 'doc_type', 'fund_code', 'fingroup'], var_name='month', value_name='volume')
+data = data.melt(id_vars=['financial_year', 'economy', 'expenditure_type', 'doc_type', 'fund_code', 'fingroup', 'law'], var_name='month', value_name='volume')
 
 # %%
 data.loc[data['volume'].astype(str).str.replace(',', '').str.replace(' ', '')== '-', 'volume'] = 0
