@@ -180,7 +180,7 @@ class MonthlylModel:
 
 class SeasonalLinearModel:
     def __init__(self, data):
-        self.data = data.loc
+        self.data = data
         self.data_size = None
         self.TrendModel = LinearRegression()
         self.SeasonalModel = None
