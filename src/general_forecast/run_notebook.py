@@ -35,168 +35,6 @@ PATH    = parser.parse_args().path
 TSCOL   = "IIT_INVOICE_LO_AL_SMAH_NO_EMF_AD_KO"
 INDCOLS = ['OTZAR_GROUP', 'DT']
 
-if type_ == "salary":
-    templates = {
-       "SeasonalLinear": SeasonalLinearModel,
-
-    }
-elif type_ == "cor":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-       "SeasonalLinear": SeasonalLinearModel,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "arnona":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "KM":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "KT":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "electricity":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "water":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "vehicles":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "overseas-transportation":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "tariffs":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "insurance":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "special-compensation":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "special-research":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "SA":
-    templates = {
-       'mean': MeanModel,
-
-    }
-elif type_ == "rest":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-else:
-    raise Exception(f"Type {type_} doesn't exist for path {PATH}.")
-
-
-data = pd.read_csv(PATH, index_col = INDCOLS)
-data.columns = [TSCOL]
-data.index = data.index.set_levels(pd.to_datetime(data.index.levels[1], format="%Y-%m-%d"), level=1)
-
 
 class TSPreprocessor:
     def __init__(self, data: pd.DataFrame, ts_col: str):
@@ -227,12 +65,6 @@ def get_monthly_values(data):
     temp = temp.groupby(temp.index.year).diff()
     temp.loc[temp.index.month == 1] = data.loc[data.index.month == 1]  # The first element is not nan but rather the original value.
     return temp
-
-
-preprocessor = TSPreprocessor(data, TSCOL)
-data_by_ozar_groups = preprocessor.fit_transform()
-data_by_ozar_groups = pd.DataFrame(data_by_ozar_groups)
-
 
 class NaiveModel:    
     def __init__(self, data):
@@ -425,6 +257,176 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
                 forecast = model_fit.forecast(month_to_predict)
                 forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
     return kvotzot_otzar_got_changed
+if type_ == "salary":
+    templates = {
+       "SeasonalLinear": SeasonalLinearModel,
+
+    }
+elif type_ == "cor":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+       "SeasonalLinear": SeasonalLinearModel,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "arnona":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "KM":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "KT":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "electricity":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "water":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "vehicles":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "overseas-transportation":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "tariffs":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "insurance":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "special-compensation":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "special-research":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+elif type_ == "SA":
+    templates = {
+       'mean': MeanModel,
+
+    }
+elif type_ == "rest":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+
+    }
+else:
+    raise Exception(f"Type {type_} doesn't exist for path {PATH}.")
+
+
+data = pd.read_csv(PATH, index_col = INDCOLS)
+data.columns = [TSCOL]
+data.index = data.index.set_levels(pd.to_datetime(data.index.levels[1], format="%Y-%m-%d"), level=1)
+
+
+
+
+preprocessor = TSPreprocessor(data, TSCOL)
+data_by_ozar_groups = preprocessor.fit_transform()
+data_by_ozar_groups = pd.DataFrame(data_by_ozar_groups)
+
+
 
 
 # data for forcast 
