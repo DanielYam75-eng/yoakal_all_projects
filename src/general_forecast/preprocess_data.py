@@ -53,7 +53,7 @@ data.loc[data['doc_type'].isin(['SA']), 'type'] = 'SA'
 
 
 # %%
-names = ['salary', 'cor', 'arnona', 'KM', 'KT', 'electricity', 'water', 'vehicles', 'overseas-transporation', 'tariffs', 'insurance', 'special-compensation', 'special-research', 'SA', 'rest']
+names = ['salary', 'cor', 'arnona', 'KM', 'KT', 'electricity', 'water', 'vehicles', 'overseas-transportation', 'tariffs', 'insurance', 'special-compensation', 'special-research', 'SA', 'rest']
 frames = [
 data[data['type'] == 'salary'],
 data[data['type'] == 'cor'],
