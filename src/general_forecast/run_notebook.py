@@ -34,18 +34,16 @@ flag_for_using_only_part_of_data    = how_much_month_back_to_use != -1
 
 if type_ == "salary":
     templates = {
+       "SeasonalLinear": SeasonalLinearModel,
+
+    }
+elif type_ == "cor":
+    templates = {
      "holt": Holt,
       'sarima': SARIMAX,
        'naive': NaiveModel,
       'snaive': SeasonalNaiveModel,
        "ExponentialSmoothing": ExponentialSmoothing,
-       "SeasonalLinear": SeasonalLinearModel,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
-elif type_ == "cor":
-    templates = {
        "SeasonalLinear": SeasonalLinearModel,
       # 'SimpleExpSmoothing' : SimpleExpSmoothing,
        #'mean': MeanModel,
