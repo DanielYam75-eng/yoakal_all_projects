@@ -44,7 +44,8 @@ def main():
 
 
     def run_table(table):
-        result = subprocess.run(["python", "run_notebook.py", "--path", table, "--past_year", past_year, "--curr_year", curr_year, "--curr_month", curr_month, "--months_back", months_back], capture_output=True, text=True)
+        name = table[:-len('data-preprocessed-by-posting-date.csv')]
+        result = subprocess.run(["python", "run_notebook.py", "--path", table, "--type", name, "--past_year", past_year, "--curr_year", curr_year, "--curr_month", curr_month, "--months_back", months_back], capture_output=True, text=True)
     
         if result.stderr: print(f"Error in {table}:\n{result.stderr}")
         else:             print(f"Finished {table}")
