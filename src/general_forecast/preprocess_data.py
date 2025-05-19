@@ -53,35 +53,19 @@ data.loc[data['doc_type'].isin(['SA']), 'type'] = 'SA'
 
 
 # %%
-names = ['salary', 'cor', 'arnona', 'KM', 'KT', 'electricity', 'water', 'vehicles', 'overseas-transportation', 'tariffs', 'insurance', 'special-compensation', 'special-research', 'SA', 'rest']
-frames = [
-data[data['type'] == 'salary'],
-data[data['type'] == 'cor'],
-data[data['type'] == 'arnona'],
-data[data['type'] == 'market'],
-data[data['type'] == 'KT'],
-data[data['type'] == 'electricity'],
-data[data['type'] == 'water'],
-data[data['type'] == 'vehicles'],
-data[data['type'] == 'special-transportation'],
-data[data['type'] == 'tariffs'],
-data[data['type'] == 'insurance'],
-data[data['type'] == 'special-compensation'],
-data[data['type'] == 'special-research'],
-data[data['type'] == 'SA'],
-data[data['type'] == 'any']]
+frames : dict[str, pd.DataFrame] = {name : data[data['type'] == name] for name in data['type'].unique() }
+
+# %% 
+frames = { name : frames[name].groupby('fingroup').resample('ME').sum()['volume'] for name in frames }
+# %%
+frames = { name : frames[name].groupby([frames[name].index.get_level_values(0), frames[name].index.get_level_values(1).year]).cumsum() for name in frames }
 
 # %%
-frames = [frame.groupby('fingroup').resample('ME').sum()['volume'] for frame in frames]
-
-# %%
-frames = [frame.groupby([frame.index.get_level_values(0), frame.index.get_level_values(1).year]).cumsum()  for frame in frames]
-
-# %%
-for frame in frames:
+for frame in frames.values():
     frame.index.set_names(['OTZAR_GROUP', 'DT'], inplace=True)
 
 # %%
-for name, frame in zip(names, frames):
+for name, frame in frames.items():
     if not frame.empty:
         frame.to_csv('result-' + name + '-data-preprocessed-by-posting-date.csv')
+    else: raise Warning(f"Frame {name} is empty. No data to save.")
