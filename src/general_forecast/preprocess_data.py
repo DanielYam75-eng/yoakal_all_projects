@@ -5,7 +5,9 @@ import pandas as pd
 # %%
 parser = argparse.ArgumentParser(description="Forecasting script")
 parser.add_argument("--path", type=str, required=True, help="Path to the CSV file")
-data = pd.read_csv(r"Data\\" + parser.parse_args().path)
+parser.add_argument("--current-year", type=int, required=True, help="The year to which we create the forecast for")
+data = pd.read_csv(r"Data\\" + parser.parse_args().path, dtype={'law': str})
+current_year = parser.parse_args().current_year
 
 # %%
 data = data.melt(id_vars=['financial_year', 'economy', 'expenditure_type', 'doc_type', 'fund_code', 'fingroup', 'law'], var_name='month', value_name='volume')
@@ -66,6 +68,6 @@ for frame in frames.values():
 
 # %%
 for name, frame in frames.items():
-    if not frame.empty:
+    if not frame.empty and f'{current_year}-01-31' in frame.index.levels[1]:
         frame.to_csv('result-' + name + '-data-preprocessed-by-posting-date.csv')
     else: raise Warning(f"Frame {name} is empty. No data to save.")

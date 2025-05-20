@@ -34,7 +34,7 @@ def main():
 
     print("Comencing program...")
     print("Close all relevent tables !!")
-    print(subprocess.run(["python", "preprocess_data.py", "--path", parser.parse_args().main_data], capture_output=True, text=True).stderr)
+    print(subprocess.run(["python", "preprocess_data.py", "--path", parser.parse_args().main_data, '--current-year', curr_year], capture_output=True, text=True).stderr)
     print("Finished preprocessing data")
     if not exp_mode:
         print("Working on hashbarot...")
