@@ -340,7 +340,7 @@ elif type_ == "vehicles":
        #'mean': MeanModel,
 
     }
-elif type_ == "overseas-transportation":
+elif type_ == "overseas_transportation":
     templates = {
      "holt": Holt,
       'sarima': SARIMAX,
@@ -373,7 +373,7 @@ elif type_ == "insurance":
        #'mean': MeanModel,
 
     }
-elif type_ == "special-compensation":
+elif type_ == "special_compensation":
     templates = {
      "holt": Holt,
       'sarima': SARIMAX,
@@ -384,7 +384,7 @@ elif type_ == "special-compensation":
        #'mean': MeanModel,
 
     }
-elif type_ == "special-research":
+elif type_ == "special_research":
     templates = {
      "holt": Holt,
       'sarima': SARIMAX,
