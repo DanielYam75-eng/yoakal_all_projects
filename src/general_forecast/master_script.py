@@ -54,12 +54,14 @@ def main():
 
     with ThreadPoolExecutor(max_workers = len(tables)) as executor:  executor.map(run_table, tables)
 
-
     for table_type in TABLES:
 
         files = [f for f in os.listdir() if (f.startswith('forcast') and f.endswith(table_type + '.csv')) or f.startswith(table_type)]
-
+        if(table_type == f'_{curr_year}'):
+            print(files)
         forcasts = pd.concat([pd.read_csv(f) for f in files])
+        if(table_type == f'_{curr_year}'):
+            forcasts.to_csv(r'Data\ALL_' + "forcast_all_data.csv")
 
         months = forcasts.columns.difference([IND, COL])
         forcasts[VAL] = forcasts[months].sum(axis = 1)

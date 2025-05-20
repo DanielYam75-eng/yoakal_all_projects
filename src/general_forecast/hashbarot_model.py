@@ -248,28 +248,28 @@ actual_ashbarot_specific_year_out_yearly = pd.DataFrame(actual_ashbarot_specific
 actual_ashbarot_specific_year_in_yearly = actual_data_specific_year.sum(axis=0).groupby(level=1).sum() *(-1)
 actual_ashbarot_specific_year_in_yearly = pd.DataFrame(actual_ashbarot_specific_year_in_yearly)
 # %%
-
+forcast_ashbarot_current_year_in.to_csv("forcast_ashbarot_current_year_in_2025.csv")
 for name, frame in zip(['ZH_in', 'ZH_out'], [actual_ashbarot_specific_year_in_yearly, actual_ashbarot_specific_year_out_yearly]):
     frame.columns = ['actual']
     frame.index.name = IND
-    frame.reset_index().to_csv(f"full_actual_{name}_{year_to_predict}.csv")
+    frame.reset_index().to_csv(f"full_actual_{name}_{year_to_predict}.csv", index=False)
 
 for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_specific_year_in, forcast_ashbarot_specific_year_out]):
-    frame.insert(0, 'kvuzat sahar', f"forcast_{name}_{year_to_predict}.csv")
+    frame.insert(0, 'kvuzat sahar', f"forcast_{name}_{year_to_predict}.csv", index=False)
     frame.index.name = IND
-    frame.reset_index().to_csv(f"forcast_{name}_{year_to_predict}.csv")
+    frame.reset_index().to_csv(f"forcast_{name}_{year_to_predict}.csv", index=False)
 
 for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_current_year_in, forcast_ashbarot_current_year_out]):
-    frame.insert(0, 'kvuzat sahar', f'forcast_{name}_{current_year}')
+    frame.insert(0, 'kvuzat sahar', f'forcast_{name}_{current_year}', index=False)
     frame.index.name = IND
-    frame.reset_index().to_csv(f"forcast_{name}_{current_year}.csv")
+    frame.reset_index().to_csv(f"forcast_{name}_{current_year}.csv", index=False)
 
 for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_bad_otzar_pairs_specific_year_in, forcast_ashbarot_bad_otzar_pairs_specific_year_out]):
     frame.insert(0, 'kvuzat sahar', f'actual_data_{year_to_predict}_bad_otzar_only_{name}')
     frame.index.name = IND
-    frame.reset_index().to_csv(f"actual_data_{year_to_predict}_bad_otzar_only_{name}.csv")
+    frame.reset_index().to_csv(f"actual_data_{year_to_predict}_bad_otzar_only_{name}.csv", index=False)
 
 for name, frame in zip(['ZH_in', 'ZH_out'], [forcast_ashbarot_bad_otzar_pairs_current_year_in, forcast_ashbarot_bad_otzar_pairs_current_year_out]):
-    frame.insert(0, 'kvuzat sahar', f'actual_data_{current_year}_bad_otzar_only_{name}')
+    frame.insert(0, 'kvuzat sahar', f'actual_data_{current_year}_bad_otzar_only_{name}', index=False)
     frame.index.name = IND
-    frame.reset_index().to_csv(f"actual_data_{current_year}_bad_otzar_only_{name}.csv")
+    frame.reset_index().to_csv(f"actual_data_{current_year}_bad_otzar_only_{name}.csv", index=False)
