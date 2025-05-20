@@ -1,6 +1,7 @@
 # %%
 import argparse
 import pandas as pd
+import sys
 
 # %%
 parser = argparse.ArgumentParser(description="Forecasting script")
@@ -70,4 +71,4 @@ for frame in frames.values():
 for name, frame in frames.items():
     if not frame.empty and f'{current_year}-01-31' in frame.index.levels[1]:
         frame.to_csv('result-' + name + '-data-preprocessed-by-posting-date.csv')
-    else: raise Warning(f"Frame {name} is empty. No data to save.")
+    else: print(f"Frame {name} is empty. No data to save.", file=sys.stderr)
