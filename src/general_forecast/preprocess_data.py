@@ -31,23 +31,23 @@ data = data[data['fund_code'] != 1410]
 
 
 # %%
-data['type'] = 'any'
+data['type'] = 'rest'
 
 # %%
-data.loc[data['doc_type'] == 'ZC', 'type'] = 'affilated-other'  # Should be before the salary specification
+data.loc[data['doc_type'] == 'ZC', 'type'] = 'affilated_other'  # Should be before the salary specification
 data.loc[(data['fund_code'].isin([1401, 1402, 1408, 1409, 1411, 1412, 1413, 1414, 1415, 1416, 1099, 1523])) & (data['doc_type'].isin(['ZC', 'ZW'])) & (data['expenditure_type'] == 3010), 'type'] = 'salary'
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == '0300'), 'type'] = 'vehicles'  # should be before cor
-data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == '0302'), 'type'] = 'special-transportation'
+data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == '0302'), 'type'] = 'overseas_transportation'
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == '0706'), 'type'] = 'tariffs'
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == '2900'), 'type'] = 'insurance'
-data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == '1316'), 'type'] = 'special-compensation'
-data.loc[(data['law'] == '9800'), 'type'] = 'special-research'
+data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == '1316'), 'type'] = 'special_compensation'
+data.loc[(data['law'] == '9800'), 'type'] = 'special_research'
 
 data.loc[(data['fund_code'].isin([1400, 1403, 1405, 1406, 1407, 1423, 1425])), 'type'] = 'cor'
 data.loc[data['doc_type'].isin(['ZD']), 'type'] = 'arnona'
 data.loc[data['expenditure_type'] == '1020', 'type'] = 'electricity'
 data.loc[data['expenditure_type'] == '1030', 'type'] = 'water'
-data.loc[data['doc_type'].isin(['KM']), 'type'] = 'market'
+data.loc[data['doc_type'].isin(['KM']), 'type'] = 'KM'
 data.loc[data['doc_type'].isin(['KT']), 'type'] = 'KT'
 data.loc[data['doc_type'].isin(['SA']), 'type'] = 'SA'
 

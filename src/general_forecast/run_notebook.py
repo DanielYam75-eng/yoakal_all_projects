@@ -274,6 +274,15 @@ elif type_ == "cor":
        #'mean': MeanModel,
 
     }
+elif type_ == "affilated_other":
+    templates = {
+     "holt": Holt,
+      'sarima': SARIMAX,
+       'naive': NaiveModel,
+      'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+
+    }
 elif type_ == "arnona":
     templates = {
      "holt": Holt,
