@@ -29,7 +29,7 @@ how_much_months_in_year          = 12
 
 # %% [markdown]
 # # export DATA
-    
+
 # %%
 data = pd.read_csv(r"Data\\" + parser.parse_args().path)
 data = data.dropna(subset=['MOF_class_in'])
