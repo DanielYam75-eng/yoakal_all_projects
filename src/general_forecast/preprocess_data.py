@@ -61,8 +61,7 @@ frames : dict[str, pd.DataFrame] = {name : data[data['type'] == name] for name i
 # %% 
 frames = { name : frames[name].groupby('fingroup').resample('ME').sum()['volume'] for name in frames }
 # %%
-frames = { name : frames[name].groupby([frames[name].index.get_level_values(0), frames[name].index.get_level_values(1).year]).cumsum() for name in frames }
-
+pd.DataFrame(frames).to_csv('result-all-data-preprocessed-by-posting-date.csv')
 # %%
 for frame in frames.values():
     frame.index.set_names(['OTZAR_GROUP', 'DT'], inplace=True)
