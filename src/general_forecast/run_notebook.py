@@ -65,6 +65,26 @@ def get_monthly_values(data):
     temp.loc[temp.index.month == 1] = data.loc[data.index.month == 1]  # The first element is not nan but rather the original value.
     return temp
 
+
+class AvgFactorModel:
+    def __init__(self, data):
+        self.data = data
+
+    def fit(self):
+        return self
+    
+    def forecast(self, steps_to_forecast) -> pd.Series:
+        outcome_of_forcast = {}
+        return pd.Series(self.data.values[-1], index=pd.date_range(self.data.index[-1] + pd.offsets.MonthEnd(1), periods=steps_to_forecast, freq='ME'))
+        
+
+
+    def finding_the_correct_factor(self, steps_to_forecast) -> pd.Series:  
+        last_12_month = self.data.iloc[-12:].sum(axis=0)
+        last_24_month = self.data.iloc[-24:-12].sum(axis=0)
+        factor = last_12_month / last_24_month
+        return pd.Series(factor * last_12_month/12, index=pd.date_range(self.data.index[-1] + pd.offsets.MonthEnd(1), periods=steps_to_forecast, freq='ME'))
+
 class NaiveModel:    
     def __init__(self, data):
         self.data = data
@@ -256,9 +276,12 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
                 forecast = model_fit.forecast(month_to_predict)
                 forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
     return kvotzot_otzar_got_changed
+
+# Define the templates based on the type
 if type_ == "salary":
     templates = {
-       "SeasonalLinear": SeasonalLinearModel,
+       #"SeasonalLinear": SeasonalLinearModel,
+       'avg_factor' : AvgFactorModel,
 
     }
 elif type_ == "cor":
@@ -285,12 +308,13 @@ elif type_ == "affilated_other":
 elif type_ == "arnona":
     templates = {
      # "holt": Holt,
-      'sarima': SARIMAX,
+      #'sarima': SARIMAX,
        'naive': NaiveModel,
       'snaive': SeasonalNaiveModel,
       #  "ExponentialSmoothing": ExponentialSmoothing,
       # 'SimpleExpSmoothing' : SimpleExpSmoothing,
        'mean': MeanModel,
+       'avg_factor' : AvgFactorModel,
        
 
     }

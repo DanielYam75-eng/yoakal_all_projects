@@ -52,7 +52,7 @@ data.loc[data['doc_type'].isin(['KM']), 'type'] = 'KM'
 data.loc[data['doc_type'].isin(['KT']), 'type'] = 'KT'
 data.loc[data['doc_type'].isin(['SA']), 'type'] = 'SA'
 
-
+data.to_csv('result-data-preprocessed-by-posting-date_all.csv')
 
 
 # %%
