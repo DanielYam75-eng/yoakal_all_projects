@@ -285,13 +285,14 @@ elif type_ == "affilated_other":
     }
 elif type_ == "arnona":
     templates = {
-     "holt": Holt,
+     # "holt": Holt,
       'sarima': SARIMAX,
        'naive': NaiveModel,
       'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
+      #  "ExponentialSmoothing": ExponentialSmoothing,
       # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
+       'mean': MeanModel,
+       
 
     }
 elif type_ == "KM":
