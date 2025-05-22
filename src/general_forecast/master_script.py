@@ -19,7 +19,6 @@ def main():
     parser.add_argument("--curr_month",      type=str,  required=True,                   help="Current Month")
     parser.add_argument("--months_back",     type=str,  required=False, default = '-1',  help="Month to train on")
     parser.add_argument("--experiment_mode", type=bool, required=False, default = False, help="Experiment mode")
-
     past_year = parser.parse_args().past_year
     months_back = parser.parse_args().months_back
     curr_year = parser.parse_args().curr_year

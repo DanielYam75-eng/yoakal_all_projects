@@ -13,7 +13,7 @@ from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 from sklearn.linear_model import LinearRegression
 import numpy as np
 
-
+print("dsadsadasd")
 
 parser = argparse.ArgumentParser(description="Forecasting script")
 parser.add_argument("--path",        type=str, required=True, help="Path to the CSV file")
@@ -34,7 +34,6 @@ flag_for_using_only_part_of_data    = how_much_month_back_to_use != -1
 PATH    = parser.parse_args().path
 TSCOL   = "IIT_INVOICE_LO_AL_SMAH_NO_EMF_AD_KO"
 INDCOLS = ['OTZAR_GROUP', 'DT']
-
 
 class TSPreprocessor:
     def __init__(self, data: pd.DataFrame, ts_col: str):
@@ -265,12 +264,12 @@ if type_ == "salary":
 elif type_ == "cor":
     templates = {
      "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
+      #'sarima': SARIMAX,
+       #'naive': NaiveModel,
+      #'snaive': SeasonalNaiveModel,
        "ExponentialSmoothing": ExponentialSmoothing,
-       "SeasonalLinear": SeasonalLinearModel,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #"SeasonalLinear": SeasonalLinearModel,
+       #'SimpleExpSmoothing' : SimpleExpSmoothing,
        #'mean': MeanModel,
 
     }
@@ -453,7 +452,6 @@ r2_score_values_data_specific_year, bad_otzar_groups_specific_year = find_r2_sco
 wining_model_specific_year, r2_of_wining_models_specific_year = find_wining_models(r2_score_values_data_specific_year)
 forcast_data_specific_year = forcast_data(how_much_months_in_year,wining_model_specific_year,data_we_got_to_use_in_prediction_specific_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
 kvotzot_otzar_got_changed_specific_year = changing_kvotzat_otzar(how_much_months_in_year,forcast_data_specific_year,wining_model_specific_year,data_we_got_to_use_in_prediction_specific_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
-
 actual_data_sum_specific_year = actual_data_specific_year.sum(axis=1).resample('YE').sum()
 forcast_data_sum_specific_year = pd.DataFrame(forcast_data_specific_year).sum(axis=1).resample('YE').sum()
 
@@ -464,7 +462,7 @@ r2_score_values_data_2025_year, bad_otzar_groups_2025_year = find_r2_score_value
 wining_model_2025_year, r2_of_wining_models_2025_year = find_wining_models(r2_score_values_data_2025_year)
 forcast_data_2025_year = forcast_data(how_much_months_in_year - how_much_month_in_curr_year_in_data,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
 kvotzot_otzar_got_changed_2025_year = changing_kvotzat_otzar(how_much_months_in_year - how_much_month_in_curr_year_in_data,forcast_data_2025_year,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
-
+print(kvotzot_otzar_got_changed_2025_year)
 
 data_so_far_2025 = data_by_ozar_groups.loc["2025"].head(how_much_month_in_curr_year_in_data)
 forcast_2025_combined = pd.concat([pd.DataFrame(data_so_far_2025), pd.DataFrame(forcast_data_2025_year)]).T
