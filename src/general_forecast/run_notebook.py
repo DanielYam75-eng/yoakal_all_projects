@@ -73,13 +73,7 @@ class AvgFactorModel:
     def fit(self):
         return self
     
-    def forecast(self, steps_to_forecast) -> pd.Series:
-        outcome_of_forcast = {}
-        return pd.Series(self.data.values[-1], index=pd.date_range(self.data.index[-1] + pd.offsets.MonthEnd(1), periods=steps_to_forecast, freq='ME'))
-        
-
-
-    def finding_the_correct_factor(self, steps_to_forecast) -> pd.Series:  
+    def forecast(self, steps_to_forecast) -> pd.Series:  
         last_12_month = self.data.iloc[-12:].sum(axis=0)
         last_24_month = self.data.iloc[-24:-12].sum(axis=0)
         factor = last_12_month / last_24_month
@@ -282,6 +276,8 @@ if type_ == "salary":
     templates = {
        #"SeasonalLinear": SeasonalLinearModel,
        'avg_factor' : AvgFactorModel,
+       "naive": NaiveModel,
+       "snaive": SeasonalNaiveModel,
 
     }
 elif type_ == "cor":
