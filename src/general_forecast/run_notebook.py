@@ -76,7 +76,10 @@ class AvgFactorModel:
     def forecast(self, steps_to_forecast) -> pd.Series:  
         last_12_month = self.data.iloc[-12:].sum(axis=0)
         last_24_month = self.data.iloc[-24:-12].sum(axis=0)
-        factor = last_12_month / last_24_month
+        if last_24_month != 0:
+            factor = last_12_month / last_24_month
+        else:
+            factor = 0
         return pd.Series(factor * last_12_month/12, index=pd.date_range(self.data.index[-1] + pd.offsets.MonthEnd(1), periods=steps_to_forecast, freq='ME'))
 
 class NaiveModel:    
