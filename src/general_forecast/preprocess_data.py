@@ -41,7 +41,7 @@ data.loc[(data['fund_code'] == 1411) & (data['doc_type'] == 'ZC'), 'type'] = 'ca
 data.loc[(data['fund_code'] == 1409) & (data['doc_type'] == 'ZC'), 'type'] = 'drafted_salary'
 data.loc[(data['fund_code'].isin([1401, 1402])) & (data['doc_type'] == 'ZC'), 'type'] = 'pensions'
 data.loc[(data['fund_code'].isin([1408])) & (data['doc_type'] == 'ZC'), 'type'] = 'idf_workers_salary'
-data.loc[(data['fund_code'].isin([1413, 1414, 1415])) & (data['doc_type'] == 'ZC'), 'type'] = 'dd_workers_salary'
+data.loc[(data['fund_code'].isin([1413, 1414, 1415])) & (data['doc_type'].isin(['ZC', 'ZW'])), 'type'] = 'dd_workers_salary'
 data.loc[(data['fund_code'] == 1412) & (data['doc_type'] == 'ZC'), 'type'] = 'pre_draft_salary'
 data.loc[(data['fund_code'] == 1416) & (data['doc_type'] == 'ZC'), 'type'] = 'additional_drafted_service_salary'
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 302), 'type'] = 'overseas_transportation'
