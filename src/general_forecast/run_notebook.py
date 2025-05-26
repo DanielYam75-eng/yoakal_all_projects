@@ -272,7 +272,7 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
     return kvotzot_otzar_got_changed
 
 # Define the templates based on the type
-if type_ == "salary":
+if type_ == "career_salary":
     templates = {
        #"SeasonalLinear": SeasonalLinearModel,
        'avg_factor' : AvgFactorModel,
@@ -280,7 +280,55 @@ if type_ == "salary":
        "snaive": SeasonalNaiveModel,
 
     }
-elif type_ == "cor":
+elif type_ == "drafted_salary":
+    templates = {
+       #"SeasonalLinear": SeasonalLinearModel,
+       'avg_factor' : AvgFactorModel,
+       "naive": NaiveModel,
+       "snaive": SeasonalNaiveModel,
+
+    }
+elif type_ == "pensions":
+    templates = {
+       #"SeasonalLinear": SeasonalLinearModel,
+       'avg_factor' : AvgFactorModel,
+       "naive": NaiveModel,
+       "snaive": SeasonalNaiveModel,
+
+    }
+elif type_ == "idf_workers_salary":
+    templates = {
+       #"SeasonalLinear": SeasonalLinearModel,
+       'avg_factor' : AvgFactorModel,
+       "naive": NaiveModel,
+       "snaive": SeasonalNaiveModel,
+
+    }
+elif type_ == "dd_workers_salary":
+    templates = {
+       #"SeasonalLinear": SeasonalLinearModel,
+       'avg_factor' : AvgFactorModel,
+       "naive": NaiveModel,
+       "snaive": SeasonalNaiveModel,
+
+    }
+elif type_ == "pre_draft_salary":
+    templates = {
+       #"SeasonalLinear": SeasonalLinearModel,
+       'avg_factor' : AvgFactorModel,
+       "naive": NaiveModel,
+       "snaive": SeasonalNaiveModel,
+
+    }
+elif type_ == "additional_drafted_service_salary":
+    templates = {
+       #"SeasonalLinear": SeasonalLinearModel,
+       'avg_factor' : AvgFactorModel,
+       "naive": NaiveModel,
+       "snaive": SeasonalNaiveModel,
+
+    }
+elif type_ == "commemoration":
     templates = {
      "holt": Holt,
       #'sarima': SARIMAX,
@@ -292,6 +340,15 @@ elif type_ == "cor":
        #'mean': MeanModel,
 
     }
+elif type_ == "disabled":
+    templates = {
+     "holt": Holt,
+      #'sarima': SARIMAX,
+       #'naive': NaiveModel,
+      #'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+       #"SeasonalLinear": SeasonalLinearModel,
+       }
 elif type_ == "affilated_other":
     templates = {
      "holt": Holt,

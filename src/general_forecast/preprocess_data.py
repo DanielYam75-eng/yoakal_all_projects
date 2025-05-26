@@ -36,15 +36,22 @@ data['type'] = 'rest'
 
 # %%
 data.loc[data['doc_type'] == 'ZC', 'type'] = 'affilated_other'  # Should be before the salary specification
-data.loc[(data['fund_code'].isin([1401, 1402, 1408, 1409, 1411, 1412, 1413, 1414, 1415, 1416, 1099, 1523])) & (data['doc_type'].isin(['ZC', 'ZW'])) & (data['expenditure_type'] == 3010), 'type'] = 'salary'
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 300), 'type'] = 'vehicles'  # should be before cor
+data.loc[(data['fund_code'] == 1411) & (data['doc_type'] == 'ZC'), 'type'] = 'career_salary'
+data.loc[(data['fund_code'] == 1409) & (data['doc_type'] == 'ZC'), 'type'] = 'drafted_salary'
+data.loc[(data['fund_code'].isin([1401, 1402])) & (data['doc_type'] == 'ZC'), 'type'] = 'pensions'
+data.loc[(data['fund_code'].isin([1408])) & (data['doc_type'] == 'ZC'), 'type'] = 'idf_workers_salary'
+data.loc[(data['fund_code'].isin([1413, 1414, 1415])) & (data['doc_type'] == 'ZC'), 'type'] = 'dd_workers_salary'
+data.loc[(data['fund_code'] == 1412) & (data['doc_type'] == 'ZC'), 'type'] = 'pre_draft_salary'
+data.loc[(data['fund_code'] == 1416) & (data['doc_type'] == 'ZC'), 'type'] = 'additional_drafted_service_salary'
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 302), 'type'] = 'overseas_transportation'
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 706), 'type'] = 'tariffs'
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 2900), 'type'] = 'insurance'
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 1316), 'type'] = 'special_compensation'
 data.loc[(data['law'] == 9800), 'type'] = 'special_research'
 
-data.loc[(data['fund_code'].isin([1400, 1403, 1405, 1406, 1407, 1423, 1425])), 'type'] = 'cor'
+data.loc[(data['fund_code'].isin([1400, 1403, 1405, 1406, 1423, 1425])), 'type'] = 'commemoration'
+data.loc[(data['fund_code'] == 1407), 'type'] = 'disabled'
 data.loc[data['doc_type'].isin(['ZD']), 'type'] = 'arnona'
 data.loc[data['expenditure_type'] == 1020, 'type'] = 'electricity'
 data.loc[data['expenditure_type'] == 1030, 'type'] = 'water'
