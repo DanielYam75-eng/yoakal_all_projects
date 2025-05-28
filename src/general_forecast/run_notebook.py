@@ -285,7 +285,7 @@ if type_ == "career_salary":
     }
 elif type_ == "drafted_salary":
     templates = {
-       #"SeasonalLinear": SeasonalLinearModel,
+       "SeasonalLinear": SeasonalLinearModel,
        'avg_factor' : AvgFactorModel,
        "naive": NaiveModel,
        "snaive": SeasonalNaiveModel,
@@ -293,10 +293,10 @@ elif type_ == "drafted_salary":
     }
 elif type_ == "pensions":
     templates = {
-       #"SeasonalLinear": SeasonalLinearModel,
-       'avg_factor' : AvgFactorModel,
-       "naive": NaiveModel,
-       "snaive": SeasonalNaiveModel,
+       "SeasonalLinear": SeasonalLinearModel,
+       #'avg_factor' : AvgFactorModel,
+       #"naive": NaiveModel,
+       #"snaive": SeasonalNaiveModel,
 
     }
 elif type_ == "idf_workers_salary":
@@ -317,18 +317,18 @@ elif type_ == "dd_workers_salary":
     }
 elif type_ == "pre_draft_salary":
     templates = {
-       #"SeasonalLinear": SeasonalLinearModel,
+       "SeasonalLinear": SeasonalLinearModel,
        'avg_factor' : AvgFactorModel,
-       "naive": NaiveModel,
-       "snaive": SeasonalNaiveModel,
+       #"naive": NaiveModel,
+       #"snaive": SeasonalNaiveModel,
 
     }
 elif type_ == "additional_drafted_service_salary":
     templates = {
        #"SeasonalLinear": SeasonalLinearModel,
        'avg_factor' : AvgFactorModel,
-       "naive": NaiveModel,
-       "snaive": SeasonalNaiveModel,
+       #"naive": NaiveModel,
+       #"snaive": SeasonalNaiveModel,
 
     }
 elif type_ == "commemoration":
@@ -337,7 +337,7 @@ elif type_ == "commemoration":
       #'sarima': SARIMAX,
        #'naive': NaiveModel,
       #'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
+       #"ExponentialSmoothing": ExponentialSmoothing,
        #"SeasonalLinear": SeasonalLinearModel,
        #'SimpleExpSmoothing' : SimpleExpSmoothing,
        #'mean': MeanModel,
@@ -349,13 +349,13 @@ elif type_ == "disabled":
       #'sarima': SARIMAX,
        #'naive': NaiveModel,
       #'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
+       #"ExponentialSmoothing": ExponentialSmoothing,
        #"SeasonalLinear": SeasonalLinearModel,
        }
 elif type_ == "affilated_other":
     templates = {
      "holt": Holt,
-      'sarima': SARIMAX,
+      #'sarima': SARIMAX,
        'naive': NaiveModel,
       'snaive': SeasonalNaiveModel,
        "ExponentialSmoothing": ExponentialSmoothing,
@@ -363,13 +363,13 @@ elif type_ == "affilated_other":
     }
 elif type_ == "arnona":
     templates = {
-     # "holt": Holt,
+     "holt": Holt,
       #'sarima': SARIMAX,
-       'naive': NaiveModel,
+       #'naive': NaiveModel,
       'snaive': SeasonalNaiveModel,
       #  "ExponentialSmoothing": ExponentialSmoothing,
       # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       'mean': MeanModel,
+       #'mean': MeanModel,
        'avg_factor' : AvgFactorModel,
        
 
@@ -409,12 +409,13 @@ elif type_ == "electricity":
     }
 elif type_ == "water":
     templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+    'seasonal_linear': SeasonalLinearModel,
+     #"holt": Holt,
+      #'sarima': SARIMAX,
+    #'naive': NaiveModel,
+      #'snaive': SeasonalNaiveModel,
+       #"ExponentialSmoothing": ExponentialSmoothing,
+    # 'SimpleExpSmoothing' : SimpleExpSmoothing,
        #'mean': MeanModel,
 
     }
@@ -551,7 +552,7 @@ forcast_2025_combined = pd.concat([pd.DataFrame(data_so_far_2025), pd.DataFrame(
 
 expanditure_name = PATH.split('-')[1]
 
-actual_spesific_year = actual_data_specific_year.sum(axis = 0).rename('actual')
+actual_spesific_year = actual_data_specific_year.sum(axis = 0).rename(f'actual_{expanditure_name}')
 actual_spesific_year.index.name = 'kvotzat otzar'
 actual_spesific_year.to_csv(f"full_actual_{expanditure_name}_{year_to_predict}.csv")
 
