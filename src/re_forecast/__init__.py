@@ -187,7 +187,7 @@ def infer():
     wrapper = Wrapper(model, feature_list, table1.columns)
 
     # Augmentation
-    temp = table2[(table2['doc_date'] > pd.Timestamp('2024-05-13')) & (table2['doc_date'] < pd.Timestamp('2025-01-01'))]
+    temp = table2[(table2['doc_date'] > pd.Timestamp('2024-06-25')) & (table2['doc_date'] < pd.Timestamp('2025-01-01'))]
     temp.loc[:, 'doc_date'] = temp['doc_date'] + pd.DateOffset(years=1)
     temp.index = temp.index.set_levels(temp.index.levels[0].astype(str) + 'N', level='doc_id')
     temp.index = temp.index.set_levels(temp.index.levels[1] + 1, level='fund_year')
