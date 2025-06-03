@@ -317,12 +317,24 @@ elif type_ == "commemoration":
       #'sarima': SARIMAX,
        #'naive': NaiveModel,
       #'snaive': SeasonalNaiveModel,
+       "ExponentialSmoothing": ExponentialSmoothing,
+       #"SeasonalLinear": SeasonalLinearModel,
+       #'SimpleExpSmoothing' : SimpleExpSmoothing,
+       #'mean': MeanModel,
+       'avg_factor' : AvgFactorModel,
+       }
+elif type_ == "families":
+    templates = {
+     #"holt": Holt,
+      #'sarima': SARIMAX,
+       #'naive': NaiveModel,
+      #'snaive': SeasonalNaiveModel,
        #"ExponentialSmoothing": ExponentialSmoothing,
        #"SeasonalLinear": SeasonalLinearModel,
        #'SimpleExpSmoothing' : SimpleExpSmoothing,
        #'mean': MeanModel,
-
-    }
+       'avg_factor' : AvgFactorModel,
+       }
 elif type_ == "disabled":
     templates = {
      "holt": Holt,
@@ -347,8 +359,8 @@ elif type_ == "arnona":
       #'sarima': SARIMAX,
        #'naive': NaiveModel,
       'snaive': SeasonalNaiveModel,
-      #  "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+      "ExponentialSmoothing": ExponentialSmoothing,
+      'SimpleExpSmoothing' : SimpleExpSmoothing,
        #'mean': MeanModel,
        'avg_factor' : AvgFactorModel,
        
@@ -391,13 +403,13 @@ elif type_ == "water":
     templates = {
     'seasonal_linear': SeasonalLinearModel,
      #"holt": Holt,
-      #'sarima': SARIMAX,
+    #'sarima': SARIMAX,
     #'naive': NaiveModel,
-      #'snaive': SeasonalNaiveModel,
-       #"ExponentialSmoothing": ExponentialSmoothing,
+    'snaive': SeasonalNaiveModel,
+    #"ExponentialSmoothing": ExponentialSmoothing,
     # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
+    #'mean': MeanModel,
+    'avg_factor' : AvgFactorModel,
     }
 elif type_ == "vehicles":
     templates = {

@@ -49,8 +49,8 @@ data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 706), 'type'] =
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 2900), 'type'] = 'insurance'
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 1316), 'type'] = 'special_compensation'
 data.loc[(data['law'] == 9800), 'type'] = 'special_research'
-
-data.loc[(data['fund_code'].isin([1400, 1403, 1405, 1406, 1423, 1425])), 'type'] = 'commemoration'
+data.loc[(data['fund_code'].isin([1400, 1405, 1406, 1423, 1425])), 'type'] = 'families'
+data.loc[(data['fund_code'].isin([1403])), 'type'] = 'commemoration'
 data.loc[(data['fund_code'] == 1407), 'type'] = 'disabled'
 data.loc[data['doc_type'].isin(['ZD']), 'type'] = 'arnona'
 data.loc[data['expenditure_type'] == 1020, 'type'] = 'electricity'
