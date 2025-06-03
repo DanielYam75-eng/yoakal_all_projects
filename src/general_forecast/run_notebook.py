@@ -4,12 +4,10 @@ import math
 import pandas as pd
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from pmdarima.arima import auto_arima
 from sklearn.metrics import r2_score
 from statsmodels.tsa.holtwinters import Holt
 import warnings
 warnings.filterwarnings("ignore")
-from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 from sklearn.linear_model import LinearRegression
 import numpy as np
 
@@ -111,26 +109,8 @@ class SeasonalNaiveModel:
 class TSConvergenceError(Exception):
     pass
    
-class AutoArima:
-    def __init__(self, data, seasonal=True, seasonality=12):
-        self.data = data
-        self.seasonal = seasonal
-        self.seasonality = seasonality
-        self.model = None
-        
-    def fit(self):
-        if not self.model:
-            try:
-                self.model = auto_arima(self.data, seasonal=self.seasonal, m=self.seasonality)
-            except ValueError as e:  # if auto_arima fails we consider it a TSConvergenceError
-                raise TSConvergenceError from e
-        return self
 
-    def forecast(self, steps_to_forecast):
-        try:
-            return self.model.predict(steps_to_forecast)
-        except ValueError as e:  # if auto_arima fails we consider it a TSConvergenceError
-            raise TSConvergenceError from e
+
 
 class TSModel4:
     def __init__(self, data_by_ozar_groups, year_to_forcast):

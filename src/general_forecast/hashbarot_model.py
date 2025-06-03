@@ -3,12 +3,10 @@ import argparse
 import math
 import pandas as pd
 import numpy as np
-from pmdarima.arima import auto_arima
 from sklearn.metrics import r2_score
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 import warnings
 warnings.filterwarnings("ignore")
-from sklearn.linear_model import LinearRegression
 
 
 IND  = 'kvotzat otzar'
@@ -79,21 +77,6 @@ class SeasonalNaiveModel:
 
 class TSConvergenceError(Exception):
     pass
-   
-class AutoArima:
-    def __init__(self, data, seasonal=True, seasonality=12):
-        self.data = data
-        self.seasonal = seasonal
-        self.seasonality = seasonality
-        self.model = None
-        
-    def fit(self):
-        if not self.model:
-            try:
-                self.model = auto_arima(self.data, seasonal=self.seasonal, m=self.seasonality)
-            except ValueError as e:  
-                raise TSConvergenceError from e
-        return self
 
     def forecast(self, steps_to_forecast):
         try:
