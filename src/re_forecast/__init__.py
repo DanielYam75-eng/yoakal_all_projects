@@ -175,6 +175,7 @@ def infer():
     parser.add_argument('-m', '--model', nargs=1, required=True)
     parser.add_argument('-y', '--year', nargs=1, required=True, type=int)
     parser.add_argument('-o', '--output', nargs=1, required=True)
+    parser.add_argument('--fine', action='store_true')
     args = parser.parse_args()
     model_path = args.model[0]
     model = pickle.load(open(model_path, 'rb'))
@@ -183,11 +184,12 @@ def infer():
     path1 = args.paths[0]
     path2 = args.paths[1]
     output_path = args.output[0]
+    is_fine = args.fine
     table1, table2 = read(path1, path2)
     wrapper = Wrapper(model, feature_list, table1.columns)
 
     # Augmentation
-    temp = table2[(table2['doc_date'] > pd.Timestamp('2024-05-13')) & (table2['doc_date'] < pd.Timestamp('2025-01-01'))]
+    temp = table2[(table2['doc_date'] > pd.Timestamp('2024-06-25')) & (table2['doc_date'] < pd.Timestamp('2025-01-01'))]
     temp.loc[:, 'doc_date'] = temp['doc_date'] + pd.DateOffset(years=1)
     temp.index = temp.index.set_levels(temp.index.levels[0].astype(str) + 'N', level='doc_id')
     temp.index = temp.index.set_levels(temp.index.levels[1] + 1, level='fund_year')
@@ -199,7 +201,13 @@ def infer():
     if not os.path.exists('results_new'):
         os.mkdir('results_new')
     wrapper = Wrapper(model, feature_list, table1.columns)
-    (pd.DataFrame(wrapper.predict(augmented_table2, target_year), columns=['prediction'])
-        .join(augmented_table2['fingroup'], on=['doc_id', 'fund_year'], how='left')
-        .groupby('fingroup').sum()
-        .to_csv(output_path))
+    if not is_fine:
+        (pd.DataFrame(wrapper.predict(augmented_table2, target_year), columns=['prediction'])
+            .join(augmented_table2['fingroup'], on=['doc_id', 'fund_year'], how='left')
+            .groupby('fingroup').sum()
+            .to_csv(output_path))
+    else:
+        (pd.DataFrame(wrapper.predict(augmented_table2, target_year), columns=['prediction'])
+            .join(augmented_table2['fingroup'], on=['doc_id', 'fund_year'], how='left')
+            .to_csv(output_path))
+
