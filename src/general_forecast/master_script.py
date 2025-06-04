@@ -60,7 +60,7 @@ def main():
         forcasts = pd.concat([pd.read_csv(f) for f in files])
 
         months = forcasts.columns.difference([IND, COL])
-        if not exp_mode and table_type == TABLES[1]: forcasts.to_csv(r'Data\ALL_' + table_type + '_monthly' + '.csv')
+        if not exp_mode and table_type == TABLES[1]: forcasts.to_csv(r'Data\ALL_' + table_type + '_monthly' + '.csv', index = False)
         forcasts[VAL] = forcasts[months].sum(axis = 1)
 
         forcasts = forcasts.pivot_table(index = IND, columns = COL, values = VAL, aggfunc = 'sum')

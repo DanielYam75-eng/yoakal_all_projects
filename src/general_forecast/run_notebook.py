@@ -3,7 +3,7 @@ import argparse
 import math
 import pandas as pd
 from statsmodels.tsa.statespace.sarimax import SARIMAX
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from statsmodels.tsa.holtwinters import ExponentialSmoothing, SimpleExpSmoothing
 from sklearn.metrics import r2_score
 from statsmodels.tsa.holtwinters import Holt
 import warnings
@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 from sklearn.linear_model import LinearRegression
 import numpy as np
 
-print("dsadsadasd")
+
 
 parser = argparse.ArgumentParser(description="Forecasting script")
 parser.add_argument("--path",        type=str, required=True, help="Path to the CSV file")
