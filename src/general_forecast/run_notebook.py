@@ -10,6 +10,8 @@ import warnings
 warnings.filterwarnings("ignore")
 from sklearn.linear_model import LinearRegression
 import numpy as np
+from statsmodels.tsa.holtwinters import SimpleExpSmoothing
+
 
 
 
@@ -125,7 +127,7 @@ class TSModel4:
     def fit(self, size_of_validation_data,modelType):
         for i, group in enumerate(self.data_by_ozar_groups.columns):
             group_data = self.data_by_ozar_groups[group].dropna()
-            if (group_data.count() < 2 * size_of_validation_data) or (group_data.iloc[-2 * size_of_validation_data:].sum() == 0) or (group_data.index[-1].year < self.year_to_forecast):
+            if (group_data.count() < 2 * size_of_validation_data) or (group_data.iloc[-2 * size_of_validation_data:].sum() == 0) or (group_data.index[-1].year < self.year_to_forecast-1):
                 self.bad_otzar_groups.append(group)
             else:
                 train_data, test_data = group_data[:-size_of_validation_data], group_data[-size_of_validation_data:]
@@ -232,8 +234,8 @@ def forcast_data(month_to_predict,wining_model_specific_year,data_we_got_to_use_
 def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_model_specific_year, data_we_got_to_use_in_prediction,flag_for_using_only_part_of_data,how_much_month_back_to_use):
     kvotzot_otzar_got_changed=[]
     for kvotzat_otzar_sahar in forcast_data_specific_year:
-        if wining_model_specific_year[kvotzat_otzar_sahar][0] == 'holt' or wining_model_specific_year[kvotzat_otzar_sahar][0] == 'ExponentialSmoothing':
-            if forcast_data_specific_year[kvotzat_otzar_sahar].sum() == 0:
+        if wining_model_specific_year[kvotzat_otzar_sahar][0] == 'holt' or wining_model_specific_year[kvotzat_otzar_sahar][0] == 'ExponentialSmoothing' or kvotzat_otzar_sahar == '0201/11':
+            if forcast_data_specific_year[kvotzat_otzar_sahar].sum() == 0  or kvotzat_otzar_sahar == '0201/11':
                 kvotzot_otzar_got_changed.append(kvotzat_otzar_sahar)
                 if(flag_for_using_only_part_of_data):
                     model = NaiveModel(data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][-how_much_month_back_to_use:])
@@ -242,8 +244,8 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
                 model_fit = model.fit()
                 forecast = model_fit.forecast(month_to_predict)
                 forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
-        else:
-            if forcast_data_specific_year[kvotzat_otzar_sahar].sum() == 0:
+            '''
+            else:
                 kvotzot_otzar_got_changed.append(kvotzat_otzar_sahar)
                 if(flag_for_using_only_part_of_data):
                     model = SeasonalNaiveModel(data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][-how_much_month_back_to_use:])
@@ -252,6 +254,7 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
                 model_fit = model.fit()
                 forecast = model_fit.forecast(month_to_predict)
                 forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
+            '''
     return kvotzot_otzar_got_changed
 
 # Define the templates based on the type
@@ -484,13 +487,15 @@ elif type_ == "SA":
     }
 elif type_ == "rest":
     templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
+    #"holt": Holt,
+    #'sarima': SARIMAX,
+    #'naive': NaiveModel,
+    'snaive': SeasonalNaiveModel,
+    #"ExponentialSmoothing": ExponentialSmoothing,
+    #'SimpleExpSmoothing' : SimpleExpSmoothing,
+    #'mean': MeanModel,
+    #'LinearRegression': SeasonalLinearModel,
+    'avg_factor' : AvgFactorModel,
 
     }
 else:

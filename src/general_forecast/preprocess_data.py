@@ -39,7 +39,7 @@ data.loc[data['doc_type'] == 'ZC', 'type'] = 'affilated_other'  # Should be befo
 data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 300), 'type'] = 'vehicles'  # should be before cor
 data.loc[(data['fund_code'] == 1411) & (data['doc_type'] == 'ZC'), 'type'] = 'career_salary'
 data.loc[(data['fund_code'] == 1409) & (data['doc_type'] == 'ZC'), 'type'] = 'drafted_salary'
-data.loc[(data['fund_code'].isin([1401, 1402])) & (data['doc_type'] == 'ZC'), 'type'] = 'pensions'
+data.loc[(data['fund_code'].isin([1401, 1402])) & (data['doc_type'].isin(['ZC','ZW'])), 'type'] = 'pensions'
 data.loc[(data['fund_code'].isin([1408])) & (data['doc_type'] == 'ZC'), 'type'] = 'idf_workers_salary'
 data.loc[(data['fund_code'].isin([1413, 1414, 1415])) & (data['doc_type'].isin(['ZC', 'ZW'])), 'type'] = 'dd_workers_salary'
 data.loc[(data['fund_code'] == 1412) & (data['doc_type'] == 'ZC'), 'type'] = 'pre_draft_salary'
