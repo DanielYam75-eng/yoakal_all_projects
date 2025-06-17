@@ -17,7 +17,7 @@ def main():
 
     args = parser.parse_args()
 
-    download(username, bucketname, args.filepath, args.key)
+    download(username, bucketname, args.output, args.key)
 
 if __name__ == "__main__":
     main()

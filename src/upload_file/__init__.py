@@ -17,7 +17,7 @@ def main():
 
     args = parser.parse_args()
 
-    upload(username, bucketname, args.filepath, args.key)
+    upload(username, bucketname, args.input, args.key)
 
 if __name__ == "__main__":
     main()
