@@ -13,7 +13,7 @@ def main():
     bucketname = 'new-repo'
 
     parser.add_argument("key", type=str, help="Key of the file in the bucket")
-    parser.add_argument("-o", "--output", type=str, help="local path of file to upload")
+    parser.add_argument("-i", "--input", type=str, help="local path of file to input")
 
     args = parser.parse_args()
 
