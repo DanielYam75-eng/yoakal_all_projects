@@ -4,7 +4,7 @@ import argparse
 
 def upload(username, bucketname, filepath, key):
     boto_client = get_repo_bucket_client(username + "/" + bucketname)
-    boto_client.upload_file(bucketname, key, filepath)
+    boto_client.upload_file(filepath, bucketname, key)
 
 def main():
     parser = argparse.ArgumentParser(description="upload a file to a DagsHub bucket.")
