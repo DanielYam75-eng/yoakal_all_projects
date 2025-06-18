@@ -12,6 +12,7 @@ dependencies = [
 [project.scripts]
 download = "download_file:main"
 upload = "upload_file:main"
+list = "list_files:main"
 
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
