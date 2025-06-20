@@ -13,11 +13,19 @@ def getting_contents_response(response):
     contents_response = response.get('Contents')
     return contents_response
 
-def extract_files(contents_response):
-    list_of_files = pd.DataFrame(columns=['Key', 'LastModified', 'Size'])
+def get_key_info(contents_response):
+        Name = contents_response.split("^")[0].split("=")[1]
+        Source = contents_response.split("^")[1].split("=")[1]
+        Creation_Date = contents_response.split("^")[2].split("=")[1]
+        Template = contents_response.split("^")[3].split("=")[1]
+        return Name, Source, Creation_Date, Template
+
+
+def extract_data_on_files(contents_response):
+    list_of_files = pd.DataFrame(columns=['Name', "Source" , "Creation Date", "Template" ,'Last Modified', 'Size'])
     for i in range(len(contents_response)):
-        list_of_files.loc[i] = [contents_response[i].get("Key"),pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
-    list_of_files=list_of_files.set_index('Key')
+        Name, Source, Creation_Date, Template = get_key_info(contents_response[i].get("Key"))
+        list_of_files.loc[i] = [Name, Source, Creation_Date, Template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
     return list_of_files
 
 def main():
@@ -26,7 +34,7 @@ def main():
 
     response = list_objects(username, bucketname)
     contents_response = getting_contents_response(response)
-    list_of_files = extract_files(contents_response)
+    list_of_files = extract_data_on_files(contents_response)
 
     print(list_of_files)
 
