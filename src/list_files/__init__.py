@@ -1,6 +1,7 @@
 from dagshub import get_repo_bucket_client
 import argparse
 from datetime import datetime
+import pandas as pd
 
 
 def list_objects(username, bucketname):
@@ -9,32 +10,25 @@ def list_objects(username, bucketname):
     return response
 
 def getting_contents_response(response):
-    contents_response = response.get('Contents', [])
-    contents_info = contents_response[0]
-    return contents_info
+    contents_response = response.get('Contents')
+    return contents_response
 
-def getting_tags_info(contents_info):
-    name = contents_info.get('Key', '')
-    date = contents_info.get('LastModified', None)
-    size = contents_info.get('Size', 0)
-    return name, date, size
+def extract_files(contents_response):
+    list_of_files = pd.DataFrame(columns=['Key', 'LastModified', 'Size'])
+    for i in range(len(contents_response)):
+        list_of_files.loc[i] = [contents_response[i].get("Key"),pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
+    list_of_files=list_of_files.set_index('Key')
+    return list_of_files
 
 def main():
     username = 'yoacal.data.science'
     bucketname = 'new-repo'
 
     response = list_objects(username, bucketname)
-    contents_info = getting_contents_response(response)
-    name, date, size = getting_tags_info(contents_info)
+    contents_response = getting_contents_response(response)
+    list_of_files = extract_files(contents_response)
 
-    formatted_dict = {
-        'name': name,
-        'date': date.isoformat(),
-        'size': size
-    }
-
-    response['Contents'][0]['Key'] = formatted_dict #update tags
-    print(response)
+    print(list_of_files)
 
 if __name__ == "__main__":
     main()
