@@ -15,7 +15,8 @@ def getting_contents_response(response):
 
 def get_key_info(contents_response):
     parts = contents_response.split("^")
-    name, source, creation_Date, template = (part.split("=")[1] for part in parts)
+    name = parts[0]
+    source, creation_Date, template = (part.split("=")[1] for part in parts[1:])
     return name, source, creation_Date, template
 
 
