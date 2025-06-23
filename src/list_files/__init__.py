@@ -14,11 +14,9 @@ def getting_contents_response(response):
     return contents_response
 
 def get_key_info(contents_response):
-        name = contents_response.split("^")[0].split("=")[1]
-        source = contents_response.split("^")[1].split("=")[1]
-        creation_Date = contents_response.split("^")[2].split("=")[1]
-        template = contents_response.split("^")[3].split("=")[1]
-        return name, source, creation_Date, template
+    parts = contents_response.split("^")
+    name, source, creation_Date, template = (part.split("=")[1] for part in parts)
+    return name, source, creation_Date, template
 
 
 def extract_data_on_files(contents_response):
