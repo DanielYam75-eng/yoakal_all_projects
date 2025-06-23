@@ -26,7 +26,7 @@ def main():
 
     source = input("Enter source: ")
     creation_date = input("Enter creation date(format: YYYY-MM-DD): ")
-    template = input("Enter template date: ")
+    template = input("Enter template: ")
 
 
     info_of_file_as_string = info_file_string(args.keyname,source,creation_date,template)
