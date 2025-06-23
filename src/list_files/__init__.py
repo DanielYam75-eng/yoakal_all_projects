@@ -34,6 +34,7 @@ def main():
     response = list_objects(username, bucketname)
     contents_response = getting_contents_response(response)
     list_of_files = extract_data_on_files(contents_response)
+    list_of_files=list_of_files.set_index("Name")
 
     print(list_of_files)
 
