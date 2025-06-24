@@ -1,8 +1,7 @@
 from dagshub import get_repo_bucket_client
-import argparse
 from datetime import datetime
-from tabulate import tabulate
 import pandas as pd
+from tabulate import tabulate
 
 
 def list_objects(username, bucketname):
@@ -33,6 +32,7 @@ def load_files(username, bucketname):
     contents_response = getting_contents_response(response)
     list_of_files = extract_data_on_files(contents_response)
     list_of_files = list_of_files.set_index("Name")
+    list_of_files=list_of_files.sort_values(by=["Last Modified"])
     return list_of_files
 
 def main():
