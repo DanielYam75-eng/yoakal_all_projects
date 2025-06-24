@@ -1,6 +1,7 @@
 from dagshub import get_repo_bucket_client
 import argparse
 from datetime import datetime
+from tabulate import tabulate
 import pandas as pd
 
 
@@ -41,7 +42,7 @@ def main():
 
     list_of_files = load_files(username, bucketname)
 
-    print(list_of_files)
+    print(tabulate(list_of_files, tablefmt='plain'))
 
 if __name__ == "__main__":
     main()
