@@ -38,8 +38,9 @@ def get_valid_input(prompt, validator, error_message):
             print(error_message)
 
 def get_valid_date(prompt, error_message):
+    default_date = datetime.today().strftime('%Y-%m-%d')
     while True:
-        date = input(prompt)
+        date = input(f"{prompt} [default: {default_date}]: ") or default_date
         try:
             return pd.to_datetime(date, format="%Y-%m-%d")
         except ValueError:
