@@ -3,7 +3,7 @@ import argparse
 from datetime import datetime
 import re
 import pandas as pd
-from src.list_files import load_files
+from list_files import load_files
 import hashlib
 
 ERROR_INVALID_NAME = "Must be 1-128 characters and contain only letters, digits, '-', '_', or '.' and not include '^' or '='."
