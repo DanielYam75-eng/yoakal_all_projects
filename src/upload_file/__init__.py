@@ -4,9 +4,12 @@ from datetime import datetime
 import re
 import pandas as pd
 from src.list_files import load_files
+import hashlib
 
 ERROR_INVALID_NAME = "Must be 1-128 characters and contain only letters, digits, '-', '_', or '.' and not include '^' or '='."
 ERROR_INVALID_DATE = "Invalid date format. Please enter the date in YYYY-MM-DD format."
+ERROR_INVALID_KEY_NAME = "this key name already in the system. choose diffrent type of key name"
+ERROR_DATA_ALREADY_IN_THE_SYSTEM = "this data already in the system. choose diffrent data to upload"
 
 def upload(username, bucketname, filepath, key):
     boto_client = get_repo_bucket_client(username + "/" + bucketname)
@@ -52,6 +55,19 @@ def is_valid_key_name(key_name,username,bucketname):
         return False
     return True
 
+def check_md5_valid(username,bucketname,filepath):
+    with open(filepath, "rb") as f:
+        file_bytes = f.read()
+    hash_md5_specific_file = hashlib.md5(file_bytes).hexdigest().strip('"')
+
+    boto_client = get_repo_bucket_client(username + "/" + bucketname)
+    response = boto_client.list_objects_v2(Bucket=bucketname)
+
+    for Contents in response.get('Contents'):
+        etag_specific_data = Contents.get('ETag').strip('"')
+        if hash_md5_specific_file == etag_specific_data:
+            return True
+    return False
 
 def main():
     parser = argparse.ArgumentParser(description="upload a file to a DagsHub bucket.")
@@ -64,11 +80,16 @@ def main():
 
     args = parser.parse_args()
 
-    if not is_valid_name(args.keyname):
-        print("Invalid key name. Must be 1-128 characters and contain only letters, digits, '-', '_', or '.' and not include '^' or '='.")
+    if(check_md5_valid(username,bucketname,args.input)):
+        print(ERROR_DATA_ALREADY_IN_THE_SYSTEM)
         return
+
+    if not is_valid_name(args.keyname):
+        print(f"Invalid key name. {ERROR_INVALID_NAME}")
+        return
+    
     if not is_valid_key_name(args.keyname,username,bucketname):
-        print("this key name already in the system. choose diffrent type of key name")
+        print(ERROR_INVALID_KEY_NAME)
         return
 
     source = get_valid_input("Enter source: ", is_valid_name, f"Invalid source.{ERROR_INVALID_NAME}")
