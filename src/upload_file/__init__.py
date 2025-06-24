@@ -51,7 +51,7 @@ def get_valid_date(prompt, error_message):
             print(error_message)
 
 def is_valid_key_name(key_name,username,bucketname):
-    if key_name in load_files(username,bucketname).index:
+    if key_name in load_files(username,bucketname,None).index:
         return False
     return True
 

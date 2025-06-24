@@ -31,7 +31,7 @@ def extract_data_on_files(contents_response,required_template):
             list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
     return list_of_files
 
-def load_files(username, bucketname,required_template):
+def load_files(username, bucketname,required_template=None):
     response = list_objects(username, bucketname)
     contents_response = getting_contents_response(response)
     list_of_files = extract_data_on_files(contents_response,required_template)
