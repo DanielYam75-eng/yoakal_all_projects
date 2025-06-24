@@ -2,6 +2,7 @@ from dagshub import get_repo_bucket_client
 from datetime import datetime
 import pandas as pd
 from tabulate import tabulate
+import argparse
 
 
 def list_objects(username, bucketname):
@@ -20,29 +21,38 @@ def get_key_info(contents_response):
     return name, source, creation_Date, template
 
 
-def extract_data_on_files(contents_response):
+def extract_data_on_files(contents_response,required_template):
     list_of_files = pd.DataFrame(columns=['Name', "Source" , "Creation Date", "Template" ,'Last Modified', 'Size'])
     for i in range(len(contents_response)):
         name, source, creation_Date, template = get_key_info(contents_response[i].get("Key"))
-        list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
+        if required_template is None:
+            list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
+        elif required_template == template:
+            list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
     return list_of_files
 
-def load_files(username, bucketname):
+def load_files(username, bucketname,required_template):
     response = list_objects(username, bucketname)
     contents_response = getting_contents_response(response)
-    list_of_files = extract_data_on_files(contents_response)
+    list_of_files = extract_data_on_files(contents_response,required_template)
     list_of_files = list_of_files.set_index("Name")
     list_of_files=list_of_files.sort_values(by=["Last Modified"])
     return list_of_files
 
 def main():
-    
+    parser = argparse.ArgumentParser(description="specify what kind of template you want")
+
     username = 'yoacal.data.science'
     bucketname = 'new-repo'
 
-    list_of_files = load_files(username, bucketname)
+    parser.add_argument("-t", "--template", type=str, help="template of files to list")
+    args = parser.parse_args()
+
+    list_of_files = load_files(username, bucketname,args.template)
 
     print(tabulate(list_of_files, tablefmt='plain'))
 
 if __name__ == "__main__":
     main()
+
+
