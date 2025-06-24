@@ -27,14 +27,19 @@ def extract_data_on_files(contents_response):
         list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
     return list_of_files
 
-def main():
-    username = 'yoacal.data.science'
-    bucketname = 'new-repo'
-
+def load_files(username, bucketname):
     response = list_objects(username, bucketname)
     contents_response = getting_contents_response(response)
     list_of_files = extract_data_on_files(contents_response)
-    list_of_files=list_of_files.set_index("Name")
+    list_of_files = list_of_files.set_index("Name")
+    return list_of_files
+
+def main():
+    
+    username = 'yoacal.data.science'
+    bucketname = 'new-repo'
+
+    list_of_files = load_files(username, bucketname)
 
     print(list_of_files)
 
