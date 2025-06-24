@@ -3,6 +3,7 @@ import argparse
 from datetime import datetime
 import re
 import pandas as pd
+from src.list_files import load_files
 
 ERROR_INVALID_NAME = "Must be 1-128 characters and contain only letters, digits, '-', '_', or '.' and not include '^' or '='."
 ERROR_INVALID_DATE = "Invalid date format. Please enter the date in YYYY-MM-DD format."
@@ -46,6 +47,11 @@ def get_valid_date(prompt, error_message):
         except ValueError:
             print(error_message)
 
+def is_valid_key_name(key_name,username,bucketname):
+    if key_name in load_files(username,bucketname).index:
+        return False
+    return True
+
 
 def main():
     parser = argparse.ArgumentParser(description="upload a file to a DagsHub bucket.")
@@ -60,6 +66,9 @@ def main():
 
     if not is_valid_name(args.keyname):
         print("Invalid key name. Must be 1-128 characters and contain only letters, digits, '-', '_', or '.' and not include '^' or '='.")
+        return
+    if not is_valid_key_name(args.keyname,username,bucketname):
+        print("this key name already in the system. choose diffrent type of key name")
         return
 
     source = get_valid_input("Enter source: ", is_valid_name, f"Invalid source.{ERROR_INVALID_NAME}")
