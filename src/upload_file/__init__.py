@@ -9,6 +9,8 @@ import hashlib
 import numpy as np
 import config_file.constants as const
 import config_file.template as temp
+import sys
+import os
 
 def upload(username, bucketname, filepath, key):
     boto_client = get_repo_bucket_client(username + "/" + bucketname)
@@ -79,8 +81,14 @@ def check_md5_valid(username,bucketname,filepath):
         file_bytes = f.read()
     hash_md5_specific_file = hashlib.md5(file_bytes).hexdigest().strip('"')
 
+    original_stdout = sys.stdout
+    sys.stdout = open(os.devnull, 'w') 
+
     boto_client = get_repo_bucket_client(username + "/" + bucketname)
     response = boto_client.list_objects_v2(Bucket=bucketname)
+
+    sys.stdout.close()
+    sys.stdout = original_stdout
 
     for Contents in response.get('Contents'):
         etag_specific_data = Contents.get('ETag').strip('"')
@@ -93,7 +101,7 @@ def main():
 
     username = 'yoacal.data.science'
     bucketname = 'new-repo'
-
+    
     parser.add_argument("keyname", type=str, help="key name for the uploaded file") 
     parser.add_argument("-i", "--input", type=str, help="local path of file to input")
 
