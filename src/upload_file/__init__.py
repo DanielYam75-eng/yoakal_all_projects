@@ -4,6 +4,7 @@ from datetime import datetime
 import re
 import pandas as pd
 from list_files import load_files
+from list_files import get__key_name
 import hashlib
 
 ERROR_INVALID_NAME = "Must be 1-128 characters and contain only letters, digits, '-', '_', or '.' and not include '^' or '='."
@@ -19,7 +20,7 @@ def info_file_string(name,source,creation_date,template):
     info_file_source = f"source={source}"
     info_file_creation_date = f"creation_date={creation_date}"
     info_file_template = f"template={template}"
-    combined_file_info = f"{name}^{info_file_source}^{info_file_creation_date}^{info_file_template}"  # note: no "name="
+    combined_file_info = f"{name}^{info_file_source}^{info_file_creation_date}^{info_file_template}"
     return combined_file_info
 
 def is_valid_name(name):
@@ -66,8 +67,8 @@ def check_md5_valid(username,bucketname,filepath):
     for Contents in response.get('Contents'):
         etag_specific_data = Contents.get('ETag').strip('"')
         if hash_md5_specific_file == etag_specific_data:
-            return True
-    return False
+            return get__key_name(Contents.get("Key"))
+    return None
 
 def main():
     parser = argparse.ArgumentParser(description="upload a file to a DagsHub bucket.")
@@ -80,8 +81,9 @@ def main():
 
     args = parser.parse_args()
 
-    if(check_md5_valid(username,bucketname,args.input)):
-        print(ERROR_DATA_ALREADY_IN_THE_SYSTEM + f"under the key name: {args.keyname}")
+    matching_key = check_md5_valid(username, bucketname, args.input)
+    if matching_key is not None:
+        print(ERROR_DATA_ALREADY_IN_THE_SYSTEM + f" under the key name: {matching_key}")
         return
 
     if not is_valid_name(args.keyname):

@@ -20,6 +20,10 @@ def get_key_info(contents_response):
     source, creation_Date, template = (part.split("=")[1] for part in parts[1:])
     return name, source, creation_Date, template
 
+def get__key_name(contents_response):
+    parts = contents_response.split("^")
+    name = parts[0]
+    return name
 
 def extract_data_on_files(contents_response,required_template=None):
     list_of_files = pd.DataFrame(columns=['Name', "Source" , "Creation Date", "Template" ,'Last Modified', 'Size'])
