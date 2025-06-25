@@ -21,7 +21,7 @@ def get_key_info(contents_response):
     return name, source, creation_Date, template
 
 
-def extract_data_on_files(contents_response,required_template):
+def extract_data_on_files(contents_response,required_template=None):
     list_of_files = pd.DataFrame(columns=['Name', "Source" , "Creation Date", "Template" ,'Last Modified', 'Size'])
     for i in range(len(contents_response)):
         name, source, creation_Date, template = get_key_info(contents_response[i].get("Key"))

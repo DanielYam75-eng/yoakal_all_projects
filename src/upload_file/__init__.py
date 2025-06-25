@@ -9,7 +9,7 @@ import hashlib
 ERROR_INVALID_NAME = "Must be 1-128 characters and contain only letters, digits, '-', '_', or '.' and not include '^' or '='."
 ERROR_INVALID_DATE = "Invalid date format. Please enter the date in YYYY-MM-DD format."
 ERROR_INVALID_KEY_NAME = "this key name already in the system. choose diffrent type of key name"
-ERROR_DATA_ALREADY_IN_THE_SYSTEM = "this data already in the system. choose diffrent data to upload"
+ERROR_DATA_ALREADY_IN_THE_SYSTEM = "this data already in the system. "
 
 def upload(username, bucketname, filepath, key):
     boto_client = get_repo_bucket_client(username + "/" + bucketname)
@@ -51,7 +51,7 @@ def get_valid_date(prompt, error_message):
             print(error_message)
 
 def is_valid_key_name(key_name,username,bucketname):
-    if key_name in load_files(username,bucketname,None).index:
+    if key_name in load_files(username,bucketname).index:
         return False
     return True
 
@@ -81,7 +81,7 @@ def main():
     args = parser.parse_args()
 
     if(check_md5_valid(username,bucketname,args.input)):
-        print(ERROR_DATA_ALREADY_IN_THE_SYSTEM)
+        print(ERROR_DATA_ALREADY_IN_THE_SYSTEM + f"under the key name: {args.keyname}")
         return
 
     if not is_valid_name(args.keyname):
