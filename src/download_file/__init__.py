@@ -1,4 +1,6 @@
 from dagshub import get_repo_bucket_client
+from list_files import load_files
+from upload_file import info_file_string
 import argparse
 
 
@@ -17,7 +19,15 @@ def main():
 
     args = parser.parse_args()
 
-    download(username, bucketname, args.output, args.key)
+    existing_files = load_files(username, bucketname)
+    if args.key not in existing_files.index:
+        print(f"Key '{args.key}' not found in the bucket '{bucketname}'.")
+        return
+
+    key_row = existing_files.loc[args.key]
+    key = info_file_string(args.key, key_row['Source'], key_row['Creation Date'], key_row['Template'])
+
+    download(username, bucketname, args.output, key)
 
 if __name__ == "__main__":
     main()
