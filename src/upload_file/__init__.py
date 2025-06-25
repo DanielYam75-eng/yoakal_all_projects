@@ -67,7 +67,7 @@ def get_valid_date(prompt, error_message):
     while True:
         date = input(f"{prompt} [default: {default_date}]: ") or default_date
         try:
-            return pd.to_datetime(date, format="%Y-%m-%d")
+            return pd.to_datetime(date, format="%Y-%m-%d").strftime("%Y-%m-%d")
         except ValueError:
             print(error_message)
 
