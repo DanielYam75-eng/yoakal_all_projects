@@ -38,7 +38,7 @@ def get_valid_input_template(prompt, validator, error_message):
     while True:
         user_response = input(prompt)
         if user_response == "list":
-            print(temp.allowed_templates)
+            print(temp.allowed_templates.loc[temp.allowed_templates['allowed'] ==  True, ["template", "source"]])
         elif user_response.startswith('ad-hoc-'):
             if validator(user_response):
                 return user_response, None
