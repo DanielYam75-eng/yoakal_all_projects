@@ -40,6 +40,14 @@ def load_files(username, bucketname,required_template=None):
     list_of_files=list_of_files.sort_values(by=["Last Modified"], ascending=False)
     return list_of_files
 
+def human_readable_size(size):
+    if size >= 1048576:
+        return f"{size / 1048576:.2f}M"
+    elif size >= 1024:
+        return f"{size / 1024:.2f}K"
+    else:
+        return f"{size}B"
+
 def main():
     parser = argparse.ArgumentParser(description="specify what kind of template you want")
 
@@ -51,6 +59,8 @@ def main():
 
     list_of_files = load_files(username, bucketname,args.template)
     list_of_files.columns = ['Source', 'Creation Date', 'Template', 'Last Modified', 'Size']
+    list_of_files['Size'] = list_of_files['Size'].apply(human_readable_size)
+
     
     print(tabulate(list_of_files, headers='keys', tablefmt='plain'))
 
