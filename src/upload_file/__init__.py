@@ -100,7 +100,7 @@ def main():
     parser = argparse.ArgumentParser(description="upload a file to a DagsHub bucket.")
 
     username = 'yoacal.data.science'
-    bucketname = 'new-repo'
+    bucketname = 'exp-repo'
     
     parser.add_argument("keyname", type=str, help="key name for the uploaded file") 
     parser.add_argument("-i", "--input", type=str, help="local path of file to input")

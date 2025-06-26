@@ -12,7 +12,7 @@ def main():
     parser = argparse.ArgumentParser(description="Download a file from a DagsHub bucket.")
     # Hardcoded username and bucketname
     username = 'yoacal.data.science'
-    bucketname = 'new-repo'
+    bucketname = 'exp-repo'
 
     parser.add_argument("key", type=str, help="Key of the file in the bucket")
     parser.add_argument("-o", "--output", type=str, help="Local path to save the downloaded file")

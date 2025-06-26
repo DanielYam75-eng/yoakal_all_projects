@@ -47,7 +47,7 @@ def main():
     parser = argparse.ArgumentParser(description="specify what kind of template you want")
 
     username = 'yoacal.data.science'
-    bucketname = 'new-repo'
+    bucketname = 'exp-repo'
 
     parser.add_argument("-t", "--template", type=str, help="template of files to list")
     args = parser.parse_args()
