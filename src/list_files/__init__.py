@@ -11,7 +11,7 @@ def list_objects(username, bucketname):
     return response
 
 def getting_contents_response(response):
-    contents_response = response.get('Contents')
+    contents_response = response.get('Contents', [])
     return contents_response
 
 def get_key_info(contents_response):
