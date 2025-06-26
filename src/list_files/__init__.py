@@ -50,8 +50,10 @@ def main():
     args = parser.parse_args()
 
     list_of_files = load_files(username, bucketname,args.template)
+    list_of_files.columns = ['Source', 'Creation Date', 'Template', 'Last Modified', 'Size']
+    
+    print(tabulate(list_of_files, headers='keys', tablefmt='plain'))
 
-    print(tabulate(list_of_files, tablefmt='plain'))
 
 if __name__ == "__main__":
     main()
