@@ -12,6 +12,7 @@ import config_file.template as temp
 import sys
 import os
 from tabulate import tabulate
+from signit_handle import register_sigint_handler
 
 def upload(username, bucketname, filepath, key):
     boto_client = get_repo_bucket_client(username + "/" + bucketname)
@@ -99,6 +100,8 @@ def check_md5_valid(username,bucketname,filepath):
     return None
 
 def main():
+    register_sigint_handler()
+    
     parser = argparse.ArgumentParser(description="upload a file to a DagsHub bucket.")
 
     username = 'yoacal.data.science'
