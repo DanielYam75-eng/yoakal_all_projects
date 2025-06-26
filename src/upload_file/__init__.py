@@ -11,6 +11,7 @@ import config_file.constants as const
 import config_file.template as temp
 import sys
 import os
+from tabulate import tabulate
 
 def upload(username, bucketname, filepath, key):
     boto_client = get_repo_bucket_client(username + "/" + bucketname)
@@ -38,7 +39,8 @@ def get_valid_input_template(prompt, validator, error_message):
     while True:
         user_response = input(prompt)
         if user_response == "list":
-            print(temp.allowed_templates.loc[temp.allowed_templates['allowed'] ==  True, ["template", "source"]])
+            template_data = temp.allowed_templates.loc[temp.allowed_templates['allowed'] ==  True, ["template", "source"]]
+            print(tabulate(template_data, headers='keys', tablefmt='plain', showindex=False))
         elif user_response.startswith('ad-hoc-'):
             if validator(user_response):
                 return user_response, None
