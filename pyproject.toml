@@ -14,6 +14,8 @@ dependencies = [
 download = "download_file:main"
 upload = "upload_file:main"
 list = "list_files:main"
+show-templates = "show_templates:main"
+
 
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
