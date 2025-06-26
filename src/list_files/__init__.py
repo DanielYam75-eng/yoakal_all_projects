@@ -29,10 +29,7 @@ def extract_data_on_files(contents_response,required_template=None):
     list_of_files = pd.DataFrame(columns=['Name', "Source" , "Creation Date", "Template" ,'Last Modified', 'Size'])
     for i in range(len(contents_response)):
         name, source, creation_Date, template = get_key_info(contents_response[i].get("Key"))
-        if required_template is None:
-            list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
-        elif required_template == template:
-            list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
+        list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%Y-%m-%d'),contents_response[i].get("Size")]
     return list_of_files
 
 def load_files(username, bucketname,required_template=None):
@@ -40,7 +37,7 @@ def load_files(username, bucketname,required_template=None):
     contents_response = getting_contents_response(response)
     list_of_files = extract_data_on_files(contents_response,required_template)
     list_of_files = list_of_files.set_index("Name")
-    list_of_files=list_of_files.sort_values(by=["Last Modified"])
+    list_of_files=list_of_files.sort_values(by=["Last Modified"], ascending=False)
     return list_of_files
 
 def main():
