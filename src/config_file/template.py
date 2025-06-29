@@ -11,6 +11,7 @@ allowed_templates = pd.DataFrame(
          ["invoices-to-po-foreign-currency-1", 'BW', True],
          ["po-2", 'BW', True],
          ["ZH-foreign-currency-1", 'BI', True],
+         ["simulator-data-1", 'BW', True],
          ],
         columns=['template', 'source', 'allowed'])
 
