@@ -4,7 +4,7 @@ import pandas as pd
 from list_files import load_files
 from upload_file import info_file_string
 
-def read(key_name):
+def read(key_name, **kwargs):
     username = 'yoacal.data.science'
     bucketname = 'exp-repo'
 
@@ -20,6 +20,6 @@ def read(key_name):
 
     obj = boto_client.get_object(Bucket=bucketname, Key=key)
 
-    data = pd.read_csv(io.BytesIO(obj['Body'].read()))
+    data = pd.read_csv(io.BytesIO(obj['Body'].read()), **kwargs)
     return data
 
