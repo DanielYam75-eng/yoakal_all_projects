@@ -24,7 +24,7 @@ def main():
     bucketname = 'exp-repo'
 
     parser.add_argument("key", type=str, help="Key of the file in the bucket")
-    parser.add_argument("-o", "--output", type=str, help="Local path to save the downloaded file")
+    parser.add_argument("-o", "--output", type=str, help="Local path to save the downloaded file", required=True)
 
 
     args = parser.parse_args()
