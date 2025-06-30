@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from xgboost import XGBRegressor
 from sklearn.metrics import r2_score, root_mean_squared_error
+from read_file import read
 import os
 import pickle
 import argparse
@@ -136,12 +137,12 @@ def train_model(table1, table2, features, labels, model, split_year):
     return trainer.split_and_fit(split_year=split_year)
 
 
-def read(path1, path2):
-    table1 = pd.read_csv(path1)
+def read(key1, key2):
+    table1 = read(key1)
     table1 = table1.fillna(0)
     table1['invoice_volume'] = table1['RE']
     table1 = table1.drop(columns=['RE', 'ZF', 'ZY', 'fingroup'])
-    table2 = pd.read_csv(path2)
+    table2 = read(key2)
     table2['po_net_value'] = table2['po_net_value'].astype(str).str.replace(',', '').astype(float)
     table1, table2 = preprocess(table1, table2)
     table2['fund_code'] = table2['fund_code'].astype(str)
@@ -153,13 +154,13 @@ def read(path1, path2):
 def train():
     # Loading Data + Feature Engineering
     parser = argparse.ArgumentParser()
-    parser.add_argument('paths', nargs=2)
+    parser.add_argument('keys', nargs=2)
     parser.add_argument('-o', '--output', nargs=1, required=True)
     args = parser.parse_args()
-    path1 = args.paths[0]
-    path2 = args.paths[1]
+    key1 = args.keys[0]
+    key2 = args.keys[1]
     target_model_path = args.output[0]
-    table1, table2 = read(path1, path2)
+    table1, table2 = read(key1, key2)
     print("Preprocessing Finished")
 
     feature_list3 = ['po_type', 'fingroup', 'procurment_organization', 'N', 'po_net_value_category', 'quarter']
