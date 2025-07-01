@@ -1,6 +1,7 @@
 # %%
 import argparse
 import pandas as pd
+from read_file import read
 import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import TensorDataset, DataLoader
@@ -16,6 +17,7 @@ Loader = Iterator[Tensor]
 # %%
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_path",  "-i", type = str,  required = True)
+parser.add_argument("--output_path", "-o", type = str,  required = True)
 parser.add_argument("--model_path",  "-m", type = str,  required = True)
 parser.add_argument("--target_year", "-y", type = int,  required = True)
 parser.add_argument("--train",       "-t", type = int,  required = False, default = 1)
@@ -45,7 +47,7 @@ SLEN   = args.seed_len
 # ### Organizing the data
 
 # %%
-data = pd.read_csv(PATH, usecols = [GROUP, YEAR, MONTH, VAL])
+data : pd.DataFrame = read(PATH, usecols = [GROUP, YEAR, MONTH, VAL])
 
 # %% [markdown]
 # Setting groups as features
@@ -208,5 +210,5 @@ print(f"total prediction: {pred.sum():.2e}")
 test = test.transpose()
 pred = pd.DataFrame(index = test.index, data = pred.transpose())
 
-pred.to_csv(f"forecast {PYEAR}.csv")
-test.to_csv(f"actual {PYEAR}.csv")
+pred.to_csv(args.output_path + f"/forecast {PYEAR}.csv")
+test.to_csv(args.output_path + f"/actual {PYEAR}.csv")
