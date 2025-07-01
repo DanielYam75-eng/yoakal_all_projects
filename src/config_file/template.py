@@ -14,6 +14,7 @@ allowed_templates = pd.DataFrame(
          ["simulator-data-1", 'BW', True],
          ["simulator-time-axis-1", 'BW', True],
          ["NN-data-1", 'BI', True],
+         ["ZH-1", 'BI', True],
          ],
         columns=['template', 'source', 'allowed'])
 
