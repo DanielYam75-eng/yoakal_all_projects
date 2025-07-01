@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from xgboost import XGBRegressor
 from sklearn.metrics import r2_score, root_mean_squared_error
-from read_file import read
+import read_file as rf
 import os
 import pickle
 import argparse
@@ -138,11 +138,11 @@ def train_model(table1, table2, features, labels, model, split_year):
 
 
 def read(key1, key2):
-    table1 = read(key1)
+    table1 = rf.read(key1)
     table1 = table1.fillna(0)
     table1['invoice_volume'] = table1['RE']
     table1 = table1.drop(columns=['RE', 'ZF', 'ZY', 'fingroup'])
-    table2 = read(key2)
+    table2 = rf.read(key2)
     table2['po_net_value'] = table2['po_net_value'].astype(str).str.replace(',', '').astype(float)
     table1, table2 = preprocess(table1, table2)
     table2['fund_code'] = table2['fund_code'].astype(str)
