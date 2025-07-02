@@ -49,6 +49,9 @@ SLEN   = args.seed_len
 # %%
 data : pd.DataFrame = read(PATH, usecols = [GROUP, YEAR, MONTH, VAL])
 
+# %%
+data = data[data[YEAR].between(2020, PYEAR)]
+
 # %% [markdown]
 # Setting groups as features
 
@@ -113,12 +116,11 @@ class Forecaster(Module):
 # %%
 class MyRNN(Forecaster):
 
-    def __init__(self, input_dim: int, lstm_hid: int = 700, lin_hid: int = 1000, dropr: float = 0.3):
+    def __init__(self, input_dim: int, lstm_hid: int = 300, dropr: float = 0.3):
         super().__init__()
         
         self.rnn = LSTM(input_dim, lstm_hid, batch_first = True, dropout = dropr, num_layers = 2)
-        self.head = Sequential(Dropout(dropr),
-                               Linear(lstm_hid, input_dim))
+        self.head = Sequential(Dropout(dropr), Linear(lstm_hid, input_dim))
 
 
     def forward(self, x: Tensor, hid = None) -> tuple[Tensor, Tensor]:
