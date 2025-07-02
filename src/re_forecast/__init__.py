@@ -175,9 +175,11 @@ def infer():
     parser.add_argument('paths', nargs=2)
     parser.add_argument('-m', '--model', nargs=1, required=True)
     parser.add_argument('-y', '--year', nargs=1, required=True, type=int)
+    parser.add_argument('--base-date', nargs=1, required=True)
     parser.add_argument('-o', '--output', nargs=1, required=True)
     parser.add_argument('--fine', action='store_true')
     args = parser.parse_args()
+    base_date = args.base_date[0]
     model_path = args.model[0]
     model = pickle.load(open(model_path, 'rb'))
     target_year = args.year[0]
@@ -190,7 +192,7 @@ def infer():
     wrapper = Wrapper(model, feature_list, table1.columns)
 
     # Augmentation
-    temp = table2[(table2['doc_date'] > pd.Timestamp('2024-06-05')) & (table2['doc_date'] < pd.Timestamp('2025-01-01'))]
+    temp = table2[(table2['doc_date'] > pd.Timestamp(base_date)) & (table2['doc_date'] < pd.Timestamp('2025-01-01'))]
     temp.loc[:, 'doc_date'] = temp['doc_date'] + pd.DateOffset(years=1)
     temp.index = temp.index.set_levels(temp.index.levels[0].astype(str) + 'N', level='doc_id')
     temp.index = temp.index.set_levels(temp.index.levels[1] + 1, level='fund_year')
