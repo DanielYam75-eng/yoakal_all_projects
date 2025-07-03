@@ -139,7 +139,7 @@ temp = data_as_frame.resample("YE").sum().loc['2023':'2024'].T.groupby(level=1).
 # # functions
 
 # %%
-def find_r2_score_values_data(how_much_months_in_year,data_by_ozar_groups,year_to_predict):
+def find_r2_score_values_data(how_much_months_to_forcast,data_by_ozar_groups,year_to_predict):
     r2_score_values_data = {}
     for key in templates:
         model = TSModel4(data_by_ozar_groups,year_to_predict)
@@ -199,10 +199,10 @@ r2_score_values_data_current_year_year = find_r2_score_values_data(how_much_mont
 wining_model_current_year_year, r2_of_wining_models_current_year_year = find_wining_models(r2_score_values_data_current_year_year)
 forcast_data_current_year_year = forcast_data(how_much_months_in_year - how_much_month_in_current_year_in_data,wining_model_current_year_year,data_we_got_to_use_in_prediction_current_year_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
 
-data_so_far_current_year = data_as_frame[f'{current_year}-01-01':]
-data_so_far_current_year = data_as_frame[data_as_frame.index>"2024-12-31"]
-data_current_year = pd.concat([data_so_far_current_year, pd.DataFrame(forcast_data_current_year_year)], axis=0)
-data_so_far_current_year_sum = data_current_year.sum(axis=1).sum() 
+#data_so_far_current_year = data_as_frame[f'{current_year}-01-01':]
+#data_so_far_current_year = data_as_frame[data_as_frame.index>"2024-12-31"]
+#data_current_year = pd.concat([data_so_far_current_year, pd.DataFrame(forcast_data_current_year_year)], axis=0)
+#data_so_far_current_year_sum = data_current_year.sum(axis=1).sum() 
 
 # %%
 forcast_ashbarot_specific_year_in = pd.DataFrame(forcast_data_specific_year).T.groupby(level=1).sum()
@@ -214,7 +214,8 @@ forcast_ashbarot_specific_year_out.index.name = 'ZH_out'
 forcast_ashbarot_bad_otzar_pairs_specific_year_out = forcast_ashbarot_specific_year_out.where(forcast_ashbarot_specific_year_out == 0, np.nan)
 forcast_ashbarot_bad_otzar_pairs_specific_year_in = forcast_ashbarot_specific_year_in.where(forcast_ashbarot_specific_year_in == 0, np.nan)
 
-data_so_far_current_year = data_as_frame[data_as_frame.index>"2024-12-31"]
+data_so_far_current_year = data_as_frame[data_as_frame.index>f"{current_year-1}-12-31"]
+#data_so_far_current_year = data_as_frame[data_as_frame.index>"2024-12-31"]
 forcast_ashbarot_current_year = pd.concat([data_so_far_current_year, pd.DataFrame(forcast_data_current_year_year)], axis=0)
 forcast_ashbarot_current_year_in = pd.DataFrame(forcast_ashbarot_current_year).T.groupby(level=1).sum()
 forcast_ashbarot_current_year_in.index.name = 'ZH_in'

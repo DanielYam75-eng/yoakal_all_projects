@@ -542,7 +542,7 @@ forcast_data_2025_year = forcast_data(how_much_months_in_year - how_much_month_i
 kvotzot_otzar_got_changed_2025_year = changing_kvotzat_otzar(how_much_months_in_year - how_much_month_in_curr_year_in_data,forcast_data_2025_year,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
 print(kvotzot_otzar_got_changed_2025_year)
 
-data_so_far_2025 = data_by_ozar_groups.loc["2025"].head(how_much_month_in_curr_year_in_data)
+data_so_far_2025 = data_by_ozar_groups.loc[current_year].head(how_much_month_in_curr_year_in_data)
 forcast_2025_combined = pd.concat([pd.DataFrame(data_so_far_2025), pd.DataFrame(forcast_data_2025_year)]).T
 
 # exporting data
