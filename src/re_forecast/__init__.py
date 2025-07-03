@@ -156,7 +156,7 @@ def train():
     parser = argparse.ArgumentParser()
     parser.add_argument('keys', nargs=2)
     parser.add_argument('-o', '--output', nargs=1, required=True)
-    parser.add_argument('-y', '--current_year', nargs=1, required=True)
+    parser.add_argument('-y', '--current_year', nargs=1, required=True, type=int)
     args = parser.parse_args()
     key1 = args.keys[0]
     key2 = args.keys[1]
