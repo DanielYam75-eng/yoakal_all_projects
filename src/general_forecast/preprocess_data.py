@@ -2,13 +2,13 @@
 import argparse
 import pandas as pd
 import sys
-from read_files import read
+from read_file import read
 
 # %%
 parser = argparse.ArgumentParser(description="Forecasting script")
 parser.add_argument("--path", type=str, required=True, help="Path to the CSV file")
 parser.add_argument("--current-year", type=int, required=True, help="The year to which we create the forecast for")
-data = read(parser.parse_args().path)
+data = read(parser.parse_args().path, sep='\t')
 current_year = parser.parse_args().current_year
 
 # %%
