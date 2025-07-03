@@ -44,7 +44,7 @@ class Trainer:
         self.features_list = features_list
         self.labels_list = labels_list
     
-    def train_and_evaluate(self, split_year=2022):
+    def train_and_evaluate(self, split_year):
         features_table, labels_table = self._create_features_and_labels_tables()
         self.model = self.split_and_fit(features_table, labels_table, split_year=split_year)
         rmse_in_sample, r2_in_sample = self.evaluate_in_sample()
@@ -62,11 +62,11 @@ class Trainer:
         return features_table, labels_table
 
     @staticmethod
-    def _split(features_table, labels_table, split_year=2022):
+    def _split(features_table, labels_table, split_year):
         mask = features_table.index.get_level_values('fund_year') <= split_year
         return features_table[mask], labels_table[mask]
     
-    def split_and_fit(self, split_year=2022):
+    def split_and_fit(self, split_year):
         features_table, labels_table = self._create_features_and_labels_tables()
         X_train, y_train = self._split(features_table, labels_table, split_year)
         self.model.fit(X_train, y_train)
@@ -156,16 +156,18 @@ def train():
     parser = argparse.ArgumentParser()
     parser.add_argument('keys', nargs=2)
     parser.add_argument('-o', '--output', nargs=1, required=True)
+    parser.add_argument('-y', '--current_year', nargs=1, required=True)
     args = parser.parse_args()
     key1 = args.keys[0]
     key2 = args.keys[1]
+    current_year = args.current_year[0]
     target_model_path = args.output[0]
     table1, table2 = read(key1, key2)
     print("Preprocessing Finished")
 
     feature_list3 = ['po_type', 'fingroup', 'procurment_organization', 'N', 'po_net_value_category', 'quarter']
     xgboost_model3 = XGBRegressor(enable_categorical=True, tree_method='hist', n_estimators=1000, learning_rate=0.1, max_depth=3, random_state=42)
-    xgboost_model3 = train_model(table1, table2, feature_list3, table1.columns, xgboost_model3, split_year=2021)
+    xgboost_model3 = train_model(table1, table2, feature_list3, table1.columns, xgboost_model3, split_year=current_year)
     print("Training Finished")
     pickle.dump(xgboost_model3, open(target_model_path, 'wb'))
 
