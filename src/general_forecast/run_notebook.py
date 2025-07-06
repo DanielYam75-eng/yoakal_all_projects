@@ -542,7 +542,7 @@ forcast_data_2025_year = forcast_data(how_much_months_in_year - how_much_month_i
 kvotzot_otzar_got_changed_2025_year = changing_kvotzat_otzar(how_much_months_in_year - how_much_month_in_curr_year_in_data,forcast_data_2025_year,wining_model_2025_year,data_we_got_to_use_in_prediction_2025_year,flag_for_using_only_part_of_data,how_much_month_back_to_use)
 print(kvotzot_otzar_got_changed_2025_year)
 
-data_so_far_2025 = data_by_ozar_groups.loc[current_year].head(how_much_month_in_curr_year_in_data)
+data_so_far_2025 = data_by_ozar_groups.loc[str(current_year)].head(how_much_month_in_curr_year_in_data)
 forcast_2025_combined = pd.concat([pd.DataFrame(data_so_far_2025), pd.DataFrame(forcast_data_2025_year)]).T
 
 # exporting data
@@ -558,9 +558,9 @@ forcast_specific_year.insert(0, 'kvuzat sahar', f"forcast_{expanditure_name}_{ye
 forcast_specific_year.index.name = 'kvotzat otzar'
 forcast_specific_year.to_csv(f"forcast_{expanditure_name}_{year_to_predict}.csv")
 
-forcast_2025_combined.insert(0, 'kvuzat sahar', f'forcast_{expanditure_name}_2025')
+forcast_2025_combined.insert(0, 'kvuzat sahar', f'forcast_{expanditure_name}_{current_year}')
 forcast_2025_combined.index.name = 'kvotzat otzar'
-forcast_2025_combined.to_csv(f"forcast_{expanditure_name}_2025.csv")
+forcast_2025_combined.to_csv(f"forcast_{expanditure_name}_{current_year}.csv")
 
 actual_data_specific_year__bad_otzar_only = data_by_ozar_groups[bad_otzar_groups_specific_year].loc[str(year_to_predict)]
 actual_data_specific_year__bad_otzar_only=actual_data_specific_year__bad_otzar_only.T
@@ -570,6 +570,6 @@ actual_data_specific_year__bad_otzar_only.to_csv(f"actual_data_{year_to_predict}
 
 actual_data_2025__bad_otzar_only = data_by_ozar_groups[bad_otzar_groups_2025_year].loc[str(current_year)]
 actual_data_2025__bad_otzar_only=actual_data_2025__bad_otzar_only.T
-actual_data_2025__bad_otzar_only.insert(0, 'kvuzat sahar', f'actual_data_2025_bad_otzar_only_{expanditure_name}')
+actual_data_2025__bad_otzar_only.insert(0, 'kvuzat sahar', f'actual_data_{current_year}_bad_otzar_only_{expanditure_name}')
 actual_data_2025__bad_otzar_only.index.name = 'kvotzat otzar'
-actual_data_2025__bad_otzar_only.to_csv(f"actual_data_2025_bad_otzar_only_{expanditure_name}.csv")
+actual_data_2025__bad_otzar_only.to_csv(f"actual_data_{current_year}_bad_otzar_only_{expanditure_name}.csv")

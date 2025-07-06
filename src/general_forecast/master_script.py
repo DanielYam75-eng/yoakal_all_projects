@@ -61,7 +61,8 @@ def main():
 
         months = forcasts.columns.difference([IND, COL])
         if not exp_mode and table_type == TABLES[1]: forcasts.to_csv(r'Data\ALL_' + table_type + '_monthly' + '.csv', index = False)
-        forcasts[VAL] = forcasts[months].sum(axis = 1)
+        print(months[-12:])
+        forcasts[VAL] = forcasts[months[-12:]].sum(axis = 1)
 
         forcasts = forcasts.pivot_table(index = IND, columns = COL, values = VAL, aggfunc = 'sum')
 
