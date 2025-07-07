@@ -47,10 +47,10 @@ SLEN   = args.seed_len
 # ### Organizing the data
 
 # %%
-data : pd.DataFrame = read(PATH, usecols = [GROUP, YEAR, MONTH, VAL])
+data = pd.read_csv(PATH, usecols = [GROUP, YEAR, MONTH, VAL])
 
 # %%
-data = data[data[YEAR].between(2020, PYEAR)]
+data = data[data[YEAR] <= PYEAR]
 
 # %% [markdown]
 # Setting groups as features
