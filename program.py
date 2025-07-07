@@ -23,7 +23,7 @@ parser.add_argument("--target_year", "-y", type = int,  required = True)
 parser.add_argument("--train",       "-t", type = int,  required = False, default = 1)
 parser.add_argument("--seed_len",    "-s", type = int,  required = False, default = 1)
 parser.add_argument("--batch_size",  "-b", type = int,  required = False, default = 3)
-parser.add_argument("--epochs",      "-e", type = int,  required = False, default = 250)
+parser.add_argument("--epochs",      "-e", type = int,  required = False, default = 400)
 args = parser.parse_args()
 
 # %%
@@ -134,6 +134,8 @@ class MyRNN(Forecaster):
         optimizer = Adam(self.parameters(), lr=lr)
         self.train()
 
+        last_avg_loss = float('inf')
+        strike_count = 0
         for epoch in range(1, epochs + 1):
             total_loss = 0.0
 
@@ -147,8 +149,17 @@ class MyRNN(Forecaster):
                 total_loss += loss.item()
 
             if epoch % 10 == 0:
+
                 avg_loss = total_loss / len(loader)
                 print(f"Epoch {epoch:3d} | Avg Loss: {avg_loss:.4f}")
+
+                if avg_loss >= last_avg_loss:
+                    strike_count += 1
+                    if strike_count >= 3:
+                        print("Early stopping due to loss increase.")
+                        break
+
+                last_avg_loss = avg_loss
 
 
     @torch.no_grad
@@ -211,6 +222,9 @@ print(f"total prediction: {pred.sum():.2e}")
 
 test = test.transpose()
 pred = pd.DataFrame(index = test.index, data = pred.transpose())
+
+test = test.sum(axis = 1)
+pred = pred.sum(axis = 1)
 
 pred.to_csv(args.output_path + f" forecast {PYEAR}.csv")
 test.to_csv(args.output_path + f" actual {PYEAR}.csv")

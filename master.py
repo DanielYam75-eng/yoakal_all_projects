@@ -8,6 +8,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--dir",         "-d", type = str,  required = True)
 parser.add_argument("--path",        "-p", type = str,  required = True)
 parser.add_argument("--target_year", "-y", type = str,  required = True)
+parser.add_argument("--seed",        "-s", type = str,  required = False, default = "1")
+parser.add_argument("--train",       "-t", type = str,  required = False, default = "1")
 args = parser.parse_args()
 
 
@@ -32,12 +34,13 @@ for name, group in pd.read_csv(PATH).groupby(GROUP):
     group.to_csv(data_path, index = False)
 
     print(f"Processing {name}...")
-    output = subprocess.run(["python", "program.py", "-i", data_path, "-o", output_path, "-m", model_path, "-y", YEAR])
-    print(output.stderr)
+
+    try: output = subprocess.run(["python", "program.py", "-i", data_path, "-o", output_path, "-m", model_path, "-y", YEAR, "-s", args.seed, "-t", args.train])
+    except: print(output.stderr)
+
     print(f"Finished processing {name}.\n")
 
     os.remove(data_path)
-    os.remove(model_path)
     print(f"Removed temporary files for {name}.")
 
 
