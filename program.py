@@ -212,5 +212,5 @@ print(f"total prediction: {pred.sum():.2e}")
 test = test.transpose()
 pred = pd.DataFrame(index = test.index, data = pred.transpose())
 
-pred.to_csv(args.output_path + f"/forecast {PYEAR}.csv")
-test.to_csv(args.output_path + f"/actual {PYEAR}.csv")
+pred.to_csv(args.output_path + f" forecast {PYEAR}.csv")
+test.to_csv(args.output_path + f" actual {PYEAR}.csv")
