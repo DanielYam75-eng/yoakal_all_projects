@@ -153,9 +153,9 @@ class MyRNN(Forecaster):
                 avg_loss = total_loss / len(loader)
                 print(f"Epoch {epoch:3d} | Avg Loss: {avg_loss:.4f}")
 
-                if avg_loss >= last_avg_loss:
+                if avg_loss >= last_avg_loss * 1.02:
                     strike_count += 1
-                    if strike_count >= 3:
+                    if strike_count >= 4:
                         print("Early stopping due to loss increase.")
                         break
 
