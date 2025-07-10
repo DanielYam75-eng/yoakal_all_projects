@@ -4,7 +4,7 @@ import pandas as pd
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 from torch.optim import Adam
-from torch.nn import Module, Sequential, Linear, Dropout, LSTM, ReLU
+from torch.nn import Module, Sequential, Linear, Dropout, LSTM
 from torch.nn.utils import clip_grad_norm_
 from torch.nn.functional import mse_loss
 from sklearn.preprocessing import MinMaxScaler
@@ -118,7 +118,7 @@ class MyRNN(Forecaster):
         super().__init__()
         
         self.rnn = LSTM(input_dim, lstm_hid, batch_first = True, dropout = dropr, num_layers = 2)
-        self.head = Sequential(Dropout(dropr), Linear(lstm_hid, input_dim), ReLU())
+        self.head = Sequential(Dropout(dropr), Linear(lstm_hid, input_dim))
 
 
     def forward(self, x: Tensor, hid = None) -> tuple[Tensor, Tensor]:
@@ -152,9 +152,9 @@ class MyRNN(Forecaster):
                 avg_loss = total_loss / len(loader)
                 print(f"Epoch {epoch:3d} | Avg Loss: {avg_loss:.4f}")
 
-                if avg_loss > last_avg_loss * 1.01:
+                if avg_loss > last_avg_loss:
                     strike_count += 1
-                    if strike_count >= 4:
+                    if strike_count >= 6:
                         print("Early stopping due to loss increase.")
                         break
 

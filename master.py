@@ -19,11 +19,13 @@ LDIR = args.local_path
 RDIR = args.remote_path
 YEAR = args.target_year
 THRSHOLD = 1000
+VAL = "volume"
 GROUP = "doc"
 
 
 
-data = read(RDIR).groupby(GROUP)
+data : pd.DataFrame = read(RDIR)
+data = data.groupby(GROUP)
 
 
 def program(name: str, group: pd.DataFrame):
