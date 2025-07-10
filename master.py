@@ -1,32 +1,36 @@
+import re
 import os
 import argparse
 import pandas as pd
 import subprocess
+from read_file import read
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dir",         "-d", type = str,  required = True)
-parser.add_argument("--path",        "-p", type = str,  required = True)
+parser.add_argument("--local_path",  "-l", type = str,  required = True)
+parser.add_argument("--remote_path", "-r", type = str,  required = True)
 parser.add_argument("--target_year", "-y", type = str,  required = True)
 parser.add_argument("--seed",        "-s", type = str,  required = False, default = "1")
 parser.add_argument("--train",       "-t", type = str,  required = False, default = "1")
 args = parser.parse_args()
 
 
-PATH = args.dir + os.sep + args.path
+LDIR = args.local_path
+RDIR = args.remote_path
 YEAR = args.target_year
 THRSHOLD = 1000
 GROUP = "doc"
 
 
-data =  pd.read_csv(PATH).groupby(GROUP)
+
+data = read(RDIR).groupby(GROUP)
 
 
 def program(name: str, group: pd.DataFrame):
 
-    data_path   = os.path.join(args.dir, f"{name}.csv")
-    model_path  = os.path.join(args.dir, f"{name}_model.pt")
-    output_path = args.dir + name
+    data_path   = os.path.join(LDIR, f"{name}.csv")
+    model_path  = os.path.join(LDIR, f"{name}_model.pt")
+    output_path = LDIR + name
 
     group.to_csv(data_path, index = False)
 
@@ -41,20 +45,23 @@ def program(name: str, group: pd.DataFrame):
     print(f"Removed temporary files for {name}.")
 
 
+def summarize_files(keyword: str):
+
+    pattern = re.compile(rf"^[A-Z]{{2}} {re.escape(keyword)} {YEAR}.csv$")
+
+    files = [file for file in os.listdir(LDIR) if pattern.match(file)]
+
+    print(f"Total {keyword}: {sum(pd.read_csv(os.path.join(LDIR, file)).select_dtypes('number').sum().sum() for file in files):.2e}")
+
+
+
+
 for name, group in data:
     if len(group) >= THRSHOLD:
         program(name, group)
 
-
 program("rest", data.filter(lambda x: len(x) < THRSHOLD).reset_index(drop = True))
-    
-
 print("All groups processed.")
-
-forecast_files = [file for file in os.listdir(args.dir) if "forecast" in file and YEAR in file]
-actual_files   = [file for file in os.listdir(args.dir) if "actual"   in file and YEAR in file]
-
-
-print(f"Total sum: {sum(pd.read_csv(os.path.join(args.dir, file)).select_dtypes('number').sum().sum() for file in forecast_files):.2e}")
-
+summarize_files("forecast")
+#summarize_files("actual")
 print(f"Total forecast and actual data for {YEAR} saved successfully.")

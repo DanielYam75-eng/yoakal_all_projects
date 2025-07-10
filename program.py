@@ -1,12 +1,10 @@
 # %%
 import argparse
 import pandas as pd
-from read_file import read
-import matplotlib.pyplot as plt
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 from torch.optim import Adam
-from torch.nn import Module, Sequential, Linear, Dropout, LSTM
+from torch.nn import Module, Sequential, Linear, Dropout, LSTM, ReLU
 from torch.nn.utils import clip_grad_norm_
 from torch.nn.functional import mse_loss
 from sklearn.preprocessing import MinMaxScaler
@@ -23,7 +21,7 @@ parser.add_argument("--target_year", "-y", type = int,  required = True)
 parser.add_argument("--train",       "-t", type = int,  required = False, default = 1)
 parser.add_argument("--seed_len",    "-s", type = int,  required = False, default = 1)
 parser.add_argument("--batch_size",  "-b", type = int,  required = False, default = 3)
-parser.add_argument("--epochs",      "-e", type = int,  required = False, default = 400)
+parser.add_argument("--epochs",      "-e", type = int,  required = False, default = 300)
 args = parser.parse_args()
 
 # %%
@@ -50,7 +48,7 @@ SLEN   = args.seed_len
 data = pd.read_csv(PATH, usecols = [GROUP, YEAR, MONTH, VAL])
 
 # %%
-data = data[data[YEAR] <= PYEAR]
+data : pd.DataFrame = data[data[YEAR] <= PYEAR]
 
 # %% [markdown]
 # Setting groups as features
@@ -120,7 +118,7 @@ class MyRNN(Forecaster):
         super().__init__()
         
         self.rnn = LSTM(input_dim, lstm_hid, batch_first = True, dropout = dropr, num_layers = 2)
-        self.head = Sequential(Dropout(dropr), Linear(lstm_hid, input_dim))
+        self.head = Sequential(Dropout(dropr), Linear(lstm_hid, input_dim), ReLU())
 
 
     def forward(self, x: Tensor, hid = None) -> tuple[Tensor, Tensor]:
@@ -140,6 +138,7 @@ class MyRNN(Forecaster):
             total_loss = 0.0
 
             for data_batch, target_batch in loader:
+                data_batch += torch.randn_like(data_batch) * 1e-2
                 optimizer.zero_grad()
                 preds, _ = self.forward(data_batch)
                 loss = mse_loss(preds, target_batch)
@@ -153,7 +152,7 @@ class MyRNN(Forecaster):
                 avg_loss = total_loss / len(loader)
                 print(f"Epoch {epoch:3d} | Avg Loss: {avg_loss:.4f}")
 
-                if avg_loss >= last_avg_loss * 1.02:
+                if avg_loss > last_avg_loss * 1.01:
                     strike_count += 1
                     if strike_count >= 4:
                         print("Early stopping due to loss increase.")
