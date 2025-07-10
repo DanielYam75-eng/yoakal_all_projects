@@ -215,6 +215,12 @@ test_ten = scaler.inverse_transform(test_ten)
 
 # %%
 print(f"total prediction: {pred.sum():.2e}")
+print(f"total actual: {test_ten.sum():.2e}")
+
+err = abs(pred.sum() - test_ten.sum())
+
+print(f"total error: {abs(pred.sum() - test_ten.sum()):.2e}")
+print(f"error percentage: {err / test_ten.sum() * 100:.2f}%")
 
 # %%
 # results
