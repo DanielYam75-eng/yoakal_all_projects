@@ -132,20 +132,24 @@ class MyRNN(Forecaster):
         optimizer = Adam(self.parameters(), lr=lr)
         self.train()
 
+
+        def train_step(data_batch: Tensor, target_batch: Tensor) -> float:
+            
+            data_batch += torch.randn_like(data_batch) * 1e-2
+            optimizer.zero_grad()
+            preds, _ = self.forward(data_batch)
+            loss = mse_loss(preds, target_batch)
+            loss.backward()
+            clip_grad_norm_(self.parameters(), max_norm = 1.0)
+            optimizer.step()
+            return loss.item()
+
+
         last_avg_loss = float('inf')
         strike_count = 0
         for epoch in range(1, epochs + 1):
-            total_loss = 0.0
-
-            for data_batch, target_batch in loader:
-                data_batch += torch.randn_like(data_batch) * 1e-2
-                optimizer.zero_grad()
-                preds, _ = self.forward(data_batch)
-                loss = mse_loss(preds, target_batch)
-                loss.backward()
-                clip_grad_norm_(self.parameters(), max_norm = 1.0)
-                optimizer.step()
-                total_loss += loss.item()
+            
+            total_loss = sum(train_step(data_batch, target_batch) for data_batch, target_batch in loader)
 
             if epoch % 10 == 0:
 
@@ -174,6 +178,7 @@ class MyRNN(Forecaster):
         for step in range(fh):
             val, hid = self.forward(val, hid)
             yield val
+
 
 # %% [markdown]
 # <br>
@@ -207,7 +212,11 @@ test_ten = test_ten.detach().numpy().squeeze()
 
 # %%
 pred = pred[-YSIZE :]
-test_ten = test_ten[- test_ten.shape[0] + YSIZE :]
+test_ten = test_ten[-YSIZE :]
+
+# %%
+assert pred.shape == test_ten.shape
+assert pred.shape[0] == YSIZE
 
 # %%
 pred = scaler.inverse_transform(pred)
@@ -219,8 +228,8 @@ print(f"total actual: {test_ten.sum():.2e}")
 
 err = abs(pred.sum() - test_ten.sum())
 
-print(f"total error: {abs(pred.sum() - test_ten.sum()):.2e}")
-print(f"error percentage: {err / test_ten.sum() * 100:.2f}%")
+print(f"total error: {err:.2e}")
+print(f"error percentage: {abs(err / test_ten.sum()) * 100:.2f}%")
 
 # %%
 # results
