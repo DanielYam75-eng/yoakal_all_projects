@@ -65,5 +65,5 @@ for name, group in data:
 program("rest", data.filter(lambda x: len(x) < THRSHOLD).reset_index(drop = True))
 print("All groups processed.")
 summarize_files("forecast")
-#summarize_files("actual")
+summarize_files("actual")
 print(f"Total forecast and actual data for {YEAR} saved successfully.")

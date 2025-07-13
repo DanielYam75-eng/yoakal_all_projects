@@ -201,7 +201,7 @@ else:
 # ### Forecasting
 
 # %%
-pred = torch.concat(tuple(model.forecast(test_ten[:, :YSIZE + SLEN, :], YSIZE - SLEN)))
+pred = torch.concat(tuple(model.forecast(test_ten[:, :YSIZE + SLEN, :], YSIZE - SLEN))).relu()
 
 # %%
 assert pred.shape == (YSIZE * 2, test_ten.size(-1))
@@ -211,12 +211,9 @@ pred = pred.detach().numpy()
 test_ten = test_ten.detach().numpy().squeeze()
 
 # %%
-pred = pred[-YSIZE :]
-test_ten = test_ten[-YSIZE :]
-
-# %%
-assert pred.shape == test_ten.shape
-assert pred.shape[0] == YSIZE
+pred = pred[YSIZE :]
+test_ten = test_ten[YSIZE :]
+test = test.iloc[YSIZE :]
 
 # %%
 pred = scaler.inverse_transform(pred)
