@@ -26,7 +26,7 @@ args = parser.parse_args()
 
 # %%
 PATH  = args.input_path
-GROUP = "tressure group"
+GROUP = ["tressure group"]
 VAL   = "volume"
 YEAR  = "year"
 MONTH = "month"
@@ -45,7 +45,7 @@ SLEN   = args.seed_len
 # ### Organizing the data
 
 # %%
-data = pd.read_csv(PATH, usecols = [GROUP, YEAR, MONTH, VAL])
+data = pd.read_csv(PATH, usecols = [ * GROUP, YEAR, MONTH, VAL])
 
 # %%
 data : pd.DataFrame = data[data[YEAR] <= PYEAR]
@@ -58,7 +58,7 @@ data = data.pivot_table(index = [YEAR, MONTH], columns = GROUP, values = VAL, ag
 
 # %%
 train = data.loc[data.index.get_level_values(level = YEAR) != PYEAR]
-test  = data.loc[data.index.get_level_values(level = YEAR).isin([PYEAR - 1, PYEAR])]
+test  = data.loc[data.index.get_level_values(level = YEAR) == PYEAR]
 
 # %% [markdown]
 # Filtering for full years only
@@ -78,9 +78,7 @@ scaler.fit(train)
 
 # %%
 def to_batches(table: pd.DataFrame) -> Tensor:
-    tensors = [torch.FloatTensor(scaler.transform(group)) for year, group in table.groupby(level = YEAR)]
-    tensor  = torch.stack([torch.cat([prev, curr]) for prev, curr in zip(tensors, tensors[1:])])
-    return tensor
+    return torch.stack([torch.FloatTensor(scaler.transform(group)) for year, group in table.groupby(level = YEAR)])
 
 # %%
 train_ten = to_batches(train)
@@ -92,10 +90,10 @@ train_ten  = train_ten[:, :-1, :]
 
 # %%
 assert train_ten.size(2) == target_ten.size(2) == test_ten.size(2)
-assert train_ten.size(1) == target_ten.size(1) == 2 * YSIZE - 1
+assert train_ten.size(1) == target_ten.size(1) == YSIZE - 1
 assert train_ten.size(0) == target_ten.size(0)
 assert test_ten.size(0) == 1
-assert SLEN < test_ten.size(1) - YSIZE
+assert SLEN < test_ten.size(1)
 
 # %%
 tdataset = TensorDataset(train_ten, target_ten)
@@ -201,19 +199,16 @@ else:
 # ### Forecasting
 
 # %%
-pred = torch.concat(tuple(model.forecast(test_ten[:, :YSIZE + SLEN, :], YSIZE - SLEN))).relu()
+pred = torch.concat(tuple(model.forecast(test_ten[:, :SLEN, :], YSIZE - SLEN))).relu()
 
 # %%
-assert pred.shape == (YSIZE * 2, test_ten.size(-1))
+test_ten = test_ten.squeeze()
+assert pred.size(0) == YSIZE
+assert pred.size(1) == test_ten.size(1)
 
 # %%
 pred = pred.detach().numpy()
-test_ten = test_ten.detach().numpy().squeeze()
-
-# %%
-pred = pred[YSIZE :]
-test_ten = test_ten[YSIZE :]
-test = test.iloc[YSIZE :]
+test_ten = test_ten.detach().numpy()
 
 # %%
 pred = scaler.inverse_transform(pred)
