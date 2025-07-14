@@ -26,7 +26,7 @@ args = parser.parse_args()
 
 # %%
 PATH  = args.input_path
-GROUP = ["tressure group"]
+GROUP = ["GL"]
 VAL   = "volume"
 YEAR  = "year"
 MONTH = "month"
@@ -112,7 +112,7 @@ class Forecaster(Module):
 # %%
 class MyRNN(Forecaster):
 
-    def __init__(self, input_dim: int, lstm_hid: int = 300, dropr: float = 0.3):
+    def __init__(self, input_dim: int, lstm_hid: int = 300, dropr: float = 0.2):
         super().__init__()
         
         self.rnn = LSTM(input_dim, lstm_hid, batch_first = True, dropout = dropr, num_layers = 2)
