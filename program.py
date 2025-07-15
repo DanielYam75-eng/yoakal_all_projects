@@ -110,13 +110,13 @@ class Forecaster(Module):
     def forecast(self, seed: Tensor, fh: int): pass
 
 # %%
-class MyRNN(Forecaster):
+class YearlyRNN(Forecaster):
 
-    def __init__(self, input_dim: int, lstm_hid: int = 300, dropr: float = 0.2):
+    def __init__(self, input_dim: int, lstm_hid: int = 300):
         super().__init__()
         
-        self.rnn = LSTM(input_dim, lstm_hid, batch_first = True, dropout = dropr, num_layers = 2)
-        self.head = Sequential(Dropout(dropr), Linear(lstm_hid, input_dim))
+        self.rnn = LSTM(input_dim, lstm_hid, batch_first = True)
+        self.head = Sequential(Linear(lstm_hid, input_dim))
 
 
     def forward(self, x: Tensor, hid = None) -> tuple[Tensor, Tensor]:
@@ -184,7 +184,7 @@ class MyRNN(Forecaster):
 # ### Training
 
 # %%
-model = MyRNN(input_dim = train_ten.size(-1))
+model = YearlyRNN(input_dim = train_ten.size(-1))
 
 # %%
 if args.train:
