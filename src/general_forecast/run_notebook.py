@@ -552,50 +552,50 @@ if coin_type == 5:
     if type_ == "ZW":
         templates = {
         "holt": Holt,
-            'sarima': SARIMAX,
+          #  'sarima': SARIMAX,
             'naive': NaiveModel,
             'snaive': SeasonalNaiveModel,
-            "ExponentialSmoothing": ExponentialSmoothing,
+          #  "ExponentialSmoothing": ExponentialSmoothing,
             'SimpleExpSmoothing' : SimpleExpSmoothing,
-            'mean': MeanModel,
+        #    'mean': MeanModel,
             'LinearRegression': SeasonalLinearModel,
             'avg_factor' : AvgFactorModel,
         }
     elif type_ == "ZC":
         templates = {
         "holt": Holt,
-            'sarima': SARIMAX,
-            'naive': NaiveModel,
-            'snaive': SeasonalNaiveModel,
+        #    'sarima': SARIMAX,
+        #    'naive': NaiveModel,
+        #    'snaive': SeasonalNaiveModel,
             "ExponentialSmoothing": ExponentialSmoothing,
-            'SimpleExpSmoothing' : SimpleExpSmoothing,
-            'mean': MeanModel,
+        #    'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #    'mean': MeanModel,
             'LinearRegression': SeasonalLinearModel,
             'avg_factor' : AvgFactorModel,
         }
     elif type_ == "travel-KRKG":
         templates = {
         "holt": Holt,
-            'sarima': SARIMAX,
+        #    'sarima': SARIMAX,
             'naive': NaiveModel,
             'snaive': SeasonalNaiveModel,
             "ExponentialSmoothing": ExponentialSmoothing,
             'SimpleExpSmoothing' : SimpleExpSmoothing,
-            'mean': MeanModel,
+        #    'mean': MeanModel,
             'LinearRegression': SeasonalLinearModel,
-            'avg_factor' : AvgFactorModel,
+        #    'avg_factor' : AvgFactorModel,
         }
     elif type_ == "14-KRKG":
         templates = {
         "holt": Holt,
-            'sarima': SARIMAX,
+         #   'sarima': SARIMAX,
             'naive': NaiveModel,
             'snaive': SeasonalNaiveModel,
             "ExponentialSmoothing": ExponentialSmoothing,
             'SimpleExpSmoothing' : SimpleExpSmoothing,
-            'mean': MeanModel,
+        #    'mean': MeanModel,
             'LinearRegression': SeasonalLinearModel,
-            'avg_factor' : AvgFactorModel,
+        #    'avg_factor' : AvgFactorModel,
         }
     elif type_ == "SA":
         templates = {
@@ -605,14 +605,14 @@ if coin_type == 5:
     elif type_ == "rest":
         templates = {
         "holt": Holt,
-        'sarima': SARIMAX,
+        #'sarima': SARIMAX,
         'naive': NaiveModel,
         'snaive': SeasonalNaiveModel,
         "ExponentialSmoothing": ExponentialSmoothing,
         'SimpleExpSmoothing' : SimpleExpSmoothing,
-        'mean': MeanModel,
+        #'mean': MeanModel,
         'LinearRegression': SeasonalLinearModel,
-        'avg_factor' : AvgFactorModel,
+       # 'avg_factor' : AvgFactorModel,
 
         }
     else:
