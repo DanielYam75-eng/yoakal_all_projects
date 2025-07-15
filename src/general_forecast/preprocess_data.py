@@ -8,7 +8,7 @@ from read_file import read
 parser = argparse.ArgumentParser(description="Forecasting script")
 parser.add_argument("--path", type=str, required=True, help="Path to the CSV file")
 parser.add_argument("--current-year", type=int, required=True, help="The year to which we create the forecast for")
-parser.add_argument("--coin_type", type=int, required=True, help="Coin type to filter data")
+parser.add_argument("--coin-type", type=int, required=True, help="Coin type to filter data")
 data = read(parser.parse_args().path, sep='\t')
 current_year = parser.parse_args().current_year
 coin_type = parser.parse_args().coin_type

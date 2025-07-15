@@ -151,6 +151,7 @@ def forcast_data(month_to_predict,wining_model_specific_year,data_we_got_to_use_
             model = templates[wining_model_specific_year[kvotzat_otzar_sahar][0]](data_we_got_to_use_in_prediction[kvotzat_otzar_sahar])
         model_fit = model.fit()
         forecast = model_fit.forecast(month_to_predict)
+        forecast.index = pd.date_range(data_we_got_to_use_in_prediction[kvotzat_otzar_sahar].index[-1] + pd.offsets.MonthEnd(1), periods=month_to_predict, freq='ME')
         forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
     return forcast_data_specific_year
 
