@@ -63,8 +63,14 @@ if coin_type == 1:
     data.loc[data['doc_type'].isin(['KT']), 'type'] = 'KT'
     data.loc[data['doc_type'].isin(['SA']), 'type'] = 'SA'
     data.to_csv('result-data-preprocessed-by-posting-date_all.csv')
-else:
-    #need to add
+if coin_type == 5:
+    data.loc[(data['doc_type'] == 'ZW'), 'type'] = 'ZW'
+    data.loc[(data['doc_type'] == 'ZC'), 'type'] = 'ZC'
+
+    data.loc[(data['doc_type'].isin(['KR','KG'])) & (data['expenditure_type'].isin([2010,2030,2050,2015,2035, 2045])), 'type'] = 'travel-KRKG'
+    data.loc[(data['doc_type'].isin(['KR','KG'])) & (data['fund_code'].isin(range(1400, 1479))), 'type'] = '14-KRKG'
+
+    data.loc[data['doc_type'].isin(['SA']), 'type'] = 'SA'
 
 
 

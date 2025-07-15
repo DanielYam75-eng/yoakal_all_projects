@@ -114,15 +114,14 @@ class TSModel4:
 
 
 
-if coin_type == 1:
-    templates = {
-        'naive': NaiveModel,
-        'seasonal_naive': SeasonalNaiveModel,
-        'mean': MeanModel,
-        'SimpleExpSmoothing': SimpleExpSmoothing
+
+templates = {
+    'naive': NaiveModel,
+    'seasonal_naive': SeasonalNaiveModel,
+    'mean': MeanModel,
+    'SimpleExpSmoothing': SimpleExpSmoothing
 }
-else:
-    #need to add
+
 
 def find_r2_score_values_data(how_much_months_to_forcast,data_by_ozar_groups,year_to_predict):
     r2_score_values_data = {}
