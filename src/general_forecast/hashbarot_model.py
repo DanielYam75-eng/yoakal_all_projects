@@ -17,11 +17,13 @@ parser.add_argument("--past_year",   type=int, required=True, help="Year to fore
 parser.add_argument("--curr_year",   type=int, required=True, help="Current Year")
 parser.add_argument("--curr_month",  type=int, required=True, help="Current Month")
 parser.add_argument("--months_back", type=int, required=False, default = -1, help="Month to train on")
+parser.add_argument("--coin_type", type=int, required=True, help="Coin type to filter data")
 
 year_to_predict                  = parser.parse_args().past_year
 how_much_month_in_current_year_in_data   = parser.parse_args().curr_month
 current_year                     = parser.parse_args().curr_year
 how_much_month_back_to_use       = parser.parse_args().months_back
+coin_type                        = parser.parse_args().coin_type
 flag_for_using_only_part_of_data = how_much_month_back_to_use != -1
 how_much_months_in_year          = 12
 
@@ -112,33 +114,16 @@ class TSModel4:
 
 
 
-
-templates = {
-   'naive': NaiveModel,
-   'seasonal_naive': SeasonalNaiveModel,
-   'mean': MeanModel,
-   'SimpleExpSmoothing' : SimpleExpSmoothing
+if coin_type == 1:
+    templates = {
+        'naive': NaiveModel,
+        'seasonal_naive': SeasonalNaiveModel,
+        'mean': MeanModel,
+        'SimpleExpSmoothing': SimpleExpSmoothing
 }
+else:
+    #need to add
 
-
-# %% [markdown]
-# # PREPROCESS
-# 
-
-# %%
-data_as_frame = time_serieses.unstack(level=[0, 1]).fillna(0)
-
-# %%
-temp = data_as_frame.resample("YE").sum().loc['2023':'2024'].T.groupby(level=1).sum().sum().sum()
-
-# %% [markdown]
-# # biggest sums went into kvotzot otzar in 2024 compare to 2023
-
-
-# %% [markdown]
-# # functions
-
-# %%
 def find_r2_score_values_data(how_much_months_to_forcast,data_by_ozar_groups,year_to_predict):
     r2_score_values_data = {}
     for key in templates:

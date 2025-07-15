@@ -22,6 +22,7 @@ parser.add_argument("--past_year",   type=int, required=True, help="Year to fore
 parser.add_argument("--curr_year",   type=int, required=True, help="Current Year")
 parser.add_argument("--curr_month",  type=int, required=True, help="Current Month")
 parser.add_argument("--months_back", type=int, required=False, default = -1, help="Month to train on")
+parser.add_argument("--coin_type", type=int, required=True, help="Coin type to filter data")
 
 
 year_to_predict                     = parser.parse_args().past_year
@@ -29,6 +30,7 @@ how_much_month_in_curr_year_in_data = parser.parse_args().curr_month
 how_much_month_back_to_use          = parser.parse_args().months_back
 current_year                        = parser.parse_args().curr_year
 type_                               = parser.parse_args().type
+coin_type                           = parser.parse_args().coin_type
 how_much_months_in_year             = 12
 flag_for_using_only_part_of_data    = how_much_month_back_to_use != -1
 PATH    = parser.parse_args().path
@@ -258,246 +260,319 @@ def changing_kvotzat_otzar(month_to_predict,forcast_data_specific_year,wining_mo
     return kvotzot_otzar_got_changed
 
 # Define the templates based on the type
-if type_ == "career_salary":
-    templates = {
-       #"SeasonalLinear": SeasonalLinearModel,
-       'avg_factor' : AvgFactorModel,
-       "naive": NaiveModel,
-       "snaive": SeasonalNaiveModel,
+if type_ == "career_salary" :
+    if coin_type==1:
+        templates = {
+        #"SeasonalLinear": SeasonalLinearModel,
+        'avg_factor' : AvgFactorModel,
+        "naive": NaiveModel,
+        "snaive": SeasonalNaiveModel,
 
-    }
-elif type_ == "drafted_salary":
-    templates = {
-       "SeasonalLinear": SeasonalLinearModel,
-       'avg_factor' : AvgFactorModel,
-       "naive": NaiveModel,
-       "snaive": SeasonalNaiveModel,
-
-    }
-elif type_ == "pensions":
-    templates = {
-       "SeasonalLinear": SeasonalLinearModel,
-       #'avg_factor' : AvgFactorModel,
-       #"naive": NaiveModel,
-       #"snaive": SeasonalNaiveModel,
-
-    }
-elif type_ == "idf_workers_salary":
-    templates = {
-       #"SeasonalLinear": SeasonalLinearModel,
-       'avg_factor' : AvgFactorModel,
-       "naive": NaiveModel,
-       "snaive": SeasonalNaiveModel,
-
-    }
-elif type_ == "dd_workers_salary":
-    templates = {
-       #"SeasonalLinear": SeasonalLinearModel,
-       'avg_factor' : AvgFactorModel,
-       "naive": NaiveModel,
-       "snaive": SeasonalNaiveModel,
-
-    }
-elif type_ == "pre_draft_salary":
-    templates = {
-       "SeasonalLinear": SeasonalLinearModel,
-       'avg_factor' : AvgFactorModel,
-       #"naive": NaiveModel,
-       #"snaive": SeasonalNaiveModel,
-
-    }
-elif type_ == "additional_drafted_service_salary":
-    templates = {
-       #"SeasonalLinear": SeasonalLinearModel,
-       'avg_factor' : AvgFactorModel,
-       #"naive": NaiveModel,
-       #"snaive": SeasonalNaiveModel,
-
-    }
-elif type_ == "commemoration":
-    templates = {
-     "holt": Holt,
-      #'sarima': SARIMAX,
-       #'naive': NaiveModel,
-      #'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-       #"SeasonalLinear": SeasonalLinearModel,
-       #'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-       'avg_factor' : AvgFactorModel,
-       }
-elif type_ == "families":
-    templates = {
-     #"holt": Holt,
-      #'sarima': SARIMAX,
-       #'naive': NaiveModel,
-      #'snaive': SeasonalNaiveModel,
-       #"ExponentialSmoothing": ExponentialSmoothing,
-       #"SeasonalLinear": SeasonalLinearModel,
-       #'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-       'avg_factor' : AvgFactorModel,
-       }
-elif type_ == "disabled":
-    templates = {
-     "holt": Holt,
-      #'sarima': SARIMAX,
-       #'naive': NaiveModel,
-      #'snaive': SeasonalNaiveModel,
-       #"ExponentialSmoothing": ExponentialSmoothing,
-       #"SeasonalLinear": SeasonalLinearModel,
-       }
-elif type_ == "affilated_other":
-    templates = {
-     "holt": Holt,
-      #'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-
-    }
-elif type_ == "arnona":
-    templates = {
-     "holt": Holt,
-      #'sarima': SARIMAX,
-       #'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-      "ExponentialSmoothing": ExponentialSmoothing,
-      'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-       'avg_factor' : AvgFactorModel,
+        }
+    else:
+        #need to fill
        
+elif type_ == "drafted_salary":
+    if coin_type==1:
+        templates = {
+        "SeasonalLinear": SeasonalLinearModel,
+        'avg_factor' : AvgFactorModel,
+        "naive": NaiveModel,
+        "snaive": SeasonalNaiveModel,
 
-    }
+        }
+    else:
+        #need to fill
+
+elif type_ == "pensions":
+    if coin_type==1:
+        templates = {
+        "SeasonalLinear": SeasonalLinearModel,
+        #'avg_factor' : AvgFactorModel,
+        #"naive": NaiveModel,
+        #"snaive": SeasonalNaiveModel,
+
+        }
+    else:
+        #need to fill
+elif type_ == "idf_workers_salary":
+    if coin_type==1:
+        templates = {
+        #"SeasonalLinear": SeasonalLinearModel,
+        'avg_factor' : AvgFactorModel,
+        "naive": NaiveModel,
+        "snaive": SeasonalNaiveModel,
+
+        }
+    else:
+        #need to fill
+elif type_ == "dd_workers_salary":
+    if coin_type==1:
+        templates = {
+        #"SeasonalLinear": SeasonalLinearModel,
+        'avg_factor' : AvgFactorModel,
+        "naive": NaiveModel,
+        "snaive": SeasonalNaiveModel,
+
+        }
+    else:
+        #need to fill
+elif type_ == "pre_draft_salary":
+    if coin_type==1:
+        templates = {
+        "SeasonalLinear": SeasonalLinearModel,
+        'avg_factor' : AvgFactorModel,
+        #"naive": NaiveModel,
+        #"snaive": SeasonalNaiveModel,
+
+        }
+    else:
+        #need to fill
+elif type_ == "additional_drafted_service_salary":
+    if coin_type==1:
+        templates = {
+        #"SeasonalLinear": SeasonalLinearModel,
+        'avg_factor' : AvgFactorModel,
+        #"naive": NaiveModel,
+        #"snaive": SeasonalNaiveModel,
+
+        }
+    else:
+        #need to fill
+elif type_ == "commemoration":
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        #'sarima': SARIMAX,
+        #'naive': NaiveModel,
+        #'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        #"SeasonalLinear": SeasonalLinearModel,
+        #'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
+        'avg_factor' : AvgFactorModel,
+        }
+    else:
+        #need to fill
+elif type_ == "families":
+    if coin_type==1:
+        templates = {
+        #"holt": Holt,
+        #'sarima': SARIMAX,
+        #'naive': NaiveModel,
+        #'snaive': SeasonalNaiveModel,
+        #"ExponentialSmoothing": ExponentialSmoothing,
+        #"SeasonalLinear": SeasonalLinearModel,
+        #'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
+        'avg_factor' : AvgFactorModel,
+        }
+    else:
+        #need to fill
+elif type_ == "disabled":
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        #'sarima': SARIMAX,
+        #'naive': NaiveModel,
+        #'snaive': SeasonalNaiveModel,
+        #"ExponentialSmoothing": ExponentialSmoothing,
+        #"SeasonalLinear": SeasonalLinearModel,
+        }
+    else:
+        #need to fill
+elif type_ == "affilated_other":
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        #'sarima': SARIMAX,
+        'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+
+        }
+    else:
+        #need to fill
+elif type_ == "arnona":
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        #'sarima': SARIMAX,
+        #'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
+        'avg_factor' : AvgFactorModel,
+        
+
+        }
+    else:
+        #need to fill
 elif type_ == "KM":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        'sarima': SARIMAX,
+        'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
 
-    }
+        }
+    else:
+        #need to fill
 elif type_ == "KT":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
-
-    }
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        'sarima': SARIMAX,
+        'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
+        }
+    else:
+        #need to fill
 elif type_ == "electricity":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        'sarima': SARIMAX,
+        'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
 
-    }
+        }
+    else:
+        #need to fill
 elif type_ == "water":
-    templates = {
-    'seasonal_linear': SeasonalLinearModel,
-     #"holt": Holt,
-    #'sarima': SARIMAX,
-    #'naive': NaiveModel,
-    'snaive': SeasonalNaiveModel,
-    #"ExponentialSmoothing": ExponentialSmoothing,
-    # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-    #'mean': MeanModel,
-    'avg_factor' : AvgFactorModel,
-    }
+    if coin_type==1:
+        templates = {
+        'seasonal_linear': SeasonalLinearModel,
+        #"holt": Holt,
+        #'sarima': SARIMAX,
+        #'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        #"ExponentialSmoothing": ExponentialSmoothing,
+        # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
+        'avg_factor' : AvgFactorModel,
+        }
+    else:
+        #need to fill
 elif type_ == "vehicles":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        'sarima': SARIMAX,
+        'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
 
-    }
+        }
+    else:
+        #need to fill
 elif type_ == "overseas_transportation":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        'sarima': SARIMAX,
+        'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
 
-    }
+        }
+    else:
+        #need to fill
 elif type_ == "tariffs":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        'sarima': SARIMAX,
+        'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
 
-    }
+        }
+    else:
+        #need to fill
 elif type_ == "insurance":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        'sarima': SARIMAX,
+        'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
 
-    }
+        }
+    else:
+        #need to fill
 elif type_ == "special_compensation":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        'sarima': SARIMAX,
+        'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
 
-    }
+        }
+    else:
+        #need to fill
 elif type_ == "special_research":
-    templates = {
-     "holt": Holt,
-      'sarima': SARIMAX,
-       'naive': NaiveModel,
-      'snaive': SeasonalNaiveModel,
-       "ExponentialSmoothing": ExponentialSmoothing,
-      # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-       #'mean': MeanModel,
+    if coin_type==1:
+        templates = {
+        "holt": Holt,
+        'sarima': SARIMAX,
+        'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        "ExponentialSmoothing": ExponentialSmoothing,
+        # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
 
-    }
+        }
+    else:
+        #need to fill
 elif type_ == "SA":
-    templates = {
-       'mean': MeanModel,
+    if coin_type==1:
+        templates = {
+        'mean': MeanModel,
 
-    }
+        }
+    else:
+        #need to fill
 elif type_ == "rest":
-    templates = {
-    #"holt": Holt,
-    #'sarima': SARIMAX,
-    #'naive': NaiveModel,
-    'snaive': SeasonalNaiveModel,
-    #"ExponentialSmoothing": ExponentialSmoothing,
-    #'SimpleExpSmoothing' : SimpleExpSmoothing,
-    #'mean': MeanModel,
-    #'LinearRegression': SeasonalLinearModel,
-    'avg_factor' : AvgFactorModel,
+    if coin_type==1:
+        templates = {
+        #"holt": Holt,
+        #'sarima': SARIMAX,
+        #'naive': NaiveModel,
+        'snaive': SeasonalNaiveModel,
+        #"ExponentialSmoothing": ExponentialSmoothing,
+        #'SimpleExpSmoothing' : SimpleExpSmoothing,
+        #'mean': MeanModel,
+        #'LinearRegression': SeasonalLinearModel,
+        'avg_factor' : AvgFactorModel,
 
-    }
+        }
+    else:
+        #need to fill
 else:
     raise Exception(f"Type {type_} doesn't exist for path {PATH}.")
 

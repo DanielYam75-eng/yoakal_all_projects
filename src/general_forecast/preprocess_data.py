@@ -8,8 +8,10 @@ from read_file import read
 parser = argparse.ArgumentParser(description="Forecasting script")
 parser.add_argument("--path", type=str, required=True, help="Path to the CSV file")
 parser.add_argument("--current-year", type=int, required=True, help="The year to which we create the forecast for")
+parser.add_argument("--coin_type", type=int, required=True, help="Coin type to filter data")
 data = read(parser.parse_args().path, sep='\t')
 current_year = parser.parse_args().current_year
+coin_type = parser.parse_args().coin_type
 
 # %%
 data = data.melt(id_vars=['financial_year', 'economy', 'expenditure_type', 'doc_type', 'fund_code', 'fingroup', 'law'], var_name='month', value_name='volume')
@@ -36,31 +38,34 @@ data = data[data['fund_code'] != 1410]
 data['type'] = 'rest'
 
 # %%
-data.loc[data['doc_type'] == 'ZC', 'type'] = 'affilated_other'  # Should be before the salary specification
-data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 300), 'type'] = 'vehicles'  # should be before cor
-data.loc[(data['fund_code'] == 1411) & (data['doc_type'] == 'ZC'), 'type'] = 'career_salary'
-data.loc[(data['fund_code'] == 1409) & (data['doc_type'] == 'ZC'), 'type'] = 'drafted_salary'
-data.loc[(data['fund_code'].isin([1401, 1402])) & (data['doc_type'].isin(['ZC','ZW'])), 'type'] = 'pensions'
-data.loc[(data['fund_code'].isin([1408])) & (data['doc_type'] == 'ZC'), 'type'] = 'idf_workers_salary'
-data.loc[(data['fund_code'].isin([1413, 1414, 1415])) & (data['doc_type'].isin(['ZC', 'ZW'])), 'type'] = 'dd_workers_salary'
-data.loc[(data['fund_code'] == 1412) & (data['doc_type'] == 'ZC'), 'type'] = 'pre_draft_salary'
-data.loc[(data['fund_code'] == 1416) & (data['doc_type'] == 'ZC'), 'type'] = 'additional_drafted_service_salary'
-data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 302), 'type'] = 'overseas_transportation'
-data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 706), 'type'] = 'tariffs'
-data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 2900), 'type'] = 'insurance'
-data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 1316), 'type'] = 'special_compensation'
-data.loc[(data['law'] == 9800), 'type'] = 'special_research'
-data.loc[(data['fund_code'].isin([1400, 1405, 1406, 1423, 1425])), 'type'] = 'families'
-data.loc[(data['fund_code'].isin([1403])), 'type'] = 'commemoration'
-data.loc[(data['fund_code'] == 1407), 'type'] = 'disabled'
-data.loc[data['doc_type'].isin(['ZD']), 'type'] = 'arnona'
-data.loc[data['expenditure_type'] == 1020, 'type'] = 'electricity'
-data.loc[data['expenditure_type'] == 1030, 'type'] = 'water'
-data.loc[data['doc_type'].isin(['KM']), 'type'] = 'KM'
-data.loc[data['doc_type'].isin(['KT']), 'type'] = 'KT'
-data.loc[data['doc_type'].isin(['SA']), 'type'] = 'SA'
+if coin_type == 1:
+    data.loc[data['doc_type'] == 'ZC', 'type'] = 'affilated_other'  # Should be before the salary specification
+    data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 300), 'type'] = 'vehicles'  # should be before cor
+    data.loc[(data['fund_code'] == 1411) & (data['doc_type'] == 'ZC'), 'type'] = 'career_salary'
+    data.loc[(data['fund_code'] == 1409) & (data['doc_type'] == 'ZC'), 'type'] = 'drafted_salary'
+    data.loc[(data['fund_code'].isin([1401, 1402])) & (data['doc_type'].isin(['ZC','ZW'])), 'type'] = 'pensions'
+    data.loc[(data['fund_code'].isin([1408])) & (data['doc_type'] == 'ZC'), 'type'] = 'idf_workers_salary'
+    data.loc[(data['fund_code'].isin([1413, 1414, 1415])) & (data['doc_type'].isin(['ZC', 'ZW'])), 'type'] = 'dd_workers_salary'
+    data.loc[(data['fund_code'] == 1412) & (data['doc_type'] == 'ZC'), 'type'] = 'pre_draft_salary'
+    data.loc[(data['fund_code'] == 1416) & (data['doc_type'] == 'ZC'), 'type'] = 'additional_drafted_service_salary'
+    data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 302), 'type'] = 'overseas_transportation'
+    data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 706), 'type'] = 'tariffs'
+    data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 2900), 'type'] = 'insurance'
+    data.loc[(data['doc_type'].isin(['KR', 'KG'])) & (data['law'] == 1316), 'type'] = 'special_compensation'
+    data.loc[(data['law'] == 9800), 'type'] = 'special_research'
+    data.loc[(data['fund_code'].isin([1400, 1405, 1406, 1423, 1425])), 'type'] = 'families'
+    data.loc[(data['fund_code'].isin([1403])), 'type'] = 'commemoration'
+    data.loc[(data['fund_code'] == 1407), 'type'] = 'disabled'
+    data.loc[data['doc_type'].isin(['ZD']), 'type'] = 'arnona'
+    data.loc[data['expenditure_type'] == 1020, 'type'] = 'electricity'
+    data.loc[data['expenditure_type'] == 1030, 'type'] = 'water'
+    data.loc[data['doc_type'].isin(['KM']), 'type'] = 'KM'
+    data.loc[data['doc_type'].isin(['KT']), 'type'] = 'KT'
+    data.loc[data['doc_type'].isin(['SA']), 'type'] = 'SA'
+    data.to_csv('result-data-preprocessed-by-posting-date_all.csv')
+else:
+    #need to add
 
-data.to_csv('result-data-preprocessed-by-posting-date_all.csv')
 
 
 # %%

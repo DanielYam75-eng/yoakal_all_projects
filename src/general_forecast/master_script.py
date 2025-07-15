@@ -19,11 +19,13 @@ def main():
     parser.add_argument("--curr_month",      type=str,  required=True,                   help="Current Month")
     parser.add_argument("--months_back",     type=str,  required=False, default = '-1',  help="Month to train on")
     parser.add_argument("--experiment_mode", type=bool, required=False, default = False, help="Experiment mode")
+    parser.add_argument("--coin_type",      type=int,  required=True, default = 1, help="Coin Type")
     past_year = parser.parse_args().past_year
     months_back = parser.parse_args().months_back
     curr_year = parser.parse_args().curr_year
     curr_month = parser.parse_args().curr_month
     exp_mode = parser.parse_args().experiment_mode
+    coin_type = parser.parse_args().coin_type
 
     IND  = 'kvotzat otzar'
     COL  = 'kvuzat sahar'
@@ -33,18 +35,18 @@ def main():
 
     print("Comencing program...")
     print("Close all relevent tables !!")
-    print(subprocess.run(["python", "preprocess_data.py", "--path", parser.parse_args().main_data, '--current-year', curr_year], capture_output=True, text=True).stderr)
+    print(subprocess.run(["python", "preprocess_data.py", "--path", parser.parse_args().main_data, '--current-year', curr_year, '--coin-type', coin_type], capture_output=True, text=True).stderr)
     print("Finished preprocessing data")
     if not exp_mode:
         print("Working on hashbarot...")
-        print(subprocess.run(["python", "hashbarot_model.py", "--path", parser.parse_args().hashbarot_data, "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back], capture_output=True, text=True).stderr)
+        print(subprocess.run(["python", "hashbarot_model.py", "--path", parser.parse_args().hashbarot_data, "--past_year",  past_year, "--curr_year",  curr_year, "--curr_month",  curr_month, "--months_back", months_back, '--coin-type', coin_type], capture_output=True, text=True).stderr)
         print("Finished hashbarot")
     print("Working on forcasting the rest...")
 
 
     def run_table(table):
         name = table[len('result-'):-len('data-preprocessed-by-posting-date.csv') - 1]
-        result = subprocess.run(["python", "run_notebook.py", "--path", table, "--type", name, "--past_year", past_year, "--curr_year", curr_year, "--curr_month", curr_month, "--months_back", months_back], capture_output=True, text=True)
+        result = subprocess.run(["python", "run_notebook.py", "--path", table, "--type", name, "--past_year", past_year, "--curr_year", curr_year, "--curr_month", curr_month, "--months_back", months_back, "--coin-type", coin_type], capture_output=True, text=True)
     
         if result.stderr: print(f"Error in {table}:\n{result.stderr}")
         else:             print(f"Finished {table}")
