@@ -21,12 +21,12 @@ parser.add_argument("--target_year", "-y", type = int,  required = True)
 parser.add_argument("--train",       "-t", type = int,  required = False, default = 1)
 parser.add_argument("--seed_len",    "-s", type = int,  required = False, default = 1)
 parser.add_argument("--batch_size",  "-b", type = int,  required = False, default = 3)
-parser.add_argument("--epochs",      "-e", type = int,  required = False, default = 300)
+parser.add_argument("--epochs",      "-e", type = int,  required = False, default = 250)
 args = parser.parse_args()
 
 # %%
 PATH  = args.input_path
-GROUP = ["GL"]
+GROUP = ["tressure group"]
 VAL   = "volume"
 YEAR  = "year"
 MONTH = "month"
@@ -77,12 +77,16 @@ scaler.fit(train)
 # Setting years as batches and months as the sequance.
 
 # %%
-def to_batches(table: pd.DataFrame) -> Tensor:
-    return torch.stack([torch.FloatTensor(scaler.transform(group)) for year, group in table.groupby(level = YEAR)])
+def pipeline(table: pd.DataFrame) -> Tensor:
+    table = table.groupby(level = YEAR)
+    table = table.apply(scaler.transform)
+    table = table.apply(torch.FloatTensor)
+    table = torch.stack(table.values.tolist())
+    return table
 
 # %%
-train_ten = to_batches(train)
-test_ten  = to_batches(test)
+train_ten = pipeline(train)
+test_ten  = pipeline(test)
 
 # %%
 target_ten = train_ten[:, 1:, :]
