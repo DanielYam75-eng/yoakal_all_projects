@@ -13,6 +13,8 @@ import hashlib
 def rename_object(username, bucketname, key_name, new_key):
     path_for_temp_file = '.tmp-rename'
     download(username, bucketname, path_for_temp_file, key_name)
+    boto_client = get_repo_bucket_client(username + "/" + bucketname)
+    boto_client.delete_object(Bucket=bucketname, Key=key_name)
     upload(username, bucketname, path_for_temp_file, new_key)
     os.remove(path_for_temp_file)
 
