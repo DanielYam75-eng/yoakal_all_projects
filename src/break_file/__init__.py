@@ -7,7 +7,6 @@ from upload_file import info_file_string
 from download_file import download
 from upload_file import upload
 import os
-import hashlib
 
 
 def rename_object(username, bucketname, key_name, new_key):
@@ -24,16 +23,6 @@ def reverse_df_to_key_default(keyname: str, list_of_files: pd.DataFrame) -> str:
     key_string_format = info_file_string(keyname, df_key["Source"], df_key["Creation Date"], df_key["Template"])
     return key_string_format
  
-
-def make_new_key(files_in_data,keyname,break_flag):   
-    df_key_to_break = files_in_data[files_in_data.index == keyname]
-    if break_flag == True:
-        new_template_key = df_key_to_break["Template"][0] + "?"
-    else:
-        new_template_key = df_key_to_break["Template"][0][:-1]
-    new_key = info_file_string(df_key_to_break.index[0],df_key_to_break["Source"][0],df_key_to_break["Creation Date"][0],new_template_key)
-    return new_key
-
 
 def break_key(username,bucketname,keyname):
     files_in_data = load_files(username,bucketname)
