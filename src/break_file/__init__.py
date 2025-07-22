@@ -42,10 +42,12 @@ def break_key(username,bucketname,keyname):
         return
     else:
         template = files_in_data.loc[keyname, "Template"]
-        new_key = info_file_string(keyname=keyname,
+        if template[-1] == "?":
+            return
+        new_key = info_file_string(name=keyname,
                                    source=files_in_data.loc[keyname, "Source"],
-                                   creation_date=files_in_data[keyname, "Creation Date"],
-                                   template=(template + "?") if template[-1] != "?" else template)
+                                   creation_date=files_in_data.loc[keyname, "Creation Date"],
+                                   template=template + "?")
         rename_object(username,bucketname,keyname,new_key)
 
 def unbreak_key(username,bucketname,keyname):
@@ -55,10 +57,12 @@ def unbreak_key(username,bucketname,keyname):
         return
     else:
         template = files_in_data.loc[keyname, "Template"]
-        new_key = info_file_string(keyname=keyname,
+        if template[-1] != "?":
+            return
+        new_key = info_file_string(name=keyname,
                                    source=files_in_data.loc[keyname, "Source"],
-                                   creation_date=files_in_data[keyname, "Creation Date"],
-                                   template=template if template[-1] != "?" else template[:-1])
+                                   creation_date=files_in_data.loc[keyname, "Creation Date"],
+                                   template=template[:-1])
         rename_object(username,bucketname,keyname,new_key)
 
 
