@@ -10,32 +10,9 @@ import os
 import hashlib
 
 
-def md5_is_valid(username,bucketname,filepath, keyname):
-    with open(filepath, "rb") as f:
-        file_bytes = f.read()
-    hash_md5_specific_file = hashlib.md5(file_bytes).hexdigest().strip('"')
-    boto_client = get_repo_bucket_client(username + "/" + bucketname)
-    response = boto_client.list_objects_v2(Bucket=bucketname)
-
-    etag_specific_data = None
-    for Contents in response.get('Contents'):
-        if Contents.get('Key').startswith(keyname):
-            etag_specific_data = Contents.get('ETag').strip('"')    
-    if etag_specific_data is None:
-        raise ValueError(f"No matching key found for '{keyname}' in bucket '{bucketname}'.")
-    
-    return hash_md5_specific_file == etag_specific_data
-
-
 def rename_object(username, bucketname, key_name, new_key):
-    retries = 3
     path_for_temp_file = '.tmp-rename'
-    for _ in range(retries):
-        download(username, bucketname, path_for_temp_file, key_name)
-        if md5_is_valid(username, bucketname, path_for_temp_file):
-            break
-    else:
-        raise ConnectionError(const.ERROR_DOWNLOAD_FAILED)
+    download(username, bucketname, path_for_temp_file, key_name)
     upload(username, bucketname, path_for_temp_file, new_key)
     os.remove(path_for_temp_file)
 
