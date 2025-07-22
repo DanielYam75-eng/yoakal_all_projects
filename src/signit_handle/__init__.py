@@ -1,9 +1,5 @@
-import signal
-import sys
+from dagshub import get_repo_bucket_client
 
-def signal_handler(sig, frame):
-    sys.exit(0)
-
-def register_sigint_handler():
-    signal.signal(signal.SIGINT, signal_handler)
-
+username = 'yoacal.data.science'
+bucketname = 'exp-repo'
+boto_client = get_repo_bucket_client(username + "/" + bucketname)

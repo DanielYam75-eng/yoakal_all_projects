@@ -3,6 +3,7 @@ from dagshub import get_repo_bucket_client
 import pandas as pd
 from list_files import load_files
 from upload_file import info_file_string
+from signit_handle import boto_client
 
 def read(key_name, **kwargs):
     username = 'yoacal.data.science'
@@ -13,8 +14,6 @@ def read(key_name, **kwargs):
         raise ValueError(f"Key '{key_name}' not found in the bucket '{bucketname}'.")
 
     key_row = existing_files.loc[key_name]
-
-    boto_client = get_repo_bucket_client(username + "/" + bucketname)
 
     key = info_file_string(key_name, key_row['Source'], key_row['Creation Date'], key_row['Template'])
 

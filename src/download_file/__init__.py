@@ -2,6 +2,7 @@ from dagshub import get_repo_bucket_client
 from list_files import load_files
 from upload_file import info_file_string
 import argparse
+from signit_handle import boto_client
 
 
 def download(username, bucketname, filepath, key_name):
@@ -14,7 +15,6 @@ def download(username, bucketname, filepath, key_name):
     key = info_file_string(key_name, key_row['Source'], key_row['Creation Date'], key_row['Template'])
 
 
-    boto_client = get_repo_bucket_client(username + "/" + bucketname)
     boto_client.download_file(bucketname, key, filepath)
 
 def main():

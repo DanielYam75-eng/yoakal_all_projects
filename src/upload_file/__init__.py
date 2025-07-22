@@ -12,10 +12,9 @@ import config_file.template as temp
 import sys
 import os
 from tabulate import tabulate
-from signit_handle import register_sigint_handler
+from signit_handle import boto_client
 
-def upload(username, bucketname, filepath, key):
-    boto_client = get_repo_bucket_client(username + "/" + bucketname)
+def upload(bucketname, filepath, key):
     boto_client.upload_file(filepath, bucketname, key)
 
 def info_file_string(name,source,creation_date,template):
@@ -79,7 +78,7 @@ def is_valid_key_name(key_name,username,bucketname):
         return False
     return True
 
-def check_md5_valid(username,bucketname,filepath):
+def check_md5_valid(bucketname,filepath):
     with open(filepath, "rb") as f:
         file_bytes = f.read()
     hash_md5_specific_file = hashlib.md5(file_bytes).hexdigest().strip('"')
@@ -87,7 +86,6 @@ def check_md5_valid(username,bucketname,filepath):
     original_stdout = sys.stdout
     sys.stdout = open(os.devnull, 'w') 
 
-    boto_client = get_repo_bucket_client(username + "/" + bucketname)
     response = boto_client.list_objects_v2(Bucket=bucketname)
 
     sys.stdout.close()
@@ -112,7 +110,7 @@ def main():
 
     args = parser.parse_args()
 
-    matching_key = check_md5_valid(username, bucketname, args.input)
+    matching_key = check_md5_valid(bucketname, args.input)
     if matching_key is not None:
         print(const.ERROR_DATA_ALREADY_IN_THE_SYSTEM + f" under the key name: {matching_key}")
         return
@@ -136,7 +134,7 @@ def main():
     
 
     info_of_file_as_string = info_file_string(args.keyname,source,creation_date,template)
-    upload(username, bucketname, args.input, info_of_file_as_string)
+    upload(bucketname, args.input, info_of_file_as_string)
 
 if __name__ == "__main__":
     main()

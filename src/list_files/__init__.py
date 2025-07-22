@@ -3,10 +3,9 @@ from datetime import datetime
 import pandas as pd
 from tabulate import tabulate
 import argparse
-
+from signit_handle import boto_client
 
 def list_objects(username, bucketname):
-    boto_client = get_repo_bucket_client(username + "/" + bucketname)
     response = boto_client.list_objects_v2(Bucket=bucketname)
     return response
 
