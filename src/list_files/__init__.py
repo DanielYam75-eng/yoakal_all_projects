@@ -30,9 +30,9 @@ def extract_data_on_files(contents_response,required_template=None):
     for i in range(len(contents_response)):
         name, source, creation_Date, template = get_key_info(contents_response[i].get("Key"))
         if required_template is None:
-            list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
+            list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%Y-%m-%d'),contents_response[i].get("Size")]
         elif required_template == template:
-            list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%d-%m-%Y'),contents_response[i].get("Size")]
+            list_of_files.loc[i] = [name, source, creation_Date, template, pd.to_datetime(contents_response[i].get("LastModified")).strftime('%Y-%m-%d'),contents_response[i].get("Size")]
     return list_of_files
 
 def load_files(username, bucketname,required_template=None):
