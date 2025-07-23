@@ -14,29 +14,32 @@ Loader = Iterator[Tensor]
 
 # %%
 parser = argparse.ArgumentParser()
-parser.add_argument("--input_path",  "-i", type = str,  required = True)
-parser.add_argument("--output_path", "-o", type = str,  required = True)
-parser.add_argument("--model_path",  "-m", type = str,  required = True)
-parser.add_argument("--target_year", "-y", type = int,  required = True)
-parser.add_argument("--train",       "-t", type = int,  required = False, default = 1)
-parser.add_argument("--seed_len",    "-s", type = int,  required = False, default = 1)
-parser.add_argument("--batch_size",  "-b", type = int,  required = False, default = 3)
-parser.add_argument("--epochs",      "-e", type = int,  required = False, default = 250)
+parser.add_argument("--input_path",  "-i", type = str,   required = True)
+parser.add_argument("--output_path", "-o", type = str,   required = True)
+parser.add_argument("--model_path",  "-m", type = str,   required = True)
+parser.add_argument("--target_year", "-y", type = int,   required = True)
+parser.add_argument("--train",       "-t", type = int,   required = False,  default = 1)
+parser.add_argument("--seed_len",    "-s", type = int,   required = False,  default = 1)
+parser.add_argument("--batch_size",  "-b", type = int,   required = False,  default = 3)
+parser.add_argument("--learn_rate",  "-l", type = float, required = False,  default = 1e-3)
+parser.add_argument("--hidden_size", "-n", type = int,   required = False,  default = 300)
+parser.add_argument("--epochs",      "-e", type = int,   required = False,  default = 250)
 args = parser.parse_args()
 
 # %%
 PATH  = args.input_path
-GROUP = ["tressure group"]
+GROUP = ["doc", "pre doc"]
 VAL   = "volume"
 YEAR  = "year"
 MONTH = "month"
 
 # %%
 YSIZE  = 12
+HIDNS  = args.hidden_size
 PYEAR  = args.target_year
 EPOCHS = args.epochs
 BSIZE  = args.batch_size
-LRATE  = 1e-3
+LRATE  = args.learn_rate
 SLEN   = args.seed_len
 
 # %% [markdown]
@@ -50,6 +53,9 @@ data = pd.read_csv(PATH, usecols = [ * GROUP, YEAR, MONTH, VAL])
 # %%
 data : pd.DataFrame = data[data[YEAR] <= PYEAR]
 
+# %%
+data = data.groupby(GROUP).filter(lambda g : g[g[YEAR] == PYEAR - 1][VAL].sum() > 1e+6)
+
 # %% [markdown]
 # Setting groups as features
 
@@ -58,7 +64,7 @@ data = data.pivot_table(index = [YEAR, MONTH], columns = GROUP, values = VAL, ag
 
 # %%
 train = data.loc[data.index.get_level_values(level = YEAR) != PYEAR]
-test  = data.loc[data.index.get_level_values(level = YEAR) == PYEAR]
+test  = data.loc[data.index.get_level_values(level = YEAR) >= PYEAR - 1]
 
 # %% [markdown]
 # Filtering for full years only
@@ -82,6 +88,7 @@ def pipeline(table: pd.DataFrame) -> Tensor:
     table = table.apply(scaler.transform)
     table = table.apply(torch.FloatTensor)
     table = torch.stack(table.values.tolist())
+    table = torch.stack([torch.cat([prev, curr]) for prev, curr in zip(table, table[1:])])
     return table
 
 # %%
@@ -94,10 +101,10 @@ train_ten  = train_ten[:, :-1, :]
 
 # %%
 assert train_ten.size(2) == target_ten.size(2) == test_ten.size(2)
-assert train_ten.size(1) == target_ten.size(1) == YSIZE - 1
+assert train_ten.size(1) == target_ten.size(1) == 2 * YSIZE - 1
 assert train_ten.size(0) == target_ten.size(0)
 assert test_ten.size(0) == 1
-assert SLEN < test_ten.size(1)
+assert SLEN < test_ten.size(1) - YSIZE
 
 # %%
 tdataset = TensorDataset(train_ten, target_ten)
@@ -188,7 +195,7 @@ class YearlyRNN(Forecaster):
 # ### Training
 
 # %%
-model = YearlyRNN(input_dim = train_ten.size(-1))
+model = YearlyRNN(input_dim = train_ten.size(-1), lstm_hid = HIDNS)
 
 # %%
 if args.train:
@@ -203,12 +210,11 @@ else:
 # ### Forecasting
 
 # %%
-pred = torch.concat(tuple(model.forecast(test_ten[:, :SLEN, :], YSIZE - SLEN))).relu()
+pred = torch.concat(tuple(model.forecast(test_ten[:, :YSIZE + SLEN, :], YSIZE - SLEN))).relu()
 
 # %%
 test_ten = test_ten.squeeze()
-assert pred.size(0) == YSIZE
-assert pred.size(1) == test_ten.size(1)
+assert pred.shape == test_ten.shape
 
 # %%
 pred = pred.detach().numpy()
@@ -217,6 +223,11 @@ test_ten = test_ten.detach().numpy()
 # %%
 pred = scaler.inverse_transform(pred)
 test_ten = scaler.inverse_transform(test_ten)
+
+# %%
+pred = pred[YSIZE:]
+test_ten = test_ten[YSIZE:]
+test = test.iloc[YSIZE:]
 
 # %%
 print(f"total prediction: {pred.sum():.2e}")
