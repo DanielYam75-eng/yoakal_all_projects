@@ -18,6 +18,9 @@ allowed_templates = pd.DataFrame(
          ["monim-by-posting-date-foreign-currency-1", 'BI', True],
          ["NN-data-2", 'BI', True],
          ["invoice-history-1", 'BI', True],
+         ["invoices-to-po-3", 'BW', True],
+         ["po-3", 'BW', True],
+         ["dates-po-1", 'BW', True],
          ],
         columns=['template', 'source', 'allowed'])
 
