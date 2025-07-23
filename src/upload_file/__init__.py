@@ -1,4 +1,3 @@
-from dagshub import get_repo_bucket_client
 import argparse
 from datetime import datetime
 import re
@@ -9,10 +8,8 @@ import hashlib
 import numpy as np
 import config_file.constants as const
 import config_file.template as temp
-import sys
-import os
 from tabulate import tabulate
-from signit_handle import boto_client
+from get_client import boto_client
 
 def upload(bucketname, filepath, key):
     boto_client.upload_file(filepath, bucketname, key)
@@ -83,13 +80,7 @@ def check_md5_valid(bucketname,filepath):
         file_bytes = f.read()
     hash_md5_specific_file = hashlib.md5(file_bytes).hexdigest().strip('"')
 
-    original_stdout = sys.stdout
-    sys.stdout = open(os.devnull, 'w') 
-
     response = boto_client.list_objects_v2(Bucket=bucketname)
-
-    sys.stdout.close()
-    sys.stdout = original_stdout
 
     for Contents in response.get('Contents'):
         etag_specific_data = Contents.get('ETag').strip('"')
@@ -97,9 +88,7 @@ def check_md5_valid(bucketname,filepath):
             return get__key_name(Contents.get("Key"))
     return None
 
-def main():
-    register_sigint_handler()
-    
+def main():    
     parser = argparse.ArgumentParser(description="upload a file to a DagsHub bucket.")
 
     username = 'yoacal.data.science'

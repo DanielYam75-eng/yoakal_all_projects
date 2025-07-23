@@ -1,4 +1,3 @@
-from dagshub import get_repo_bucket_client
 import argparse
 import pandas as pd
 from list_files import load_files
@@ -7,8 +6,8 @@ from upload_file import info_file_string
 from download_file import download
 from upload_file import upload
 import os
-from signit_handle import boto_client
-
+from get_client import boto_client
+from dagshub import get_repo_bucket_client
 
 def rename_object(username, bucketname, key_name, new_key):
     path_for_temp_file = '.tmp-rename'
@@ -16,6 +15,7 @@ def rename_object(username, bucketname, key_name, new_key):
     old_key = info_file_string(key_name, files_in_data.loc[key_name, "Source"], files_in_data.loc[key_name, "Creation Date"], files_in_data.loc[key_name, "Template"])
     download(username, bucketname, path_for_temp_file, key_name)
     boto_client.delete_object(Bucket=bucketname, Key=old_key)
+   # boto_client = get_repo_bucket_client(username + "/" + bucketname)
     upload(bucketname, path_for_temp_file, new_key)
     os.remove(path_for_temp_file)
 

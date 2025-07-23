@@ -1,9 +1,8 @@
 import io
-from dagshub import get_repo_bucket_client
 import pandas as pd
 from list_files import load_files
 from upload_file import info_file_string
-from signit_handle import boto_client
+from get_client import boto_client
 
 def read(key_name, **kwargs):
     username = 'yoacal.data.science'

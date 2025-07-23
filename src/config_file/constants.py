@@ -7,4 +7,4 @@ ERROR_TEMPLATE_DISALLOWED = "The chosen template is disallowed, pleasechoose ano
 ERROR_TEMPLATE_NOT_KNOWN = "This template is not known. To use ad-hoc template prefix its name with 'ad-hoc-'"
 ERROR_DATA_NOT_FOUND = "This data is not found. To use ad-hoc template prefix its name with 'ad-hoc-'"
 ERROR_INVALID_BOOLEAN = "Invalid input. Please enter 'True' or 'False'"
-
+ERROR_REMOVE_NOT_BREAKABLE = "This key is not breakable, so it cannot be removed."

@@ -1,8 +1,7 @@
-from dagshub import get_repo_bucket_client
 from list_files import load_files
 from upload_file import info_file_string
 import argparse
-from signit_handle import boto_client
+from get_client import boto_client
 
 
 def download(username, bucketname, filepath, key_name):

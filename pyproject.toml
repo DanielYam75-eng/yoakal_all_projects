@@ -17,7 +17,7 @@ list = "list_files:main"
 show-templates = "show_templates:main"
 break-key = "break_file:main_break"
 unbreak-key = "break_file:main_unbreak"
-
+remove = "remove_file:main"
 
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"
