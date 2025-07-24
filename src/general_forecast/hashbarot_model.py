@@ -8,6 +8,7 @@ from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 import warnings
 warnings.filterwarnings("ignore")
 
+import get_ZH_tuples
 
 IND  = 'kvotzat otzar'
 
@@ -32,6 +33,7 @@ how_much_months_in_year          = 12
 
 # %%
 data = pd.read_csv(r"Data\\" + parser.parse_args().path)
+data = get_ZH_tuples.main(parser.parse_args().path)
 data = data.dropna(subset=['MOF_class_in'])
 data['date'] = pd.to_datetime(data['year'].astype(str) + '-' + data['month'].astype(str), format='%Y-%m') + pd.offsets.MonthEnd(0)
 time_serieses = data.groupby(['MOF_class_out', 'MOF_class_in', 'date'])['value'].sum()
