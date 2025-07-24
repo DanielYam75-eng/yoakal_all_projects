@@ -9,7 +9,6 @@ dependencies = [
 	"pandas",
 	"numpy",
 	"statsmodels",
-	"pmdarima",
 	"scikit-learn",
 	"xgboost",
 	]
