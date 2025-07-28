@@ -4,7 +4,7 @@ import pandas as pd
 import torch
 from torch.utils.data import TensorDataset, DataLoader
 from torch.optim import Adam
-from torch.nn import Module, Sequential, Linear, Dropout, LSTM
+from torch.nn import Module, Sequential, Linear, LSTM
 from torch.nn.utils import clip_grad_norm_
 from torch.nn.functional import mse_loss
 from sklearn.preprocessing import MinMaxScaler
@@ -28,7 +28,7 @@ args = parser.parse_args()
 
 # %%
 PATH  = args.input_path
-GROUP = ["doc", "pre doc"]
+GROUP = ["doc type", "tressure group"]
 VAL   = "volume"
 YEAR  = "year"
 MONTH = "month"
@@ -241,11 +241,13 @@ print(f"error percentage: {abs(err / test_ten.sum()) * 100:.2f}%")
 # %%
 # results
 
-test = test.transpose()
+test : pd.DataFrame = test.transpose()
 pred = pd.DataFrame(index = test.index, data = pred.transpose())
 
 test = test.sum(axis = 1)
 pred = pred.sum(axis = 1)
+combined = pred.to_frame(name = "forecast").join(test.to_frame(name = "actual"))
 
 pred.to_csv(args.output_path + f" forecast {PYEAR}.csv")
 test.to_csv(args.output_path + f" actual {PYEAR}.csv")
+combined.to_csv(args.output_path + f" combined {PYEAR}.csv")
