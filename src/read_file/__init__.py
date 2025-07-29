@@ -19,7 +19,7 @@ def read(key_name: str, requested_templates: str | list[str] | None = None, **kw
     if requested_templates is not None and key_row['Template'] not in requested_templates:
         raise ValueError(f"Template mismatch: expected one of '{requested_templates}', got '{key_row['Template']}'.")
 
-    key = info_file_string(key_name, key_row['Source'], key_row['Creation Date'], requested_templates[0])
+    key = info_file_string(key_name, key_row['Source'], key_row['Creation Date'], key_row['Template'])
     obj = boto_client.get_object(Bucket=bucketname, Key=key)
 
     data = pd.read_csv(io.BytesIO(obj['Body'].read()), **kwargs)
