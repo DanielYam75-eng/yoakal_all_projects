@@ -26,6 +26,10 @@ allowed_templates = pd.DataFrame(
          ["disabled-invoices", 'BW', True],
          ["CPI", 'report', True],
          ["CPI-health", 'report', True],
+         ["families-quantity", 'report', True],
+         ["orphans-invoices", 'BW', True],
+         ["widows-invoices", 'BW', True],
+         ["parents-invoices", 'BW', True],
          ],
         columns=['template', 'source', 'allowed'])
 
