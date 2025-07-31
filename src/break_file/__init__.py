@@ -29,7 +29,7 @@ def reverse_df_to_key_default(keyname: str, list_of_files: pd.DataFrame) -> str:
 def break_key(username,bucketname,keyname):
     files_in_data = load_files(username,bucketname)
     if keyname not in files_in_data.index:
-        print(const.ERROR_DATA_NOT_FOUND)
+        print(f"{keyname} wasn't found in bucket. Please check for typos.")
         return
     else:
         template = files_in_data.loc[keyname, "Template"]
@@ -44,7 +44,7 @@ def break_key(username,bucketname,keyname):
 def unbreak_key(username,bucketname,keyname):
     files_in_data = load_files(username,bucketname)
     if keyname not in files_in_data.index:
-        print(const.ERROR_DATA_NOT_FOUND)
+        print(f"{keyname} wasn't found in bucket. Please check for typos.")
         return
     else:
         template = files_in_data.loc[keyname, "Template"]
