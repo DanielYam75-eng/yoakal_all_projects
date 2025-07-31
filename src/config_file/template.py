@@ -13,7 +13,7 @@ allowed_templates = pd.DataFrame(
          ["ZH-foreign-currency-1", 'BI', True],
          ["simulator-data-1", 'BW', True],
          ["simulator-time-axis-1", 'BW', True],
-         ["NN-data-1", 'BI', True],
+         ["NN-data-1", 'BI', False],
          ["ZH-1", 'BI', True],
          ["monim-by-posting-date-foreign-currency-1", 'BI', True],
          ["NN-data-2", 'BI', True],
