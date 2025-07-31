@@ -54,15 +54,20 @@ def main():
     username = 'yoacal.data.science'
     bucketname = 'exp-repo'
 
-    parser.add_argument("-t", "--template", type=str, help="template of files to list")
+    parser.add_argument("-t", "--template", type=str, help="List only files of template <template>", required=False)
+    parser.add_argument("--all", action="store_true", help="List all files, instead of only the 10 most recently modified")
+
     args = parser.parse_args()
 
     list_of_files = load_files(username, bucketname,args.template)
     list_of_files.columns = ['Source', 'Creation Date', 'Template', 'Last Modified', 'Size']
     list_of_files['Size'] = list_of_files['Size'].apply(human_readable_size)
 
-    
-    print(tabulate(list_of_files, headers='keys', tablefmt='plain'))
+    if args.all:
+        print(tabulate(list_of_files, headers='keys', tablefmt='plain'))
+    else:
+        last_10_modified_files = list_of_files.head(10)
+        print(tabulate(last_10_modified_files, headers='keys', tablefmt='plain'))
 
 
 if __name__ == "__main__":
