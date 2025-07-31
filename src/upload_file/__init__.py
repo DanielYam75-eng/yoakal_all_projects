@@ -88,18 +88,18 @@ def check_md5_valid(bucketname,filepath):
             return get__key_name(Contents.get("Key"))
     return None
 
-def main():    
+def main():
     parser = argparse.ArgumentParser(description="upload a file to a DagsHub bucket.")
 
     username = 'yoacal.data.science'
     bucketname = 'exp-repo'
-    
-    parser.add_argument("keyname", type=str, help="key name for the uploaded file") 
-    parser.add_argument("-i", "--input", type=str, help="local path of file to input")
+
+    parser.add_argument("path", type=str, help="local path of file to input")
+    parser.add_argument("--as", type=str, help="key name for the file in the bucket", required=True, dest="keyname")
 
     args = parser.parse_args()
 
-    matching_key = check_md5_valid(bucketname, args.input)
+    matching_key = check_md5_valid(bucketname, args.path)
     if matching_key is not None:
         print(const.ERROR_DATA_ALREADY_IN_THE_SYSTEM + f" under the key name: {matching_key}")
         return
@@ -107,7 +107,7 @@ def main():
     if not is_valid_name(args.keyname):
         print(f"Invalid key name. {const.ERROR_INVALID_NAME}")
         return
-    
+
     if not is_valid_key_name(args.keyname,username,bucketname):
         print(const.ERROR_INVALID_KEY_NAME)
         return
@@ -120,10 +120,10 @@ def main():
         source = get_valid_input_source("Enter source: ", is_valid_name, f"Invalid source.{const.ERROR_INVALID_NAME}")
 
     creation_date = get_valid_date("Enter creation date (format: YYYY-MM-DD): ",const.ERROR_INVALID_DATE)
-    
+
 
     info_of_file_as_string = info_file_string(args.keyname,source,creation_date,template)
-    upload(bucketname, args.input, info_of_file_as_string)
+    upload(bucketname, args.path, info_of_file_as_string)
 
 if __name__ == "__main__":
     main()
