@@ -18,7 +18,6 @@ def get_ZH_tuples(in_data: pd.DataFrame) -> pd.DataFrame:
 
 def main(input_path):
 
-    input_path = input_path[0]
     input_data = read(input_path, sep='\t')
     output_data = get_ZH_tuples(input_data)
     output_data = output_data.dropna(subset=['MOF_class_out', 'MOF_class_in', 'value', 'year', 'month', 'law'])
