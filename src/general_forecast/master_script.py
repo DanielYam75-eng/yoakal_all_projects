@@ -79,9 +79,6 @@ def main():
     if not exp_mode:
         pd.concat([pd.read_csv(f, index_col = IND) for f in os.listdir() if f.startswith('full_actual')], axis = 1).fillna(0).sort_index().to_csv(rf'Data\ALL_actual_data_{past_year}.csv')
 
-    #if not exp_mode:
-    #    print("Grading...")
-    #    print(subprocess.run(["python", "evaluate.py", '-f', rf"Data\ALL__{past_year}.csv", '-t', rf"Data\ALL_actual_data_{past_year}.csv", '-o', rf"Data\{past_year}_grades.csv"], capture_output=True, text=True).stderr)
     print("Cleaning...")
     subprocess.run(["python", "clean.py"], capture_output=True, text=True)
 
