@@ -19,7 +19,7 @@ allowed_templates = pd.DataFrame(
          ["NN-data-2", 'BI', True],
          ["invoice-history-1", 'BI', True],
          ["monim-no-re-1-cash", 'BI', True],
-         ["invoices-to-po-3", 'BW', True],
+         ["invoices-to-po-3", 'BI', True],
          ["po-3", 'BW', True],
          ["dates-po-1", 'BW', True],
          ["disabled-quantity", 'report', True],
