@@ -3,8 +3,9 @@ import pandas as pd
 from list_files import load_files
 from upload_file import info_file_string
 from get_client import boto_client
+from typing import Union
 
-def read(key_name: str, requested_templates: str | list[str] | None = None, **kwargs) -> pd.DataFrame:
+def read(key_name: str, requested_templates: Union[str, list[str], None] = None, **kwargs) -> pd.DataFrame:
     username = 'yoacal.data.science'
     bucketname = 'exp-repo'
     if requested_templates is str:
