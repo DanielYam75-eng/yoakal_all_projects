@@ -336,21 +336,7 @@ def main(path,type,past_year, curr_year, curr_month, months_back, coin_type):
             #'mean': MeanModel,
             'avg_factor' : AvgFactorModel,
             }
-            
-        elif type_ == "families":
-            
-            templates = {
-            #"holt": Holt,
-            #'sarima': SARIMAX,
-            #'naive': NaiveModel,
-            #'snaive': SeasonalNaiveModel,
-            #"ExponentialSmoothing": ExponentialSmoothing,
-            #"SeasonalLinear": SeasonalLinearModel,
-            #'SimpleExpSmoothing' : SimpleExpSmoothing,
-            #'mean': MeanModel,
-            'avg_factor' : AvgFactorModel,
-            }
-            
+                        
         elif type_ == "affilated_other":
             
             templates = {
@@ -525,6 +511,19 @@ def main(path,type,past_year, curr_year, curr_month, months_back, coin_type):
             #'mean': MeanModel,
             #'LinearRegression': SeasonalLinearModel,
             'avg_factor' : AvgFactorModel,
+
+            }
+
+        elif type_ == "families":
+            
+            templates = {
+            #"holt": Holt,
+            #'sarima': SARIMAX,
+            #'naive': NaiveModel,
+            'snaive': SeasonalNaiveModel,
+            "ExponentialSmoothing": ExponentialSmoothing,
+            # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+            #'mean': MeanModel,
 
             }
         else:

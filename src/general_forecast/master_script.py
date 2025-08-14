@@ -11,9 +11,10 @@ from .hashbarot_model import main as hashbarot_main
 from .clean import main as clean_main
 from .evaluate import main as evaluate_main
 
+from families_forecast import forecast_families
 
 def main():
-
+    # general data
     parser = argparse.ArgumentParser(description="The Main Program")
     parser.add_argument("--hashbarot_data",  type=str,  required=True,                   help="Path to the hashbarot data")
     parser.add_argument("--main_data",       type=str,  required=True,                   help="Path to the main data")
@@ -23,12 +24,32 @@ def main():
     parser.add_argument("--months_back",     type=int,  required=False, default = -1,  help="Month to train on")
     parser.add_argument("--experiment_mode", type=bool, required=False, default = False, help="Experiment mode")
     parser.add_argument("--coin_type",      type=int,  required=True, default = 1, help="Coin Type")
+    # data for families
+    parser.add_argument("--war_year", type=int, required=True)
+    parser.add_argument("--hesh_data_widows", type=str, required=True)
+    parser.add_argument("--hesh_data_orphans", type=str, required=True)
+    parser.add_argument("--hesh_data_parents", type=str, required=True)
+    parser.add_argument("--families_data", type=str, required=True)
+    parser.add_argument("--CPI_changes", type=str, required=True)
+
     past_year = parser.parse_args().past_year
     months_back = parser.parse_args().months_back
     curr_year = parser.parse_args().curr_year
     curr_month = parser.parse_args().curr_month
     exp_mode = parser.parse_args().experiment_mode
     coin_type = parser.parse_args().coin_type
+
+    CPI_changes = parser.parse_args().CPI_changes
+    hesh_data_orphans = parser.parse_args().hesh_data_orphans
+    hesh_data_widows = parser.parse_args().hesh_data_widows
+    hesh_data_parents = parser.parse_args().hesh_data_parents
+    families_data = parser.parse_args().families_data
+    war_year = parser.parse_args().war_year
+    fund_codes = {
+        "widows": 1400,
+        "orphans": 1405,
+        "parents": 1406,
+    }
 
     IND  = 'kvotzat otzar'
     COL  = 'kvuzat sahar'
@@ -69,10 +90,19 @@ def main():
 
         months = forcasts.columns.difference([IND, COL])
         if not exp_mode and table_type == TABLES[1]: forcasts.to_csv(r'Data\ALL_' + table_type + '_monthly' + '.csv', index = False)
-        print(months[-12:])
         forcasts[VAL] = forcasts[months[-12:]].sum(axis = 1)
 
         forcasts = forcasts.pivot_table(index = IND, columns = COL, values = VAL, aggfunc = 'sum')
+        orphans_predictions = forecast_families(h=1, curr_year=int(curr_year),hesh_data=hesh_data_orphans, families_data=families_data, CPI_changes=CPI_changes, fund_code=fund_codes["orphans"] ,war_year=war_year)
+        widows_predictions = forecast_families(h=1, curr_year=int(curr_year),hesh_data=hesh_data_widows, families_data=families_data, CPI_changes=CPI_changes, fund_code=fund_codes["widows"] ,war_year=war_year)
+        parents_predictions = forecast_families(h=1, curr_year=int(curr_year),hesh_data=hesh_data_parents, families_data=families_data, CPI_changes=CPI_changes, fund_code=fund_codes["parents"],war_year=war_year)
+
+        orphans_predictions.columns = ["forcast_orphans_2025"]
+        widows_predictions.columns = ["forcast_widows_2025"]
+        parents_predictions.columns = ["forcast_parents_2025"]
+
+        families_predictions = pd.concat([orphans_predictions, widows_predictions, parents_predictions], axis=1)
+        forcasts = pd.concat([forcasts, families_predictions,], axis=1)
 
         forcasts['sum'] = forcasts.select_dtypes(include = 'number').fillna(0).sum(axis = 1)
 
