@@ -514,8 +514,21 @@ def main(path,type,past_year, curr_year, curr_month, months_back, coin_type):
 
             }
 
-        elif type_ == "families":
-            
+        elif type_ == "hostages":
+
+            templates = {
+            #"holt": Holt,
+            #'sarima': SARIMAX,
+            #'naive': NaiveModel,
+            'snaive': SeasonalNaiveModel,
+            "ExponentialSmoothing": ExponentialSmoothing,
+            # 'SimpleExpSmoothing' : SimpleExpSmoothing,
+            #'mean': MeanModel,
+
+            }
+
+        elif type_ == "fiancees":
+
             templates = {
             #"holt": Holt,
             #'sarima': SARIMAX,
