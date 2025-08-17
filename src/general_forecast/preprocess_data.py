@@ -24,12 +24,11 @@ def main(path, current_year, coin_type):
     # %%
     data.fillna({'volume': 0}, inplace=True)
 
-    # %%
+# %%
     data = data[~data['doc_type'].isin(['RE', 'ZY', 'ZF', 'ZH'])]
+    data = data[~data['fund_code'].isin([1410,1407,1405,1400,1406])]
 
-    data = data[~data['fund_code'].isin([1410,1405,1400,1406])]
-
-    # %%
+        # %%
     data['type'] = 'rest'
 
     # %%
@@ -50,6 +49,7 @@ def main(path, current_year, coin_type):
         data.loc[(data['law'] == 9800), 'type'] = 'special_research'
         data.loc[(data['fund_code'].isin([1423, 1425])), 'type'] = 'families'
         data.loc[(data['fund_code'].isin([1403])), 'type'] = 'commemoration'
+        data.loc[(data['fund_code'] == 1407), 'type'] = 'disabled'
         data.loc[data['doc_type'].isin(['ZD']), 'type'] = 'arnona'
         data.loc[data['expenditure_type'] == 1020, 'type'] = 'electricity'
         data.loc[data['expenditure_type'] == 1030, 'type'] = 'water'

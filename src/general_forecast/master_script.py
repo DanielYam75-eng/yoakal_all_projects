@@ -10,8 +10,9 @@ from .run_notebook import main as run_notebook_main
 from .hashbarot_model import main as hashbarot_main
 from .clean import main as clean_main
 from .evaluate import main as evaluate_main
-
 from families_forecast import forecast_families
+from disable_forecast import forecast_disabled
+
 
 def main():
     # general data
@@ -24,13 +25,20 @@ def main():
     parser.add_argument("--months_back",     type=int,  required=False, default = -1,  help="Month to train on")
     parser.add_argument("--experiment_mode", type=bool, required=False, default = False, help="Experiment mode")
     parser.add_argument("--coin_type",      type=int,  required=True, default = 1, help="Coin Type")
+
     # data for families
     parser.add_argument("--war_year", type=int, required=True)
     parser.add_argument("--hesh_data_widows", type=str, required=True)
     parser.add_argument("--hesh_data_orphans", type=str, required=True)
     parser.add_argument("--hesh_data_parents", type=str, required=True)
     parser.add_argument("--families_data", type=str, required=True)
+    # data for disabled
+    parser.add_argument("--hesh_data_disabled", type=str, required=True)
+    parser.add_argument("--disabled_data", type=str, required=True)
+    parser.add_argument("--CPI_health_changes", type=str, required=True)
+    # data for families and  disabled
     parser.add_argument("--CPI_changes", type=str, required=True)
+
 
     past_year = parser.parse_args().past_year
     months_back = parser.parse_args().months_back
@@ -50,6 +58,9 @@ def main():
         "orphans": 1405,
         "parents": 1406,
     }
+    hesh_data_disabled = parser.parse_args().hesh_data_disabled
+    disabled_data = parser.parse_args().disabled_data
+    CPI_health_changes = parser.parse_args().CPI_health_changes
 
     IND  = 'kvotzat otzar'
     COL  = 'kvuzat sahar'
@@ -103,6 +114,10 @@ def main():
 
         families_predictions = pd.concat([orphans_predictions, widows_predictions, parents_predictions], axis=1)
         forcasts = pd.concat([forcasts, families_predictions,], axis=1)
+
+        disabled_predictions = forecast_disabled(h=1, curr_year=int(curr_year),hesh_data=hesh_data_disabled, disabled_data=disabled_data, CPI_changes=CPI_changes, CPI_health_changes=CPI_health_changes)
+        disabled_predictions.columns = ["forcast_disabled_2025"]
+        forcasts = pd.concat([forcasts, disabled_predictions], axis=1)
 
         forcasts['sum'] = forcasts.select_dtypes(include = 'number').fillna(0).sum(axis = 1)
 
