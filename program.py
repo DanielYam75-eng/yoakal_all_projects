@@ -28,7 +28,7 @@ args = parser.parse_args()
 
 # %%
 PATH  = args.input_path
-GROUP = ["doc type", "tressure group"]
+GROUP = ["GL"]
 VAL   = "volume"
 YEAR  = "year"
 MONTH = "month"
@@ -63,8 +63,8 @@ data = data.groupby(GROUP).filter(lambda g : g[g[YEAR] == PYEAR - 1][VAL].sum() 
 data = data.pivot_table(index = [YEAR, MONTH], columns = GROUP, values = VAL, aggfunc = 'sum', fill_value = 0).sort_index()
 
 # %%
-train = data.loc[data.index.get_level_values(level = YEAR) != PYEAR]
-test  = data.loc[data.index.get_level_values(level = YEAR) >= PYEAR - 1]
+train : pd.DataFrame = data.loc[data.index.get_level_values(level = YEAR) != PYEAR]
+test  : pd.DataFrame = data.loc[data.index.get_level_values(level = YEAR) >= PYEAR - 1]
 
 # %% [markdown]
 # Filtering for full years only
@@ -87,7 +87,7 @@ def pipeline(table: pd.DataFrame) -> Tensor:
     table = table.groupby(level = YEAR)
     table = table.apply(scaler.transform)
     table = table.apply(torch.FloatTensor)
-    table = torch.stack(table.values.tolist())
+    table = table.values.tolist()
     table = torch.stack([torch.cat([prev, curr]) for prev, curr in zip(table, table[1:])])
     return table
 
@@ -214,7 +214,8 @@ pred = torch.concat(tuple(model.forecast(test_ten[:, :YSIZE + SLEN, :], YSIZE - 
 
 # %%
 test_ten = test_ten.squeeze()
-assert pred.shape == test_ten.shape
+assert pred.size(0) == YSIZE * 2
+assert pred.size(1) == test_ten.size(1)
 
 # %%
 pred = pred.detach().numpy()
@@ -241,13 +242,16 @@ print(f"error percentage: {abs(err / test_ten.sum()) * 100:.2f}%")
 # %%
 # results
 
-test : pd.DataFrame = test.transpose()
+test = test.transpose()
 pred = pd.DataFrame(index = test.index, data = pred.transpose())
 
-test = test.sum(axis = 1)
-pred = pred.sum(axis = 1)
-combined = pred.to_frame(name = "forecast").join(test.to_frame(name = "actual"))
+test = test.sum(axis = 1).to_frame(name = "forecast")
+pred = pred.sum(axis = 1).to_frame(name = "actual")
+results = pred.join(test)
 
-pred.to_csv(args.output_path + f" forecast {PYEAR}.csv")
-test.to_csv(args.output_path + f" actual {PYEAR}.csv")
-combined.to_csv(args.output_path + f" combined {PYEAR}.csv")
+results.sort_values(by = "actual", inplace = True, ascending = False)
+results.loc[results["actual"] == 0, "forecast"] = 0
+results["abs err"] = results["forecast"].sub(results["actual"]).abs()
+results["rel err"] = results["abs err"].div(results["actual"])
+
+results.to_csv(args.output_path + f"results {PYEAR}.csv")
