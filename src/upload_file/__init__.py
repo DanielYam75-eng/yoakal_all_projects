@@ -22,7 +22,7 @@ def info_file_string(name,source,creation_date,template):
     return combined_file_info
 
 def is_valid_name(name):
-    if not (1 <= len(name) <=128):
+    if not (1 <= len(name) <= 32):
         return False
 
     if '^' in name or '=' in name:

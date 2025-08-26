@@ -1,4 +1,4 @@
-ERROR_INVALID_NAME = "Must be 1-128 characters and contain only letters, digits, '-', '_', or '.' and not include '^' or '='."
+ERROR_INVALID_NAME = "Must be 1-32 characters and contain only letters, digits, '-', '_', or '.' and not include '^' or '='."
 ERROR_INVALID_DATE = "Invalid date format. Please enter the date in YYYY-MM-DD format."
 ERROR_INVALID_KEY_NAME = "this key name already in the system. choose diffrent type of key name"
 ERROR_DATA_ALREADY_IN_THE_SYSTEM = "this data already in the system. "
