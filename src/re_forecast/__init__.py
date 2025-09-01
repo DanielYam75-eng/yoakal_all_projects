@@ -20,6 +20,7 @@ def preprocess(table1, table2):
     table1 = table1.copy()
     table2 = table2.copy()
     table2 = table2.drop_duplicates(subset=['doc_id', 'fund_year'], keep='first').set_index(['doc_id', 'fund_year'])
+    # start month and year
     table2['start_year'] = pd.concat([pd.Series(table2.index.get_level_values('fund_year').astype(int), index=table2.index), pd.to_datetime(table2['doc_date'], format='%d.%m.%Y').dt.year], axis=1).max(axis=1)
     table2['N'] = table2.index.get_level_values('fund_year') - pd.to_datetime(table2['doc_date'], format='%d.%m.%Y').dt.year
     table1 = table1.fillna(0)
@@ -140,7 +141,7 @@ def train_model(table1, table2, features, labels, model, split_year):
 def read(key1, key2):
     table1 = rf.read(key1)
     table1 = table1.fillna(0)
-    table1['invoice_volume'] = table1['RE']
+    table1['invoice_volume'] = table1[['RE', 'ZF', 'ZY']].sum(axis=1)
     table1 = table1.drop(columns=['RE', 'ZF', 'ZY', 'fingroup'])
     table2 = rf.read(key2)
     table2['po_net_value'] = table2['po_net_value'].astype(str).str.replace(',', '').astype(float)
@@ -215,4 +216,9 @@ def infer():
         (pd.DataFrame(wrapper.predict(augmented_table2, target_year), columns=['prediction'])
             .join(augmented_table2['fingroup'], on=['doc_id', 'fund_year'], how='left')
             .to_csv(output_path))
+        
 
+
+
+if __name__ == "__main__":
+    train()
