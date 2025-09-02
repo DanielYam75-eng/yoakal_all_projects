@@ -74,12 +74,15 @@ def infer(
     data = data[categorial_features + integer_features + floating_features]
 
     forecasted_orders = forecast(model, data, 12 - curr_month)
-    sum_forecasted_orders = (
+
+    sum_forecasted_orders : pd.Series = (
         forecasted_orders.sum(axis=1)
         .mul(data["po_net_value"], axis=0)
         .add(past_sums, fill_value=0)
     )
-    sum_forecasted_orders.to_csv(output_path)
+    sum_forecasted_orders = sum_forecasted_orders.to_frame().merge(data[["fingroup"]], left_index=True, right_index=True)
+    sum_forecasted_orders = sum_forecasted_orders.groupby("fingroup").sum().reset_index()
+    sum_forecasted_orders.to_csv(output_path, index=False)
     mlflow.log_artifact(
         os.path.join(os.getcwd(), output_path), artifact_path="forecast_outputs"
     )
