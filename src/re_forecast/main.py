@@ -1,6 +1,7 @@
 from .train import train
 from .preprocess import preprocess, combine_dates, prepare_index
 from .infer import infer
+from .augmentation import augmentation_by_sum_per_month
 import argparse
 import pandas as pd
 from read_file import read
@@ -252,9 +253,24 @@ def main():
         orders = combine_dates(
             orders, orders_dates
         )  # adding to order the column order_date, order_year, order_month
+        simulated_orders, simulated_dates = (
+            augmentation_by_sum_per_month(  # simulated orders are generated here (same format as orders), simulated dates contain for each index ( doc_id, item, fund_year) the corresponding order_date
+                orders, augmentation_dict
+            )
+        )
+        orders_for_inference = pd.concat(
+            [orders, simulated_orders], ignore_index=False
+        )  # combine simulated orders and actual orders
+        dates_for_inference = pd.concat(
+            [orders_dates, simulated_dates], ignore_index=False
+        )
         orders, invoices, past_sums, order_edits = (
             preprocess(  # orders contains all the additional columns needed for inference and training
-                orders, invoices, order_edits, curr_year, curr_month
+                orders_for_inference,
+                invoices,
+                order_edits,
+                curr_year,
+                curr_month,
             )
         )
         train(

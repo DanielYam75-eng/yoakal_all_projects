@@ -1,7 +1,6 @@
 import os
 import pandas as pd
-import preprocess
-import read_file as rd
+from . import preprocess
 import numpy as np
 from sklearn.naive_bayes import CategoricalNB
 from sklearn.preprocessing import OrdinalEncoder

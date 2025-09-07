@@ -40,8 +40,8 @@ def infer(
 
     with open(glb.MODEL, "rb") as f:
         model = pickle.load(f)
-    data = augment_orders(orders, curr_year, curr_month)
-    data = data.merge(invoices, how="left", left_index=True, right_index=True)
+
+    data = orders.merge(invoices, how="left", left_index=True, right_index=True)
 
     data["age"] = (
         (curr_year - data["order_year"]).mul(12).add(curr_month - data["order_month"])
