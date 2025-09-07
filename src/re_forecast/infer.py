@@ -74,6 +74,10 @@ def infer(
     data = data[categorial_features + integer_features + floating_features]
 
     forecasted_orders = forecast(model, data, 12 - curr_month)
+    forecasted_orders.to_csv("raw_output.csv")
+    mlflow.log_artifact(
+        "raw_output.csv", artifact_path="forecast_output"
+    )
 
     sum_forecasted_orders : pd.Series = (
         forecasted_orders.sum(axis=1)
