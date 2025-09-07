@@ -6,39 +6,34 @@ from . import globals as glb
 INVOL = ["RE", "ZF", "ZY"]
 TIMEIND = "relative_month"
 
+def prepare_index(df: pd.DataFrame) -> pd.DataFrame:
+    df["fund_year"] = df["fund_year"].astype(str).str[:4]
+    df[glb.KEY] = df[glb.KEY].astype("str")
+    df = df.set_index(glb.KEY)
+    df = df.loc[df.index.drop_duplicates()]
+    return df
 
 def combine_dates(orders: pd.DataFrame, dates: pd.DataFrame) -> pd.DataFrame:
-
-    orders["fund_year"] = orders["fund_year"].astype(str).str[:4]
-    orders["po_net_value"] = (
-        orders["po_net_value"].astype(str).str.replace(",", "").astype(float)
-    )
-
-    dates[glb.KEY] = dates[glb.KEY].astype("str")
-    orders[glb.KEY] = orders[glb.KEY].astype("str")
-    dates = dates[glb.KEY + ["order_date"]]
-
-    orders = orders.merge(dates, on=glb.KEY, how="inner")
-
-    orders["order_date"] = pd.to_datetime(orders["order_date"], dayfirst=True)
+    dates = dates['order_date']
+    orders = orders.merge(dates, left_index=True, right_index=True, how='inner')
+    orders["order_date"] = pd.to_datetime(orders["order_date"], format='%d.%m.%Y')
     orders["order_year"] = orders["order_date"].dt.year
     orders["order_month"] = orders["order_date"].dt.month
-
     return orders
 
 
-def process(
+def preprocess(
     orders: pd.DataFrame,
     invoices: pd.DataFrame,
     order_edits: pd.DataFrame,
     curr_year: int,
     curr_month: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-
+    orders["po_net_value"] = (
+        orders["po_net_value"].astype(str).str.replace(",", "").astype(float)
+    )
     order_edits["order_year"] = order_edits["order_date"].str[:4].astype(int)
     order_edits["order_month"] = order_edits["order_date"].str[4:6].astype(int)
-    order_edits[glb.KEY] = order_edits[glb.KEY].astype("str")
-    order_edits = order_edits.set_index(glb.KEY)
 
     mask_for_existing_invoices_this_year = (invoices["invoice_year"] == curr_year) & (
         invoices["invoice_month"] <= curr_month
@@ -51,11 +46,7 @@ def process(
         .sum(axis=1)
     )
 
-    orders = orders.drop_duplicates(subset=glb.KEY, keep="first")
-    orders = orders.set_index(glb.KEY)
     orders = orders[orders["po_net_value"] > 0]
-    invoices[glb.KEY] = invoices[glb.KEY].astype("str")
-    invoices = invoices.set_index(glb.KEY)
     invoices = invoices.join(
         orders[["order_year", "order_month"]],
         how="outer",
@@ -106,15 +97,3 @@ def process(
 
     return orders, invoices, past_sums, order_edits
 
-
-def preprocess(
-    orders: pd.DataFrame,
-    invoices: pd.DataFrame,
-    orders_dates: pd.DataFrame,
-    order_edits: pd.DataFrame,
-    curr_year: int,
-    curr_month: int,
-):
-
-    orders = combine_dates(orders, orders_dates)
-    return process(orders, invoices, order_edits, curr_year, curr_month)

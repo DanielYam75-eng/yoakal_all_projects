@@ -1,5 +1,5 @@
 from .train import train
-from .preprocess import preprocess
+from .preprocess import preprocess, combine_dates, prepare_index
 from .infer import infer
 import argparse
 import pandas as pd
@@ -14,9 +14,15 @@ import json
 def main():
     parser = argparse.ArgumentParser(description="Main script")
     parser.add_argument(
-        "-o", "--output_path", type=str, required=True, help="Path to the data file"
+        "-o",
+        "--output_path",
+        type=str,
+        required=True,
+        help="Path to the data file",
     )
-    parser.add_argument("-c", "--config", type=str, help="Path to config file")
+    parser.add_argument(
+        "-c", "--config", type=str, help="Path to config file"
+    )
 
     args = parser.parse_args()
     output_path = args.output_path
@@ -59,7 +65,9 @@ def main():
         )
     if "curr_year" not in config:
         while True:
-            config["curr_year"] = input("Please enter the current year (YYYY): ")
+            config["curr_year"] = input(
+                "Please enter the current year (YYYY): "
+            )
             try:
                 cy = int(config["curr_year"])
                 if 2000 <= cy <= 2100:
@@ -75,7 +83,9 @@ def main():
                 )
     if "curr_month" not in config:
         while True:
-            config["curr_month"] = input("Please enter the current month (MM): ")
+            config["curr_month"] = input(
+                "Please enter the current month (MM): "
+            )
             try:
                 cm = int(config["curr_month"])
                 if 1 <= cm <= 12:
@@ -109,7 +119,9 @@ def main():
                 )
     if "n_estimators" not in config:
         while True:
-            config["n_estimators"] = input("Please enter the number of estimators: ")
+            config["n_estimators"] = input(
+                "Please enter the number of estimators: "
+            )
             try:
                 ne = int(config["n_estimators"])
                 if ne > 0:
@@ -125,7 +137,9 @@ def main():
                 )
     if "max_depth" not in config:
         while True:
-            config["max_depth"] = input("Please enter the maximum depth: ")
+            config["max_depth"] = input(
+                "Please enter the maximum depth: "
+            )
             try:
                 md = int(config["max_depth"])
                 if md > 0:
@@ -141,7 +155,9 @@ def main():
                 )
     if "learning_rate" not in config:
         while True:
-            config["learning_rate"] = input("Please enter the learning rate: ")
+            config["learning_rate"] = input(
+                "Please enter the learning rate: "
+            )
             try:
                 lr = float(config["learning_rate"])
                 if 0.0 < lr <= 1.0:
@@ -168,12 +184,24 @@ def main():
     learning_rate = config["learning_rate"]
     mode = config["mode"] if "mode" in config else ""
 
-    orders = read(key_orders)
-    orders_dates = read(key_orders_dates)
-    order_edits = read(key_order_edits, dtype={"order_date": str})
-    invoices = read(key_invoices)
+    if "augmentation_dict" not in config:
+        augmentation_dict = {}
+        print("Info: Augmentation isn't executed,")
+    else:
+        augmentation_dict = config["augmentation_dict"]
 
-    dagshub.init(repo_owner="yoacal.data.science", repo_name="exp-repo", mlflow=True)
+    orders = prepare_index(read(key_orders))
+    orders_dates = prepare_index(read(key_orders_dates))
+    order_edits = prepare_index(
+        read(key_order_edits, dtype={"order_date": str})
+    )
+    invoices = prepare_index(read(key_invoices))
+
+    dagshub.init(
+        repo_owner="yoacal.data.science",
+        repo_name="exp-repo",
+        mlflow=True,
+    )
     mlflow.set_experiment("re_forecast")
     with mlflow.start_run():
         package_version = version("mof-class-forecaster")
@@ -187,9 +215,9 @@ def main():
         mlflow.log_param("mode", mode)
         mlflow.set_tags(
             {
-                "mlflow.source.git.commit": package_version.split("+")[1][1:].split(
-                    "."
-                )[0]
+                "mlflow.source.git.commit": package_version.split("+")[
+                    1
+                ][1:].split(".")[0]
             }
         )
 
@@ -221,13 +249,13 @@ def main():
                 name="data for invoices",
             )
         )
-        orders, invoices, past_sums, order_edits = preprocess(
-            orders,
-            invoices,
-            orders_dates,
-            order_edits,
-            curr_year,
-            curr_month,
+        orders = combine_dates(
+            orders, orders_dates
+        )  # adding to order the column order_date, order_year, order_month
+        orders, invoices, past_sums, order_edits = (
+            preprocess(  # orders contains all the additional columns needed for inference and training
+                orders, invoices, order_edits, curr_year, curr_month
+            )
         )
         train(
             orders,
@@ -251,6 +279,7 @@ def main():
                 curr_month,
                 output_path,
             )
+
 
 if __name__ == "__main__":
     main()
