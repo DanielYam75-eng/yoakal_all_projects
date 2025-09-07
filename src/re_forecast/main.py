@@ -1,4 +1,6 @@
-import train, infer, preprocess
+from .train import train
+from .preprocess import preprocess
+from .infer import infer
 import argparse
 import pandas as pd
 from read_file import read
@@ -8,8 +10,8 @@ from importlib_metadata import version
 import os
 import json
 
-if __name__ == "__main__":
 
+def main():
     parser = argparse.ArgumentParser(description="Main script")
     parser.add_argument(
         "-o", "--output_path", type=str, required=True, help="Path to the data file"
@@ -219,10 +221,15 @@ if __name__ == "__main__":
                 name="data for invoices",
             )
         )
-        orders, invoices, past_sums, order_edits = preprocess.main(
-            orders, invoices, orders_dates, order_edits, curr_year, curr_month
+        orders, invoices, past_sums, order_edits = preprocess(
+            orders,
+            invoices,
+            orders_dates,
+            order_edits,
+            curr_year,
+            curr_month,
         )
-        train.main(
+        train(
             orders,
             invoices,
             order_edits,
@@ -236,7 +243,7 @@ if __name__ == "__main__":
         if mode == "train":
             pass
         else:
-            infer.main(
+            infer(
                 orders,
                 invoices,
                 past_sums,
@@ -244,3 +251,6 @@ if __name__ == "__main__":
                 curr_month,
                 output_path,
             )
+
+if __name__ == "__main__":
+    main()

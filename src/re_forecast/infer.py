@@ -6,7 +6,7 @@ import warnings
 import mlflow
 
 warnings.filterwarnings("ignore")
-import globals as glb
+from . import globals as glb
 
 
 def forecast(
@@ -29,7 +29,7 @@ def forecast(
     return total_predictions
 
 
-def main(
+def infer(
     orders: pd.DataFrame,
     invoices: pd.DataFrame,
     past_sums: pd.DataFrame,

@@ -7,7 +7,7 @@ import warnings
 import mlflow
 
 warnings.filterwarnings("ignore")
-import globals as glb
+from . import globals as glb
 
 
 def get_train_data(
@@ -144,7 +144,7 @@ def train_model(data: pd.DataFrame, n_estimators: int, max_depth: int, learning_
     return model
 
 
-def main(
+def train(
     orders: pd.DataFrame,
     invoices: pd.DataFrame,
     order_edits: pd.DataFrame,

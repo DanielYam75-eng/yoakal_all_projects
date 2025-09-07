@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import globals as glb
+from . import globals as glb
 
 
 INVOL = ['RE', 'ZF', 'ZY']
@@ -68,7 +68,14 @@ def process(orders: pd.DataFrame, invoices: pd.DataFrame, order_edits: pd.DataFr
     return orders, invoices, past_sums, order_edits
 
 
-def main(orders: pd.DataFrame, invoices: pd.DataFrame, orders_dates: pd.DataFrame, order_edits: pd.DataFrame, curr_year: int, curr_month: int):
+def preprocess(
+    orders: pd.DataFrame,
+    invoices: pd.DataFrame,
+    orders_dates: pd.DataFrame,
+    order_edits: pd.DataFrame,
+    curr_year: int,
+    curr_month: int,
+):
 
     orders = combine_dates(orders, orders_dates)
     return process(orders, invoices, order_edits, curr_year, curr_month)
