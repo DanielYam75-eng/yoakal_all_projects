@@ -16,7 +16,7 @@ def get_train_data(
     edits: pd.DataFrame,
     curr_year: int,
     curr_month: int,
-    sample_frac: int
+    sample_frac: int,
 ) -> pd.DataFrame:
 
     # n = 36
@@ -43,7 +43,9 @@ def get_train_data(
 
     training_data = one_year
     training_data["age"] = training_data["age"].astype(int)
-    training_data: pd.DataFrame = training_data.sample(frac=sample_frac, random_state=glb.SEED)
+    training_data: pd.DataFrame = training_data.sample(
+        frac=sample_frac, random_state=glb.SEED
+    )
 
     training_data["abs order date"] = (
         training_data["order_year"] * 12 + training_data["order_month"]
@@ -117,9 +119,13 @@ def get_train_data(
     return training_data
 
 
-def train_model(data: pd.DataFrame, n_estimators: int, max_depth: int, learning_rate: float) -> xgb.XGBRFRegressor:
+def train_model(
+    data: pd.DataFrame, n_estimators: int, max_depth: int, learning_rate: float
+) -> xgb.XGBRFRegressor:
 
-    train_data, test_data = train_test_split(data, test_size=10000, random_state=glb.SEED)
+    train_data, test_data = train_test_split(
+        data, test_size=10000, random_state=glb.SEED
+    )
     X_train = train_data.drop(columns=["target"])
     y_train = train_data["target"]
     X_test = test_data.drop(columns=["target"])
@@ -140,7 +146,6 @@ def train_model(data: pd.DataFrame, n_estimators: int, max_depth: int, learning_
     mlflow.log_metric("mae", mae)
     mlflow.log_metric("r-squared", model.score(X_test, y_test))
 
-
     return model
 
 
@@ -153,10 +158,12 @@ def train(
     sample_frac: float,
     n_estimators: int,
     max_depth: int,
-    learning_rate: float
+    learning_rate: float,
 ):
 
-    training_data = get_train_data(orders, invoices, order_edits, curr_year, curr_month, sample_frac)
+    training_data = get_train_data(
+        orders, invoices, order_edits, curr_year, curr_month, sample_frac
+    )
     training_data = training_data[
         (training_data["target"] >= 0) & (training_data["target"] <= 1.05)
     ]

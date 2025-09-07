@@ -35,7 +35,7 @@ def infer(
     past_sums: pd.DataFrame,
     curr_year: int,
     curr_month: int,
-    output_path: str
+    output_path: str,
 ):
 
     with open(glb.MODEL, "rb") as f:
@@ -90,7 +90,6 @@ def infer(
     mlflow.log_artifact(
         os.path.join(os.getcwd(), output_path), artifact_path="forecast_outputs"
     )
-
 
 
 def augment_orders(
