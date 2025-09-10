@@ -21,9 +21,7 @@ def main():
         required=True,
         help="Path to the data file",
     )
-    parser.add_argument(
-        "-c", "--config", type=str, help="Path to config file"
-    )
+    parser.add_argument("-c", "--config", type=str, help="Path to config file")
 
     args = parser.parse_args()
     output_path = args.output_path
@@ -66,9 +64,7 @@ def main():
         )
     if "curr_year" not in config:
         while True:
-            config["curr_year"] = input(
-                "Please enter the current year (YYYY): "
-            )
+            config["curr_year"] = input("Please enter the current year (YYYY): ")
             try:
                 cy = int(config["curr_year"])
                 if 2000 <= cy <= 2100:
@@ -84,9 +80,7 @@ def main():
                 )
     if "curr_month" not in config:
         while True:
-            config["curr_month"] = input(
-                "Please enter the current month (MM): "
-            )
+            config["curr_month"] = input("Please enter the current month (MM): ")
             try:
                 cm = int(config["curr_month"])
                 if 1 <= cm <= 12:
@@ -120,9 +114,7 @@ def main():
                 )
     if "n_estimators" not in config:
         while True:
-            config["n_estimators"] = input(
-                "Please enter the number of estimators: "
-            )
+            config["n_estimators"] = input("Please enter the number of estimators: ")
             try:
                 ne = int(config["n_estimators"])
                 if ne > 0:
@@ -138,9 +130,7 @@ def main():
                 )
     if "max_depth" not in config:
         while True:
-            config["max_depth"] = input(
-                "Please enter the maximum depth: "
-            )
+            config["max_depth"] = input("Please enter the maximum depth: ")
             try:
                 md = int(config["max_depth"])
                 if md > 0:
@@ -156,9 +146,7 @@ def main():
                 )
     if "learning_rate" not in config:
         while True:
-            config["learning_rate"] = input(
-                "Please enter the learning rate: "
-            )
+            config["learning_rate"] = input("Please enter the learning rate: ")
             try:
                 lr = float(config["learning_rate"])
                 if 0.0 < lr <= 1.0:
@@ -193,9 +181,7 @@ def main():
 
     orders = prepare_index(read(key_orders))
     orders_dates = prepare_index(read(key_orders_dates))
-    order_edits = prepare_index(
-        read(key_order_edits, dtype={"order_date": str})
-    )
+    order_edits = prepare_index(read(key_order_edits, dtype={"order_date": str}))
     invoices = prepare_index(read(key_invoices))
 
     dagshub.init(
@@ -216,9 +202,9 @@ def main():
         mlflow.log_param("mode", mode)
         mlflow.set_tags(
             {
-                "mlflow.source.git.commit": package_version.split("+")[
-                    1
-                ][1:].split(".")[0]
+                "mlflow.source.git.commit": package_version.split("+")[1][1:].split(
+                    "."
+                )[0]
             }
         )
 

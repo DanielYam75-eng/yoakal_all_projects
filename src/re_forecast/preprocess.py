@@ -6,6 +6,7 @@ from . import globals as glb
 INVOL = ["RE", "ZF", "ZY"]
 TIMEIND = "relative_month"
 
+
 def prepare_index(df: pd.DataFrame) -> pd.DataFrame:
     df["fund_year"] = df["fund_year"].astype(str).str[:4]
     df[glb.KEY] = df[glb.KEY].astype("str")
@@ -13,10 +14,11 @@ def prepare_index(df: pd.DataFrame) -> pd.DataFrame:
     df = df.loc[df.index.drop_duplicates()]
     return df
 
+
 def combine_dates(orders: pd.DataFrame, dates: pd.DataFrame) -> pd.DataFrame:
-    dates = dates['order_date']
-    orders = orders.merge(dates, left_index=True, right_index=True, how='inner')
-    orders["order_date"] = pd.to_datetime(orders["order_date"], format='%d.%m.%Y')
+    dates = dates["order_date"]
+    orders = orders.merge(dates, left_index=True, right_index=True, how="inner")
+    orders["order_date"] = pd.to_datetime(orders["order_date"], format="%d.%m.%Y")
     orders["order_year"] = orders["order_date"].dt.year
     orders["order_month"] = orders["order_date"].dt.month
     return orders
@@ -96,4 +98,3 @@ def preprocess(
     orders["quarter"] = pd.to_datetime(orders["order_date"]).dt.quarter
 
     return orders, invoices, past_sums, order_edits
-

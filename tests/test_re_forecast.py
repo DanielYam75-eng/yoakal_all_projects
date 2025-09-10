@@ -76,7 +76,9 @@ def dates():
         "order_date": ["2025-09-01", "2025-09-05", "2025-08-30"],
     }
     df = pd.DataFrame(data)
-    df["order_date"] = pd.to_datetime(df["order_date"])  # Ensure datetime dtype
+    df["order_date"] = pd.to_datetime(
+        df["order_date"]
+    )  # Ensure datetime dtype
     return df
 
 
