@@ -15,7 +15,6 @@ class NaiveBayes:
         self.model = CategoricalNB()
         self.features_encoder = OrdinalEncoder()
         self.target_encoder = OrdinalEncoder()
-        self.bins = None
 
     def fit(self, X, y):
         temp_X = self.features_encoder.fit_transform(X)
@@ -127,7 +126,7 @@ class Generator:
 def get_simulated_index(start_id, length, fund_year):
     return pd.MultiIndex.from_product(
         [list(range(start_id, start_id + length)), [fund_year], [10]],
-        names=["doc_id", "fund_year", "item"],
+        names=glb.KEY,
     )
 
 
