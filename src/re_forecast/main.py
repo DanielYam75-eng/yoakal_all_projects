@@ -4,15 +4,242 @@ from .infer import infer
 from .augmentation import augmentation_by_sum_per_month
 import argparse
 import pandas as pd
-from read_file import read
+import read_file as rf
 import dagshub
 import mlflow
 from importlib_metadata import version
 import os
 import json
+from typing import Self
 
 
-def main():
+class Configuration:
+    def __init__(self):
+        self.key_orders = None
+        self.key_invoices = None
+        self.key_orders_dates = None
+        self.key_order_edits = None
+        self.curr_year = None
+        self.curr_month = None
+        self.sample_frac = None
+        self.n_estimators = None
+        self.max_depth = None
+        self.learning_rate = None
+        self.mode = None
+        self.augmentation_dict = None
+
+    def set_config(self, config_path: os.PathLike) -> Self:
+        base_config = self.get_base_config(config_path)
+        config = self.complete_config(base_config)
+        self.key_orders = config["orders"]
+        self.key_invoices = config["invoices"]
+        self.key_orders_dates = config["orders_dates"]
+        self.key_order_edits = config["order_edits"]
+        self.curr_year = config["curr_year"]
+        self.curr_month = config["curr_month"]
+        self.sample_frac = config["sample_frac"]
+        self.n_estimators = config["n_estimators"]
+        self.max_depth = config["max_depth"]
+        self.learning_rate = config["learning_rate"]
+        self.mode = config["mode"] if "mode" in config else ""
+        if "augmentation_dict" not in config:
+            self.augmentation_dict = {}
+            print("Info: Augmentation isn't executed")
+        else:
+            self.augmentation_dict = config["augmentation_dict"]
+        return self
+
+    def get_base_config(
+        self, config_path: os.PathLike
+    ) -> dict[str, str]:
+        using_user_path = config_path is not None
+        default_config_path = "config.json"
+        if using_user_path and not os.path.exists(config_path):
+            print(
+                f"\033[0;33mWarning\033[0m: {config_path} doesn't exist."
+            )
+            using_user_path = False
+        if not using_user_path and os.path.exists(default_config_path):
+            print(
+                f"Info: Reading configuration from the default path {default_config_path}."
+            )
+            config_path = default_config_path
+
+        config = {}
+        if config_path is not None and os.path.exists(config_path):
+            with open(config_path) as f:
+                try:
+                    config = json.load(f)
+                except json.JSONDecodeError:
+                    print(
+                        f"\033[0;33mWarning\033[0m: {config_path} is not a valid JSON file. Ignoring it."
+                    )
+        return config
+
+    def _get_orders_from_user(self) -> str:
+        return input(
+            "Please enter the key name for the uploaded file orders: "
+        )
+
+    def _get_invoices_from_user(self) -> str:
+        return input(
+            "Please enter the key name for the uploaded file invoices: "
+        )
+
+    def _get_dates_from_user(self) -> str:
+        return input(
+            "Please enter the key name for the uploaded file orders_dates: "
+        )
+
+    def _get_order_edits_from_user(self) -> str:
+        return input(
+            "Please enter the key name for the uploaded file order_edits: "
+        )
+
+    def _get_curr_year_from_user(self) -> int:
+        while True:
+            curr_year = input("Please enter the current year (YYYY): ")
+            try:
+                cy = int(curr_year)
+                if 2000 <= cy <= 2100:
+                    return cy
+                else:
+                    print(
+                        f"\033[0;33mWarning\033[0m: {curr_year} is not a valid year. Please enter a valid year between 2000 and 2100."
+                    )
+            except ValueError:
+                print(
+                    f"\033[0;33mWarning\033[0m: {curr_year} is not a valid integer. Please enter a valid year between 2000 and 2100."
+                )
+
+    def _get_curr_month_from_user(self) -> int:
+        while True:
+            curr_month = input(
+                "Please enter the current month (1-12): "
+            )
+            try:
+                cm = int(curr_month)
+                if 1 <= cm <= 12:
+                    return cm
+                else:
+                    print(
+                        f"\033[0;33mWarning\033[0m: {curr_month} is not a valid month. Please enter a valid month between 1 and 12."
+                    )
+            except ValueError:
+                print(
+                    f"\033[0;33mWarning\033[0m: {curr_month} is not a valid integer. Please enter a valid month between 1 and 12."
+                )
+
+    def _get_sample_frac_from_user(self) -> float:
+        while True:
+            sf = input(
+                "Please enter the fraction of data to be used for training (between 0 and 1): "
+            )
+            try:
+                sf = float(sf)
+                if 0.0 < sf <= 1.0:
+                    return sf
+                else:
+                    print(
+                        f"\033[0;33mWarning\033[0m: {sf} is not in the valid range (0.0, 1.0]. Please enter a valid fraction."
+                    )
+            except ValueError:
+                print(
+                    f"\033[0;33mWarning\033[0m: {sf} is not a valid float. Please enter a valid fraction."
+                )
+
+    def _get_n_estimators_from_user(self) -> int:
+        while True:
+            ne = input("Please enter the number of estimators: ")
+            try:
+                ne = int(ne)
+                if ne > 0:
+                    return ne
+                    print(
+                        f"\033[0;33mWarning\033[0m: {ne} is not a valid positive integer. Please enter a valid positive integer."
+                    )
+            except ValueError:
+                print(
+                    f"\033[0;33mWarning\033[0m: {ne} is not a valid integer. Please enter a valid positive integer."
+                )
+
+    def _get_max_depth_from_user(self) -> int:
+        while True:
+            md = input("Please enter the maximum depth: ")
+            try:
+                md = int(md)
+                if md > 0:
+                    return md
+                else:
+                    print(
+                        f"\033[0;33mWarning\033[0m: {md} is not a valid positive integer. Please enter a valid positive integer."
+                    )
+            except ValueError:
+                print(
+                    f"\033[0;33mWarning\033[0m: {md} is not a valid integer. Please enter a valid positive integer."
+                )
+
+    def _get_learning_rate_from_user(self) -> float:
+        while True:
+            lr = input("Please enter the learning rate: ")
+            try:
+                lr = float(lr)
+                if 0.0 < lr <= 1.0:
+                    return lr
+                    print(
+                        f"\033[0;33mWarning\033[0m: {lr} is not in the valid range (0.0, 1.0]. Please enter a valid learning rate."
+                    )
+            except ValueError:
+                print(
+                    f"\033[0;33mWarning\033[0m: {lr} is not a valid float. Please enter a valid learning rate."
+                )
+
+    def complete_config(self, config: dict[str, str]) -> dict[str, str]:
+        if "orders" not in config:
+            config["orders"] = self._get_orders_from_user()
+        if "invoices" not in config:
+            config["invoices"] = self._get_invoices_from_user()
+        if "orders_dates" not in config:
+            config["orders_dates"] = self._get_dates_from_user()
+        if "order_edits" not in config:
+            config["order_edits"] = self._get_order_edits_from_user()
+        if "curr_year" not in config:
+            config["curr_year"] = self._get_curr_year_from_user()
+        if "curr_month" not in config:
+            config["curr_month"] = self._get_curr_month_from_user()
+        if "sample_frac" not in config:
+            config["sample_frac"] = self._get_sample_frac_from_user()
+        if "n_estimators" not in config:
+            config["n_estimators"] = self._get_n_estimators_from_user()
+        if "max_depth" not in config:
+            config["max_depth"] = self._get_max_depth_from_user()
+        if "learning_rate" not in config:
+            config["learning_rate"] = (
+                self._get_learning_rate_from_user()
+            )
+        return config
+
+
+def log_configuration(configuration: Configuration) -> None:
+    package_version = version("mof-class-forecaster")
+    mlflow.set_tags({"mlflow.source.name": "mof-class-forecaster"})
+    mlflow.log_param("curr_year", configuration.curr_year)
+    mlflow.log_param("curr_month", configuration.curr_month)
+    mlflow.log_param("sample_frac", configuration.sample_frac)
+    mlflow.log_param("n_estimators", configuration.n_estimators)
+    mlflow.log_param("max_depth", configuration.max_depth)
+    mlflow.log_param("learning_rate", configuration.learning_rate)
+    mlflow.log_param("mode", configuration.mode)
+    mlflow.set_tags(
+        {
+            "mlflow.source.git.commit": package_version.split("+")[1][
+                1:
+            ].split(".")[0]
+        }
+    )
+
+
+def set_cli_args():
     parser = argparse.ArgumentParser(description="Main script")
     parser.add_argument(
         "-o",
@@ -21,168 +248,63 @@ def main():
         required=True,
         help="Path to the data file",
     )
-    parser.add_argument("-c", "--config", type=str, help="Path to config file")
+    parser.add_argument(
+        "-c", "--config", type=str, help="Path to config file"
+    )
 
-    args = parser.parse_args()
-    output_path = args.output_path
-    config_path = args.config
-    using_user_path = config_path is not None
-    default_config_path = "config.json"
-    if using_user_path and not os.path.exists(config_path):
-        print(f"\033[0;33mWarning\033[0m: {config_path} doesn't exist.")
-        using_user_path = False
-    if not using_user_path and os.path.exists(default_config_path):
-        print(
-            f"Info: Reading configuration from the default path {default_config_path}."
-        )
-        config_path = default_config_path
+    return parser.parse_args()
 
-    config = {}
-    if config_path is not None and os.path.exists(config_path):
-        with open(config_path) as f:
-            try:
-                config = json.load(f)
-            except json.JSONDecodeError:
-                print(
-                    f"\033[0;33mWarning\033[0m: {config_path} is not a valid JSON file. Ignoring it."
-                )
-    if "orders" not in config:
-        config["orders"] = input(
-            "Please enter the key name for the uploaded file orders: "
-        )
-    if "invoices" not in config:
-        config["invoices"] = input(
-            "Please enter the key name for the uploaded file invoices: "
-        )
-    if "orders_dates" not in config:
-        config["orders_dates"] = input(
-            "Please enter the key name for the uploaded file orders_dates: "
-        )
-    if "order_edits" not in config:
-        config["order_edits"] = input(
-            "Please enter the key name for the uploaded file order_edits: "
-        )
-    if "curr_year" not in config:
-        while True:
-            config["curr_year"] = input("Please enter the current year (YYYY): ")
-            try:
-                cy = int(config["curr_year"])
-                if 2000 <= cy <= 2100:
-                    config["curr_year"] = cy
-                    break
-                else:
-                    print(
-                        f"\033[0;33mWarning\033[0m: {config['curr_year']} is not a valid year. Please enter a valid year between 2000 and 2100."
-                    )
-            except ValueError:
-                print(
-                    f"\033[0;33mWarning\033[0m: {config['curr_year']} is not a valid integer. Please enter a valid year between 2000 and 2100."
-                )
-    if "curr_month" not in config:
-        while True:
-            config["curr_month"] = input("Please enter the current month (MM): ")
-            try:
-                cm = int(config["curr_month"])
-                if 1 <= cm <= 12:
-                    config["curr_month"] = cm
-                    break
-                else:
-                    print(
-                        f"\033[0;33mWarning\033[0m: {config['curr_month']} is not a valid month. Please enter a valid month between 1 and 12."
-                    )
-            except ValueError:
-                print(
-                    f"\033[0;33mWarning\033[0m: {config['curr_month']} is not a valid integer. Please enter a valid month between 1 and 12."
-                )
-    if "sample_frac" not in config:
-        while True:
-            config["sample_frac"] = input(
-                "Please enter the fraction of data to be used for training (between 0 and 1): "
-            )
-            try:
-                sf = float(config["sample_frac"])
-                if 0.0 < sf <= 1.0:
-                    config["sample_frac"] = sf
-                    break
-                else:
-                    print(
-                        f"\033[0;33mWarning\033[0m: {config['sample_frac']} is not in the valid range (0.0, 1.0]. Please enter a valid fraction."
-                    )
-            except ValueError:
-                print(
-                    f"\033[0;33mWarning\033[0m: {config['sample_frac']} is not a valid float. Please enter a valid fraction."
-                )
-    if "n_estimators" not in config:
-        while True:
-            config["n_estimators"] = input("Please enter the number of estimators: ")
-            try:
-                ne = int(config["n_estimators"])
-                if ne > 0:
-                    config["n_estimators"] = ne
-                    break
-                else:
-                    print(
-                        f"\033[0;33mWarning\033[0m: {config['n_estimators']} is not a valid positive integer. Please enter a valid positive integer."
-                    )
-            except ValueError:
-                print(
-                    f"\033[0;33mWarning\033[0m: {config['n_estimators']} is not a valid integer. Please enter a valid positive integer."
-                )
-    if "max_depth" not in config:
-        while True:
-            config["max_depth"] = input("Please enter the maximum depth: ")
-            try:
-                md = int(config["max_depth"])
-                if md > 0:
-                    config["max_depth"] = md
-                    break
-                else:
-                    print(
-                        f"\033[0;33mWarning\033[0m: {config['max_depth']} is not a valid positive integer. Please enter a valid positive integer."
-                    )
-            except ValueError:
-                print(
-                    f"\033[0;33mWarning\033[0m: {config['max_depth']} is not a valid integer. Please enter a valid positive integer."
-                )
-    if "learning_rate" not in config:
-        while True:
-            config["learning_rate"] = input("Please enter the learning rate: ")
-            try:
-                lr = float(config["learning_rate"])
-                if 0.0 < lr <= 1.0:
-                    config["learning_rate"] = lr
-                    break
-                else:
-                    print(
-                        f"\033[0;33mWarning\033[0m: {config['learning_rate']} is not in the valid range (0.0, 1.0]. Please enter a valid learning rate."
-                    )
-            except ValueError:
-                print(
-                    f"\033[0;33mWarning\033[0m: {config['learning_rate']} is not a valid float. Please enter a valid learning rate."
-                )
 
-    key_orders = config["orders"]
-    key_invoices = config["invoices"]
-    key_orders_dates = config["orders_dates"]
-    key_order_edits = config["order_edits"]
-    curr_year = config["curr_year"]
-    curr_month = config["curr_month"]
-    sample_frac = config["sample_frac"]
-    n_estimators = config["n_estimators"]
-    max_depth = config["max_depth"]
-    learning_rate = config["learning_rate"]
-    mode = config["mode"] if "mode" in config else ""
+def preprocess_and_simulate_data(
+    orders: pd.DataFrame,
+    orders_dates: pd.DataFrame,
+    order_edits: pd.DataFrame,
+    invoices: pd.DataFrame,
+    curr_year: int,
+    curr_month: int,
+    augmentation_dict: dict[str, dict[str, float]],
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    orders = prepare_index(orders)
+    orders_dates = prepare_index(orders_dates)
+    order_edits = prepare_index(order_edits)
+    invoices = prepare_index(invoices)
+    orders = combine_dates(
+        orders, orders_dates
+    )  # adding to order the column order_date, order_year, order_month
+    simulated_orders, simulated_dates = (
+        augmentation_by_sum_per_month(  # simulated orders are generated here (same format as orders), simulated dates contain for each index ( doc_id, item, fund_year) the corresponding order_date
+            orders, augmentation_dict
+        )
+    )
+    orders_for_inference = pd.concat(
+        [orders, simulated_orders], ignore_index=False
+    )  # combine simulated orders and actual orders
+    dates_for_inference = pd.concat(
+        [orders_dates, simulated_dates], ignore_index=False
+    )
+    orders, invoices, past_sums, order_edits = (
+        preprocess(  # orders contains all the additional columns needed for inference and training
+            orders_for_inference,
+            invoices,
+            order_edits,
+            curr_year,
+            curr_month,
+        )
+    )
+    return orders, invoices, past_sums, order_edits
 
-    if "augmentation_dict" not in config:
-        augmentation_dict = {}
-        print("Info: Augmentation isn't executed,")
-    else:
-        augmentation_dict = config["augmentation_dict"]
 
-    orders = prepare_index(read(key_orders))
-    orders_dates = prepare_index(read(key_orders_dates))
-    order_edits = prepare_index(read(key_order_edits, dtype={"order_date": str}))
-    invoices = prepare_index(read(key_invoices))
+def main():
+    cli_args = set_cli_args()
+
+    configuration = Configuration().set_config(cli_args.config)
+
+    orders = rf.read(configuration.key_orders)
+    orders_dates = rf.read(configuration.key_orders_dates)
+    order_edits = rf.read(
+        configuration.key_order_edits, dtype={"order_date": str}
+    )
+    invoices = rf.read(configuration.key_invoices)
 
     dagshub.init(
         repo_owner="yoacal.data.science",
@@ -191,95 +313,68 @@ def main():
     )
     mlflow.set_experiment("re_forecast")
     with mlflow.start_run():
-        package_version = version("mof-class-forecaster")
-        mlflow.set_tags({"mlflow.source.name": "mof-class-forecaster"})
-        mlflow.log_param("curr_year", curr_year)
-        mlflow.log_param("curr_month", curr_month)
-        mlflow.log_param("sample_frac", sample_frac)
-        mlflow.log_param("n_estimators", n_estimators)
-        mlflow.log_param("max_depth", max_depth)
-        mlflow.log_param("learning_rate", learning_rate)
-        mlflow.log_param("mode", mode)
-        mlflow.set_tags(
-            {
-                "mlflow.source.git.commit": package_version.split("+")[1][1:].split(
-                    "."
-                )[0]
-            }
-        )
+        log_configuration(configuration)
 
         mlflow.log_input(
             mlflow.data.from_pandas(
                 orders,
-                source="s3://bucket/" + key_orders,
+                source="s3://bucket/" + configuration.key_orders,
                 name="data for orders",
             )
         )
         mlflow.log_input(
             mlflow.data.from_pandas(
                 orders_dates,
-                source="s3://bucket/" + key_orders_dates,
+                source="s3://bucket/" + configuration.key_orders_dates,
                 name="data for orders dates",
             )
         )
         mlflow.log_input(
             mlflow.data.from_pandas(
                 order_edits,
-                source="s3://bucket/" + key_order_edits,
+                source="s3://bucket/" + configuration.key_order_edits,
                 name="data for order edits",
             )
         )
         mlflow.log_input(
             mlflow.data.from_pandas(
                 invoices,
-                source="s3://bucket/" + key_invoices,
+                source="s3://bucket/" + configuration.key_invoices,
                 name="data for invoices",
             )
         )
-        orders = combine_dates(
-            orders, orders_dates
-        )  # adding to order the column order_date, order_year, order_month
-        simulated_orders, simulated_dates = (
-            augmentation_by_sum_per_month(  # simulated orders are generated here (same format as orders), simulated dates contain for each index ( doc_id, item, fund_year) the corresponding order_date
-                orders, augmentation_dict
-            )
-        )
-        orders_for_inference = pd.concat(
-            [orders, simulated_orders], ignore_index=False
-        )  # combine simulated orders and actual orders
-        dates_for_inference = pd.concat(
-            [orders_dates, simulated_dates], ignore_index=False
-        )
         orders, invoices, past_sums, order_edits = (
-            preprocess(  # orders contains all the additional columns needed for inference and training
-                orders_for_inference,
-                invoices,
+            preprocess_and_simulate_data(
+                orders,
+                orders_dates,
                 order_edits,
-                curr_year,
-                curr_month,
+                invoices,
+                configuration.curr_year,
+                configuration.curr_month,
+                configuration.augmentation_dict,
             )
         )
         train(
             orders,
             invoices,
             order_edits,
-            curr_year,
-            curr_month,
-            sample_frac,
-            n_estimators,
-            max_depth,
-            learning_rate,
+            configuration.curr_year,
+            configuration.curr_month,
+            configuration.sample_frac,
+            configuration.n_estimators,
+            configuration.max_depth,
+            configuration.learning_rate,
         )
-        if mode == "train":
+        if configuration.mode == "train":
             pass
         else:
             infer(
                 orders,
                 invoices,
                 past_sums,
-                curr_year,
-                curr_month,
-                output_path,
+                configuration.curr_year,
+                configuration.curr_month,
+                cli_args.output_path,
             )
 
 
