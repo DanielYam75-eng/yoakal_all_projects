@@ -36,13 +36,9 @@ class NaiveBayes:
             np.array([target_class]).reshape(-1, 1)
         )[0][0]
         features = []
-        for feature, log_probs in enumerate(
-            self.model.feature_log_prob_
-        ):
+        for feature, log_probs in enumerate(self.model.feature_log_prob_):
             probs = np.exp(log_probs[int(target_class_bin)])
-            assert np.isclose(
-                probs.sum(), 1
-            ), "Probabilities do not sum to 1"
+            assert np.isclose(probs.sum(), 1), "Probabilities do not sum to 1"
             feature_value = np.random.choice(
                 self.features_encoder.categories_[feature], p=probs
             )
@@ -63,9 +59,7 @@ class Generator:
 
     def fit(self, data: pd.DataFrame):
         y = data["po_net_value"]
-        self.mu, self.sigma_squared = (
-            self.estimate_lognormal_distrbuition(y)
-        )
+        self.mu, self.sigma_squared = self.estimate_lognormal_distrbuition(y)
         data = self.preprocess(data)
         self.model = NaiveBayes().fit(
             data.drop(columns="po_net_value"), data["po_net_value"]
@@ -76,14 +70,11 @@ class Generator:
         up_to_amount = 0
         pos_rows = []
         while up_to_amount < total_amount:
-            log_amount = np.random.normal(
-                self.mu, np.sqrt(self.sigma_squared)
-            )
+            log_amount = np.random.normal(self.mu, np.sqrt(self.sigma_squared))
             amount = np.exp(log_amount)
             target_class, *_ = pd.cut([log_amount], bins=self.bins)
             if (
-                not target_class
-                in self.model.target_encoder.categories_[0]
+                not target_class in self.model.target_encoder.categories_[0]
             ):  # if target_class is not in training data
                 continue
             features = self.model.generate_random_features(target_class)
@@ -104,9 +95,7 @@ class Generator:
     def preprocess(self, data: pd.DataFrame) -> pd.DataFrame:
         data = data[data["po_net_value"] > 0]
         data = data[~data.index.duplicated(keep="first")]
-        data["po_net_value"] = pd.cut(
-            np.log(data["po_net_value"]), bins=100
-        )
+        data["po_net_value"] = pd.cut(np.log(data["po_net_value"]), bins=100)
         self.bins = data["po_net_value"].cat.categories
         data = data[
             [
@@ -141,14 +130,10 @@ def augmentation_by_sum_per_month(data, month_dict):
             specific_month_orders = generator.generate_synthetic_data(
                 month_dict[year][month]
             )
-            index = get_simulated_index(
-                current_index, len(specific_month_orders), 2025
-            )
+            index = get_simulated_index(current_index, len(specific_month_orders), 2025)
             specific_month_orders.index = index
             current_index += len(specific_month_orders)
-            specific_month_dates = pd.DataFrame(
-                index=index, columns=["order_date"]
-            )
+            specific_month_dates = pd.DataFrame(index=index, columns=["order_date"])
             specific_month_dates["order_date"] = pd.to_datetime(
                 f"01.{month.zfill(2)}.{year}", format="%d.%m.%Y"
             )
@@ -176,9 +161,7 @@ def augmentation_by_sum_per_month(data, month_dict):
 
 def main():
     parser = argparse.ArgumentParser(description="Main script")
-    parser.add_argument(
-        "-c", "--config", type=str, help="Path to config file"
-    )
+    parser.add_argument("-c", "--config", type=str, help="Path to config file")
 
     args = parser.parse_args()
     config_path = args.config

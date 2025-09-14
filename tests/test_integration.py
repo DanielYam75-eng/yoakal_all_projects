@@ -1082,9 +1082,7 @@ def dates():
 
 
 def test_prepare_index1(orders, monkeypatch):
-    monkeypatch.setattr(
-        dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client
-    )
+    monkeypatch.setattr(dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client)
     prepared = prepare_index(orders)
     assert list(prepared.index.names) == ["doc_id", "fund_year", "item"]
     assert set(prepared.columns) == set(orders.columns) - {
@@ -1095,9 +1093,7 @@ def test_prepare_index1(orders, monkeypatch):
 
 
 def test_prepare_index2(order_edits, monkeypatch):
-    monkeypatch.setattr(
-        dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client
-    )
+    monkeypatch.setattr(dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client)
     prepared = prepare_index(order_edits)
     assert list(prepared.index.names) == ["doc_id", "fund_year", "item"]
     assert set(prepared.columns) == set(order_edits.columns) - {
@@ -1108,9 +1104,7 @@ def test_prepare_index2(order_edits, monkeypatch):
 
 
 def test_prepare_index3(invoices, monkeypatch):
-    monkeypatch.setattr(
-        dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client
-    )
+    monkeypatch.setattr(dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client)
     prepared = prepare_index(invoices)
     assert list(prepared.index.names) == ["doc_id", "fund_year", "item"]
     assert set(prepared.columns) == set(invoices.columns) - {
@@ -1121,9 +1115,7 @@ def test_prepare_index3(invoices, monkeypatch):
 
 
 def test_combine_dates(orders, dates, monkeypatch):
-    monkeypatch.setattr(
-        dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client
-    )
+    monkeypatch.setattr(dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client)
     combined = combine_dates(orders, dates)
     assert "order_date" in combined.columns
     assert "order_year" in combined.columns

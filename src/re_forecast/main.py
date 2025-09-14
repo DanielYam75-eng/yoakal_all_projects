@@ -49,15 +49,11 @@ class Configuration:
             self.augmentation_dict = config["augmentation_dict"]
         return self
 
-    def get_base_config(
-        self, config_path: os.PathLike
-    ) -> dict[str, str]:
+    def get_base_config(self, config_path: os.PathLike) -> dict[str, str]:
         using_user_path = config_path is not None
         default_config_path = "config.json"
         if using_user_path and not os.path.exists(config_path):
-            print(
-                f"\033[0;33mWarning\033[0m: {config_path} doesn't exist."
-            )
+            print(f"\033[0;33mWarning\033[0m: {config_path} doesn't exist.")
             using_user_path = False
         if not using_user_path and os.path.exists(default_config_path):
             print(
@@ -77,24 +73,16 @@ class Configuration:
         return config
 
     def _get_orders_from_user(self) -> str:
-        return input(
-            "Please enter the key name for the uploaded file orders: "
-        )
+        return input("Please enter the key name for the uploaded file orders: ")
 
     def _get_invoices_from_user(self) -> str:
-        return input(
-            "Please enter the key name for the uploaded file invoices: "
-        )
+        return input("Please enter the key name for the uploaded file invoices: ")
 
     def _get_dates_from_user(self) -> str:
-        return input(
-            "Please enter the key name for the uploaded file orders_dates: "
-        )
+        return input("Please enter the key name for the uploaded file orders_dates: ")
 
     def _get_order_edits_from_user(self) -> str:
-        return input(
-            "Please enter the key name for the uploaded file order_edits: "
-        )
+        return input("Please enter the key name for the uploaded file order_edits: ")
 
     def _get_curr_year_from_user(self) -> int:
         while True:
@@ -114,9 +102,7 @@ class Configuration:
 
     def _get_curr_month_from_user(self) -> int:
         while True:
-            curr_month = input(
-                "Please enter the current month (1-12): "
-            )
+            curr_month = input("Please enter the current month (1-12): ")
             try:
                 cm = int(curr_month)
                 if 1 <= cm <= 12:
@@ -214,9 +200,7 @@ class Configuration:
         if "max_depth" not in config:
             config["max_depth"] = self._get_max_depth_from_user()
         if "learning_rate" not in config:
-            config["learning_rate"] = (
-                self._get_learning_rate_from_user()
-            )
+            config["learning_rate"] = self._get_learning_rate_from_user()
         return config
 
 
@@ -231,11 +215,7 @@ def log_configuration(configuration: Configuration) -> None:
     mlflow.log_param("learning_rate", configuration.learning_rate)
     mlflow.log_param("mode", configuration.mode)
     mlflow.set_tags(
-        {
-            "mlflow.source.git.commit": package_version.split("+")[1][
-                1:
-            ].split(".")[0]
-        }
+        {"mlflow.source.git.commit": package_version.split("+")[1][1:].split(".")[0]}
     )
 
 
@@ -248,9 +228,7 @@ def set_cli_args():
         required=True,
         help="Path to the data file",
     )
-    parser.add_argument(
-        "-c", "--config", type=str, help="Path to config file"
-    )
+    parser.add_argument("-c", "--config", type=str, help="Path to config file")
 
     return parser.parse_args()
 
@@ -279,9 +257,7 @@ def preprocess_and_simulate_data(
     orders_for_inference = pd.concat(
         [orders, simulated_orders], ignore_index=False
     )  # combine simulated orders and actual orders
-    dates_for_inference = pd.concat(
-        [orders_dates, simulated_dates], ignore_index=False
-    )
+    dates_for_inference = pd.concat([orders_dates, simulated_dates], ignore_index=False)
     orders, invoices, past_sums, order_edits = (
         preprocess(  # orders contains all the additional columns needed for inference and training
             orders_for_inference,
@@ -301,9 +277,7 @@ def main():
 
     orders = rf.read(configuration.key_orders)
     orders_dates = rf.read(configuration.key_orders_dates)
-    order_edits = rf.read(
-        configuration.key_order_edits, dtype={"order_date": str}
-    )
+    order_edits = rf.read(configuration.key_order_edits, dtype={"order_date": str})
     invoices = rf.read(configuration.key_invoices)
 
     dagshub.init(

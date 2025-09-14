@@ -82,14 +82,12 @@ def dates():
         "order_date": ["2025-09-01", "2025-09-05", "2025-08-30"],
     }
     df = pd.DataFrame(data)
-    df["order_date"] = pd.to_datetime(
-        df["order_date"]
-    )  # Ensure datetime dtype
+    df["order_date"] = pd.to_datetime(df["order_date"])  # Ensure datetime dtype
     return df
 
 
 def test_preprocess(orders, invoices, order_edits, dates, curr_year, curr_month):
-    
+
     orders = prepare_index(orders)
     invoices = prepare_index(invoices)
     order_edits = prepare_index(order_edits)
@@ -97,7 +95,9 @@ def test_preprocess(orders, invoices, order_edits, dates, curr_year, curr_month)
 
     orders = combine_dates(orders, dates)
 
-    orders, invoices, order_edits, past_sums = preprocess(orders, invoices, order_edits, curr_year, curr_month)
+    orders, invoices, order_edits, past_sums = preprocess(
+        orders, invoices, order_edits, curr_year, curr_month
+    )
 
     # dtypes
     assert type(orders) is pd.DataFrame
@@ -122,6 +122,7 @@ def test_preprocess(orders, invoices, order_edits, dates, curr_year, curr_month)
 
     assert orders["order_year"].max() <= curr_year
     assert orders["order_month"].max() <= curr_month
+
     assert not orders.isnull().any().any()
     assert not invoices.isnull().any().any()
     assert not order_edits.isnull().any().any()
