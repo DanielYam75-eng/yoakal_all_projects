@@ -127,3 +127,6 @@ def test_preprocess(orders, invoices, order_edits, dates, curr_year, curr_month)
     assert not invoices.isnull().any().any()
     assert not order_edits.isnull().any().any()
     assert not past_sums.isnull().any().any()
+
+    assert orders.index.is_unique
+    assert invoices.index.is_unique
