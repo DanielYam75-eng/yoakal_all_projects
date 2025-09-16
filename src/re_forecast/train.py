@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import xgboost as xgb
 import pickle
 from sklearn.model_selection import train_test_split
@@ -18,28 +19,25 @@ def get_train_data(
     curr_month: int,
     sample_frac: int,
 ) -> pd.DataFrame:
+    sample_frac = np.sqrt(
+        sample_frac
+    )  # The sampling is two-staged, so we need to take a square root of the sampling fractions for equivalent sample sizes.
 
     # n = 36
     # three_years = pd.concat([orders[(orders['order_year'] < curr_year - 3) | (orders['order_year'] == curr_year - 3) & (orders['order_month'] <= curr_month)]] * n, keys=range(n), names=["age"]).reset_index(level='age')
     # n = 24
     # two_years = pd.concat([orders[(orders['order_year'] < curr_year - 2) | (orders['order_year'] == curr_year - 2) & (orders['order_month'] <= curr_month)]] * n, keys=range(n), names=["age"]).reset_index(level='age')
+    sampled_orders = orders[
+        (orders["order_year"] < curr_year - 1)
+        | (orders["order_year"] == curr_year - 1)
+        & (orders["order_month"] <= curr_month)
+    ].sample(frac=sample_frac, random_state=glb.SEED)
     n = 12
     one_year = pd.concat(
-        [
-            orders[
-                (orders["order_year"] < curr_year - 1)
-                | (orders["order_year"] == curr_year - 1)
-                & (orders["order_month"] <= curr_month)
-            ]
-        ]
-        * n,
+        [sampled_orders] * n,
         keys=range(n),
         names=["age"],
     ).reset_index(level="age")
-    orders = orders[
-        (orders["order_year"] < curr_year)
-        | ((orders["order_year"] == curr_year) & (orders["order_month"] <= curr_month))
-    ]
 
     training_data = one_year
     training_data["age"] = training_data["age"].astype(int)
