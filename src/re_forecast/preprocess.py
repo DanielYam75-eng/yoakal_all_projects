@@ -11,11 +11,12 @@ def prepare_index(df: pd.DataFrame) -> pd.DataFrame:
     df["fund_year"] = df["fund_year"].astype(str).str[:4]
     df[glb.KEY] = df[glb.KEY].astype("str")
     df = df.set_index(glb.KEY)
-    df = df.loc[df.index.drop_duplicates()]
+    df = df.loc[~df.index.duplicated()]
     return df
 
 
 def combine_dates(orders: pd.DataFrame, dates: pd.DataFrame) -> pd.DataFrame:
+    dates = dates.loc[~dates.index.duplicated(keep="first")]
     dates = dates["order_date"]
     orders = orders.merge(dates, left_index=True, right_index=True, how="inner")
     orders["order_date"] = pd.to_datetime(orders["order_date"], format="%d.%m.%Y")
