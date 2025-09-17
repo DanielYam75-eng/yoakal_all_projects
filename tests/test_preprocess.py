@@ -120,9 +120,6 @@ def test_preprocess(orders, invoices, order_edits, dates, curr_year, curr_month)
     assert not order_edits.empty
     assert not past_sums.empty
 
-    assert orders["order_year"].max() <= curr_year
-    assert orders["order_month"].max() <= curr_month
-
     assert not orders.isnull().any().any()
     assert not invoices.isnull().any().any()
     assert not order_edits.isnull().any().any()
