@@ -34,7 +34,7 @@ deps = ["pytest",
         "experiment-management @ git+ssh://git@github.com/MadorDS-Yoakal/experiment-management.git",
     ]
 description = "Run test under {base_python}, the private dependencies are stated via SSH"
-commands = [["pytest"]]
+commands = [["pytest", { replace = "posargs", default = ["tests"], extend = true }]]
 
 
 [tool.tox.env.formatter]
@@ -49,6 +49,6 @@ deps = ["pytest",
         "experiment-management @ git+https://github.com/MadorDS-Yoakal/experiment-management.git",
     ]
 description = "Run test under {base_python}"
-commands = [["pytest"]]
+commands = [["pytest", { replace = "posargs", default = ["tests"], extend = true }]]
 
 
