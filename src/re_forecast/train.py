@@ -139,7 +139,7 @@ def train_model(
 
     train_data, test_data = train_test_split(data, test_size=0.1, random_state=glb.SEED)
     X_train = train_data.drop(columns=["target"])
-    y_train = train_data["target"]
+    y_train = train_data["target"].clip(0, 1)
     X_test = test_data.drop(columns=["target"])
     y_test = test_data["target"]
 
@@ -148,6 +148,7 @@ def train_model(
         max_depth=max_depth,
         learning_rate=learning_rate,
         random_state=glb.SEED,
+        obj="reg:logistic",
         enable_categorical=True,
     )
     X_train.to_csv("X_train.csv")
