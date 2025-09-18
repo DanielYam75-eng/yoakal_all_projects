@@ -41,7 +41,7 @@ commands = [["pytest", { replace = "posargs", default = ["tests"], extend = true
 description = "Run black formatter on the source code"
 skip_install = true
 deps = ["black"]
-commands = [["black", "src"], ["black", "tests"]]
+commands = [["black", "src"], ["black", "tests"], ["black","integration_tests"]]
 
 
 [tool.tox.env.test]
