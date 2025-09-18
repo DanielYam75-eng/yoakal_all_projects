@@ -26,7 +26,7 @@ local_scheme = "node-and-date"
 
 [tool.tox]
 requires = ["tox>=4.19"]
-env_list = ["test", "formatter"]
+env_list = ["test", "format"]
 
 
 [tool.tox.env.test-ssh]
@@ -37,7 +37,7 @@ description = "Run test under {base_python}, the private dependencies are stated
 commands = [["pytest", { replace = "posargs", default = ["tests"], extend = true }]]
 
 
-[tool.tox.env.formatter]
+[tool.tox.env.format]
 description = "Run black formatter on the source code"
 skip_install = true
 deps = ["black"]
