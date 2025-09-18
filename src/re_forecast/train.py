@@ -136,8 +136,20 @@ def train_model(
         random_state=glb.SEED,
         enable_categorical=True,
     )
+    X_train.to_csv("X_train.csv")
+    mlflow.log_artifact(
+        "X_train.csv", artifact_path="Intermediate Artifacts"
+    )
+    y_train.to_csv("y_train.csv")
+    mlflow.log_artifact(
+        "y_train.csv", artifact_path="Intermediate Artifacts"
+    )
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
+    pd.Series(y_pred).to_csv("y_pred.csv")
+    mlflow.log_artifact(
+        "y_pred.csv", artifact_path="Intermediate Artifacts"
+    )
     rmse = root_mean_squared_error(y_test, y_pred)
     mlflow.log_metric("rmse", rmse)
     mae = mean_absolute_error(y_test, y_pred)
