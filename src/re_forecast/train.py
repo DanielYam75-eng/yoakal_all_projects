@@ -137,9 +137,7 @@ def train_model(
     learning_rate: float,
 ) -> xgb.XGBRFRegressor:
 
-    train_data, test_data = train_test_split(
-        data, test_size=10000, random_state=glb.SEED
-    )
+    train_data, test_data = train_test_split(data, test_size=0.1, random_state=glb.SEED)
     X_train = train_data.drop(columns=["target"])
     y_train = train_data["target"]
     X_test = test_data.drop(columns=["target"])
