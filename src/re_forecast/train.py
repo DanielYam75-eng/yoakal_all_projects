@@ -48,7 +48,9 @@ def get_train_data(
     training_data["abs order date"] = (
         training_data["order_year"] * 12 + training_data["order_month"]
     )
-    edits["abs edit date"] = edits["order_year"] * 12 + edits["order_month"]
+    edits["abs edit date"] = (
+        edits["order_year"] * 12 + edits["order_month"]
+    )
     training_data = training_data.merge(
         edits[["abs edit date", "volume"]],
         how="left",
@@ -61,19 +63,23 @@ def get_train_data(
             training_data["abs order date"] + training_data["age"],
         )
     ]
-    training_data["po_net_value"] = training_data.groupby(glb.KEY + ["age"])[
-        "volume"
-    ].transform("sum")
+    training_data["po_net_value"] = training_data.groupby(
+        glb.KEY + ["age"]
+    )["volume"].transform("sum")
     training_data = training_data.drop_duplicates()
 
-    data = training_data.merge(invoices, how="left", left_index=True, right_index=True)
+    data = training_data.merge(
+        invoices, how="left", left_index=True, right_index=True
+    )
 
     def get_cumulative_portion(row: pd.Series):
 
         if row["po_net_value"] == 0:
             return 0
 
-        max_month = max(col for col in row.index if not isinstance(col, str))
+        max_month = max(
+            col for col in row.index if not isinstance(col, str)
+        )
         data_lim = min(row["age"], max_month)
         so_far = row.loc[list(range(data_lim))].sum()
 
@@ -89,7 +95,9 @@ def get_train_data(
         # The age should be a column because the data was built to contain all ages up to the orders.
         return row.loc[row["age"]] / row["po_net_value"]
 
-    training_data["cumulative_portion"] = data.apply(get_cumulative_portion, axis=1)
+    training_data["cumulative_portion"] = data.apply(
+        get_cumulative_portion, axis=1
+    )
     training_data["target"] = data.apply(get_target, axis=1)
 
     categorial_features = [
@@ -102,23 +110,31 @@ def get_train_data(
     ]
     floating_features = ["po_net_value", "cumulative_portion"]
     integer_features = ["age", "N"]
-    training_data[categorial_features] = training_data[categorial_features].astype(
-        "category"
-    )
-    training_data[integer_features] = training_data[integer_features].astype("int32")
-    training_data[floating_features] = training_data[floating_features].astype(
-        "float32"
-    )
+    training_data[categorial_features] = training_data[
+        categorial_features
+    ].astype("category")
+    training_data[integer_features] = training_data[
+        integer_features
+    ].astype("int32")
+    training_data[floating_features] = training_data[
+        floating_features
+    ].astype("float32")
     training_data["target"] = training_data["target"].astype("float32")
     training_data = training_data[
-        categorial_features + integer_features + floating_features + ["target"]
+        categorial_features
+        + integer_features
+        + floating_features
+        + ["target"]
     ]
 
     return training_data
 
 
 def train_model(
-    data: pd.DataFrame, n_estimators: int, max_depth: int, learning_rate: float
+    data: pd.DataFrame,
+    n_estimators: int,
+    max_depth: int,
+    learning_rate: float,
 ) -> xgb.XGBRFRegressor:
 
     train_data, test_data = train_test_split(
@@ -172,13 +188,23 @@ def train(
 ):
 
     training_data = get_train_data(
-        orders, invoices, order_edits, curr_year, curr_month, sample_frac
+        orders,
+        invoices,
+        order_edits,
+        curr_year,
+        curr_month,
+        sample_frac,
     )
     training_data = training_data[
-        (training_data["target"] >= 0) & (training_data["target"] <= 1.05)
+        (training_data["target"] >= 0)
+        & (training_data["target"] <= 1.05)
     ]
-    print("The length of the training data is " + str(len(training_data)))
+    print(
+        "The length of the training data is " + str(len(training_data))
+    )
     training_data.to_csv("training_data.csv")
-    model = train_model(training_data, n_estimators, max_depth, learning_rate)
+    model = train_model(
+        training_data, n_estimators, max_depth, learning_rate
+    )
     with open(glb.MODEL, "wb") as f:
         pickle.dump(model, f)

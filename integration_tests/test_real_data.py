@@ -12,20 +12,23 @@ from re_forecast.preprocess import (
 
 @pytest.fixture
 def orders():
-    return rf.read('august-orders-Re-model')
+    return rf.read("august-orders-Re-model")
 
 
 @pytest.fixture
 def dates():
-    return rf.read('august--order-dates')
+    return rf.read("august--order-dates")
+
 
 @pytest.fixture
 def order_edits():
-    return rf.read('aug-po-edits', dtype={"order_date": str})
+    return rf.read("aug-po-edits", dtype={"order_date": str})
+
 
 @pytest.fixture
 def invoices():
-    return rf.read('aug-invoices-RE-model_updated_version')
+    return rf.read("aug-invoices-RE-model_updated_version")
+
 
 @pytest.fixture
 def curr_year():
@@ -35,7 +38,6 @@ def curr_year():
 @pytest.fixture
 def curr_month():
     return 7
-
 
 
 @pytest.mark.filterwarnings("ignore")
@@ -82,4 +84,3 @@ def test_with_real_data(orders, invoices, order_edits, dates, curr_year, curr_mo
 
     assert orders.index.is_unique
     assert invoices.index.is_unique
-

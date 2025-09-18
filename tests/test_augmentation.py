@@ -82,9 +82,7 @@ def dates():
         "order_date": ["2025-09-01", "2025-09-05", "2025-08-30"],
     }
     df = pd.DataFrame(data)
-    df["order_date"] = pd.to_datetime(
-        df["order_date"]
-    )  # Ensure datetime dtype
+    df["order_date"] = pd.to_datetime(df["order_date"])  # Ensure datetime dtype
     return df
 
 
@@ -131,9 +129,7 @@ def test_generator(data: pd.DataFrame):
 
 
 @pytest.mark.filterwarnings("ignore::UserWarning")
-def test_augmentation_by_sum_per_month(
-    data: pd.DataFrame, aug_dict: dict
-):
+def test_augmentation_by_sum_per_month(data: pd.DataFrame, aug_dict: dict):
 
     predictions, dates = augmentation_by_sum_per_month(data, aug_dict)
 

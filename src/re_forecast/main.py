@@ -317,16 +317,14 @@ def main():
                 name="data for invoices",
             )
         )
-        orders, invoices, past_sums, order_edits = (
-            preprocess_and_simulate_data(
-                orders,
-                orders_dates,
-                order_edits,
-                invoices,
-                configuration.curr_year,
-                configuration.curr_month,
-                configuration.augmentation_dict,
-            )
+        orders, invoices, past_sums, order_edits = preprocess_and_simulate_data(
+            orders,
+            orders_dates,
+            order_edits,
+            invoices,
+            configuration.curr_year,
+            configuration.curr_month,
+            configuration.augmentation_dict,
         )
         train(
             orders,
