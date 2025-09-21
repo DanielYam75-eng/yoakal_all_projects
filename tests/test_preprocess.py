@@ -2,6 +2,7 @@ import pytest
 import dagshub
 import pandas as pd
 import re_forecast.globals as glb
+import numpy as np
 from re_forecast.preprocess import (
     preprocess,
     combine_dates,
@@ -112,6 +113,7 @@ def test_preprocess(orders, invoices, order_edits, dates, curr_year, curr_month)
 
     # columns
     assert set(["N", "quarter"]).issubset(orders.columns)
+    assert np.all(np.isfinite(orders["N"]))
 
     # range
     assert not orders.empty

@@ -3,6 +3,7 @@ import re_forecast.globals as glb
 import pandas as pd
 import read_file as rf
 import pytest
+import numpy as np
 from re_forecast.preprocess import (
     preprocess,
     combine_dates,
@@ -84,3 +85,5 @@ def test_with_real_data(orders, invoices, order_edits, dates, curr_year, curr_mo
 
     assert orders.index.is_unique
     assert invoices.index.is_unique
+
+    assert np.all(np.isfinite(orders["N"]))
