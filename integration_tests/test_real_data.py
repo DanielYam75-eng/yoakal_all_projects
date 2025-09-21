@@ -52,15 +52,15 @@ def test_with_real_data(orders, invoices, order_edits, dates, curr_year, curr_mo
     orders = combine_dates(orders, dates)
     assert orders.index.is_unique
 
-    orders, invoices, order_edits, past_sums = preprocess(
+    orders, invoices, past_sums, order_edits = preprocess(
         orders, invoices, order_edits, curr_year, curr_month
     )
 
     # dtypes
     assert type(orders) is pd.DataFrame
     assert type(invoices) is pd.DataFrame
-    assert type(order_edits) is pd.Series
-    assert type(past_sums) is pd.DataFrame
+    assert type(past_sums) is pd.Series
+    assert type(order_edits) is pd.DataFrame
 
     # index
     assert orders.index.names == glb.KEY

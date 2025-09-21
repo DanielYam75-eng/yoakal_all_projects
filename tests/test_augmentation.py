@@ -96,7 +96,7 @@ def data(orders, invoices, order_edits, dates, curr_year, curr_month):
 
     orders = combine_dates(orders, dates)
 
-    orders, invoices, order_edits, past_sums = preprocess(
+    orders, invoices, past_sums, order_edits = preprocess(
         orders, invoices, order_edits, curr_year, curr_month
     )
 
