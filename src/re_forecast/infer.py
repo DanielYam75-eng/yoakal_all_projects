@@ -48,11 +48,12 @@ def infer(
     )
 
     def get_cumulative_portion(row: pd.Series):
-
-        max_month = max(col for col in row.index if not isinstance(col, str))
-        data_lim = min(row["age"], max_month)
-        so_far = row.loc[list(range(data_lim))].sum()
-        so_far_prc = so_far / row["po_net_value"]
+        age = row["age"]
+        po_net_value = row["po_net_value"]
+        row = row.loc[0:]
+        row = row.iloc[:-1]
+        so_far = row.loc[row.index <= age].sum()
+        so_far_prc = so_far / po_net_value
 
         return so_far_prc
 
