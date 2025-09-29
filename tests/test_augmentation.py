@@ -111,6 +111,11 @@ def aug_dict():
     }
 
 
+@pytest.fixture
+def empty_aug_dict():
+    return {}
+
+
 @pytest.mark.filterwarnings("ignore::UserWarning")
 def test_NB(data: pd.DataFrame):
 
@@ -135,6 +140,20 @@ def test_augmentation_by_sum_per_month(data: pd.DataFrame, aug_dict: dict):
 
     assert not predictions.empty
     assert not dates.empty
+
+    assert predictions.index.names == glb.KEY
+    assert dates.index.names == glb.KEY
+    assert predictions.index.equals(dates.index)
+    assert predictions.index.is_unique
+
+
+@pytest.mark.filterwarnings("ignore::UserWarning")
+def test_augmentation_by_sum_per_month(data: pd.DataFrame, empty_aug_dict: dict):
+
+    predictions, dates = augmentation_by_sum_per_month(data, empty_aug_dict)
+
+    assert predictions.empty
+    assert dates.empty
 
     assert predictions.index.names == glb.KEY
     assert dates.index.names == glb.KEY

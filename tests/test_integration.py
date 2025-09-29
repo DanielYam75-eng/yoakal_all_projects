@@ -2,6 +2,7 @@ import pytest
 import dagshub
 import pandas as pd
 import numpy as np
+import re_forecast.globals as glb
 
 
 def fake_get_repo_bucket_client(*args, **kwargs):
@@ -1076,6 +1077,21 @@ def dates():
     return pd.DataFrame(data)
 
 
+@pytest.fixture
+def curr_year():
+    return 2015
+
+
+@pytest.fixture
+def curr_month():
+    return 12
+
+
+@pytest.fixture
+def augmentation_dict():
+    return {}
+
+
 def test_prepare_index1(orders, monkeypatch):
     monkeypatch.setattr(dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client)
     from re_forecast.preprocess import prepare_index
@@ -1125,3 +1141,57 @@ def test_combine_dates(orders, dates, monkeypatch):
     assert "order_month" in combined.columns
     assert pd.api.types.is_datetime64_any_dtype(combined["order_date"])
     assert combined.shape[0] == orders.shape[0]
+
+
+def test_preprocess_and_simulate_data(
+    orders,
+    invoices,
+    order_edits,
+    dates,
+    curr_year,
+    curr_month,
+    augmentation_dict,
+    monkeypatch,
+):
+    monkeypatch.setattr(dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client)
+    from re_forecast.main import preprocess_and_simulate_data
+
+    orders, invoices, past_sums, order_edits = preprocess_and_simulate_data(
+        orders,
+        dates,
+        order_edits,
+        invoices,
+        curr_year,
+        curr_month,
+        augmentation_dict,
+    )
+
+    # dtypes
+    assert type(orders) is pd.DataFrame
+    assert type(invoices) is pd.DataFrame
+    assert type(past_sums) is pd.Series
+    assert type(order_edits) is pd.DataFrame
+
+    # index
+    assert orders.index.names == glb.KEY
+    assert invoices.index.names == glb.KEY
+    assert order_edits.index.names == glb.KEY
+    assert past_sums.index.names == glb.KEY
+
+    # columns
+    assert set(["N", "quarter"]).issubset(orders.columns)
+    assert np.all(np.isfinite(orders["N"]))
+
+    # range
+    assert not orders.empty
+    assert not invoices.empty
+    assert not order_edits.empty
+    assert not past_sums.empty
+
+    assert not orders.isnull().any().any()
+    assert not invoices.isnull().any().any()
+    assert not order_edits.isnull().any().any()
+    assert not past_sums.isnull().any().any()
+
+    assert orders.index.is_unique
+    assert invoices.index.is_unique

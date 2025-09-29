@@ -87,6 +87,11 @@ def dates():
     return df
 
 
+@pytest.fixture
+def augmentation_dict():
+    return {}
+
+
 def test_preprocess(orders, invoices, order_edits, dates, curr_year, curr_month):
 
     orders = prepare_index(orders)
@@ -97,6 +102,53 @@ def test_preprocess(orders, invoices, order_edits, dates, curr_year, curr_month)
     orders = combine_dates(orders, dates)
     orders, invoices, past_sums, order_edits = preprocess(
         orders, invoices, order_edits, curr_year, curr_month
+    )
+
+    # dtypes
+    assert type(orders) is pd.DataFrame
+    assert type(invoices) is pd.DataFrame
+    assert type(past_sums) is pd.Series
+    assert type(order_edits) is pd.DataFrame
+
+    # index
+    assert orders.index.names == glb.KEY
+    assert invoices.index.names == glb.KEY
+    assert order_edits.index.names == glb.KEY
+    assert past_sums.index.names == glb.KEY
+
+    # columns
+    assert set(["N", "quarter"]).issubset(orders.columns)
+    assert np.all(np.isfinite(orders["N"]))
+
+    # range
+    assert not orders.empty
+    assert not invoices.empty
+    assert not order_edits.empty
+    assert not past_sums.empty
+
+    assert not orders.isnull().any().any()
+    assert not invoices.isnull().any().any()
+    assert not order_edits.isnull().any().any()
+    assert not past_sums.isnull().any().any()
+
+    assert orders.index.is_unique
+    assert invoices.index.is_unique
+
+
+@pytest.mark.filterwarnings("ignore::")
+def test_preprocess_and_simulate_data(
+    orders, invoices, order_edits, dates, curr_year, curr_month, augmentation_dict
+):
+    from re_forecast.main import preprocess_and_simulate_data
+
+    orders, invoices, past_sums, order_edits = preprocess_and_simulate_data(
+        orders,
+        dates,
+        order_edits,
+        invoices,
+        curr_year,
+        curr_month,
+        augmentation_dict,
     )
 
     # dtypes
