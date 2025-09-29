@@ -11,6 +11,29 @@ warnings.filterwarnings("ignore")
 from . import globals as glb
 
 
+def get_cumulative_portion(row: pd.Series):
+
+    if row["po_net_value"] == 0:
+        return 0
+
+    max_month = max(col for col in row.index if not isinstance(col, str))
+    data_lim = min(row["age"], max_month)
+    so_far = row.loc[list(range(data_lim))].sum()
+
+    so_far_prc = so_far / row["po_net_value"]
+
+    return so_far_prc
+
+
+def get_target(row: pd.Series):
+
+    if row["po_net_value"] == 0:
+        return 0
+
+    # The age should be a column because the data was built to contain all ages up to the orders.
+    return row.loc[row["age"]] / row["po_net_value"]
+
+
 def get_train_data(
     orders: pd.DataFrame,
     invoices: pd.DataFrame,
@@ -71,29 +94,6 @@ def get_train_data(
     data = training_data.merge(
         invoices, how="left", left_index=True, right_index=True
     )
-
-    def get_cumulative_portion(row: pd.Series):
-
-        if row["po_net_value"] == 0:
-            return 0
-
-        max_month = max(
-            col for col in row.index if not isinstance(col, str)
-        )
-        data_lim = min(row["age"], max_month)
-        so_far = row.loc[list(range(data_lim))].sum()
-
-        so_far_prc = so_far / row["po_net_value"]
-
-        return so_far_prc
-
-    def get_target(row: pd.Series):
-
-        if row["po_net_value"] == 0:
-            return 0
-
-        # The age should be a column because the data was built to contain all ages up to the orders.
-        return row.loc[row["age"]] / row["po_net_value"]
 
     training_data["cumulative_portion"] = data.apply(
         get_cumulative_portion, axis=1
