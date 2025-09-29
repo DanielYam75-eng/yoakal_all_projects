@@ -21131,14 +21131,14 @@ def answers():
 
 
 def test_get_cumulative_portion(data, answers):
-    from re_forecast.train import get_cumulative_portion
+    from re_forecast.utils import get_cumulative_portion
 
     result = data.apply(get_cumulative_portion, axis=1)
     assert np.isclose(result, answers["get_cumulative_portion"]).all()
 
 
 def test_get_target(data, answers):
-    from re_forecast.train import get_target
+    from re_forecast.utils import get_target
 
     result = data.apply(get_target, axis=1)
     assert np.isclose(result, answers["get_target"]).all()

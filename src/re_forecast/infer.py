@@ -7,6 +7,7 @@ import mlflow
 
 warnings.filterwarnings("ignore")
 from . import globals as glb
+from .utils import get_cumulative_portion
 
 
 def forecast(
@@ -46,16 +47,6 @@ def infer(
     data["age"] = (
         (curr_year - data["order_year"]).mul(12).add(curr_month - data["order_month"])
     )
-
-    def get_cumulative_portion(row: pd.Series):
-        age = row["age"]
-        po_net_value = row["po_net_value"]
-        row = row.loc[0:]
-        row = row.iloc[:-1]
-        so_far = row.loc[row.index <= age].sum()
-        so_far_prc = so_far / po_net_value
-
-        return so_far_prc
 
     data["cumulative_portion"] = data.apply(get_cumulative_portion, axis=1)
     categorial_features = [
