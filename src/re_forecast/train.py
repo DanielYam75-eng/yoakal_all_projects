@@ -71,9 +71,7 @@ def get_train_data(
     training_data["abs order date"] = (
         training_data["order_year"] * 12 + training_data["order_month"]
     )
-    edits["abs edit date"] = (
-        edits["order_year"] * 12 + edits["order_month"]
-    )
+    edits["abs edit date"] = edits["order_year"] * 12 + edits["order_month"]
     training_data = training_data.merge(
         edits[["abs edit date", "volume"]],
         how="left",
@@ -86,18 +84,14 @@ def get_train_data(
             training_data["abs order date"] + training_data["age"],
         )
     ]
-    training_data["po_net_value"] = training_data.groupby(
-        glb.KEY + ["age"]
-    )["volume"].transform("sum")
+    training_data["po_net_value"] = training_data.groupby(glb.KEY + ["age"])[
+        "volume"
+    ].transform("sum")
     training_data = training_data.drop_duplicates()
 
-    data = training_data.merge(
-        invoices, how="left", left_index=True, right_index=True
-    )
+    data = training_data.merge(invoices, how="left", left_index=True, right_index=True)
 
-    training_data["cumulative_portion"] = data.apply(
-        get_cumulative_portion, axis=1
-    )
+    training_data["cumulative_portion"] = data.apply(get_cumulative_portion, axis=1)
     training_data["target"] = data.apply(get_target, axis=1)
 
     categorial_features = [
@@ -110,21 +104,16 @@ def get_train_data(
     ]
     floating_features = ["po_net_value", "cumulative_portion"]
     integer_features = ["age", "N"]
-    training_data[categorial_features] = training_data[
-        categorial_features
-    ].astype("category")
-    training_data[integer_features] = training_data[
-        integer_features
-    ].astype("int32")
-    training_data[floating_features] = training_data[
-        floating_features
-    ].astype("float32")
+    training_data[categorial_features] = training_data[categorial_features].astype(
+        "category"
+    )
+    training_data[integer_features] = training_data[integer_features].astype("int32")
+    training_data[floating_features] = training_data[floating_features].astype(
+        "float32"
+    )
     training_data["target"] = training_data["target"].astype("float32")
     training_data = training_data[
-        categorial_features
-        + integer_features
-        + floating_features
-        + ["target"]
+        categorial_features + integer_features + floating_features + ["target"]
     ]
 
     return training_data
@@ -152,19 +141,13 @@ def train_model(
         enable_categorical=True,
     )
     X_train.to_csv("X_train.csv")
-    mlflow.log_artifact(
-        "X_train.csv", artifact_path="Intermediate Artifacts"
-    )
+    mlflow.log_artifact("X_train.csv", artifact_path="Intermediate Artifacts")
     y_train.to_csv("y_train.csv")
-    mlflow.log_artifact(
-        "y_train.csv", artifact_path="Intermediate Artifacts"
-    )
+    mlflow.log_artifact("y_train.csv", artifact_path="Intermediate Artifacts")
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     pd.Series(y_pred).to_csv("y_pred.csv")
-    mlflow.log_artifact(
-        "y_pred.csv", artifact_path="Intermediate Artifacts"
-    )
+    mlflow.log_artifact("y_pred.csv", artifact_path="Intermediate Artifacts")
     rmse = root_mean_squared_error(y_test, y_pred)
     mlflow.log_metric("rmse", rmse)
     mae = mean_absolute_error(y_test, y_pred)
@@ -195,15 +178,10 @@ def train(
         sample_frac,
     )
     training_data = training_data[
-        (training_data["target"] >= 0)
-        & (training_data["target"] <= 1.05)
+        (training_data["target"] >= 0) & (training_data["target"] <= 1.05)
     ]
-    print(
-        "The length of the training data is " + str(len(training_data))
-    )
+    print("The length of the training data is " + str(len(training_data)))
     training_data.to_csv("training_data.csv")
-    model = train_model(
-        training_data, n_estimators, max_depth, learning_rate
-    )
+    model = train_model(training_data, n_estimators, max_depth, learning_rate)
     with open(glb.MODEL, "wb") as f:
         pickle.dump(model, f)
