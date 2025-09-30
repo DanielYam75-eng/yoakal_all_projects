@@ -292,53 +292,6 @@ def main(path, type, past_year, curr_year, curr_month, months_back, coin_type):
             forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
         return forcast_data_specific_year
 
-    def changing_kvotzat_otzar(
-        month_to_predict,
-        forcast_data_specific_year,
-        wining_model_specific_year,
-        data_we_got_to_use_in_prediction,
-        flag_for_using_only_part_of_data,
-        how_much_month_back_to_use,
-    ):
-        kvotzot_otzar_got_changed = []
-        for kvotzat_otzar_sahar in forcast_data_specific_year:
-            if (
-                wining_model_specific_year[kvotzat_otzar_sahar][0] == "holt"
-                or wining_model_specific_year[kvotzat_otzar_sahar][0]
-                == "ExponentialSmoothing"
-                or kvotzat_otzar_sahar == "0201/11"
-            ):
-                if (
-                    forcast_data_specific_year[kvotzat_otzar_sahar].sum() == 0
-                    or kvotzat_otzar_sahar == "0201/11"
-                ):
-                    kvotzot_otzar_got_changed.append(kvotzat_otzar_sahar)
-                    if flag_for_using_only_part_of_data:
-                        model = NaiveModel(
-                            data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][
-                                -how_much_month_back_to_use:
-                            ]
-                        )
-                    else:
-                        model = NaiveModel(
-                            data_we_got_to_use_in_prediction[kvotzat_otzar_sahar]
-                        )
-                    model_fit = model.fit()
-                    forecast = model_fit.forecast(month_to_predict)
-                    forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
-                """
-                else:
-                    kvotzot_otzar_got_changed.append(kvotzat_otzar_sahar)
-                    if(flag_for_using_only_part_of_data):
-                        model = SeasonalNaiveModel(data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][-how_much_month_back_to_use:])
-                    else:
-                        model = SeasonalNaiveModel(data_we_got_to_use_in_prediction[kvotzat_otzar_sahar]) 
-                    model_fit = model.fit()
-                    forecast = model_fit.forecast(month_to_predict)
-                    forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
-                """
-        return kvotzot_otzar_got_changed
-
     # Define the templates based on the type
     if coin_type == 1:
         if type_ == "career_salary":
@@ -718,14 +671,6 @@ def main(path, type, past_year, curr_year, curr_month, months_back, coin_type):
         flag_for_using_only_part_of_data,
         how_much_month_back_to_use,
     )
-    kvotzot_otzar_got_changed_specific_year = changing_kvotzat_otzar(
-        how_much_months_in_year,
-        forcast_data_specific_year,
-        wining_model_specific_year,
-        data_we_got_to_use_in_prediction_specific_year,
-        flag_for_using_only_part_of_data,
-        how_much_month_back_to_use,
-    )
     actual_data_sum_specific_year = (
         actual_data_specific_year.sum(axis=1).resample("YE").sum()
     )
@@ -745,14 +690,6 @@ def main(path, type, past_year, curr_year, curr_month, months_back, coin_type):
     )
     forcast_data_2025_year = forcast_data(
         how_much_months_in_year - how_much_month_in_curr_year_in_data,
-        wining_model_2025_year,
-        data_we_got_to_use_in_prediction_2025_year,
-        flag_for_using_only_part_of_data,
-        how_much_month_back_to_use,
-    )
-    kvotzot_otzar_got_changed_2025_year = changing_kvotzat_otzar(
-        how_much_months_in_year - how_much_month_in_curr_year_in_data,
-        forcast_data_2025_year,
         wining_model_2025_year,
         data_we_got_to_use_in_prediction_2025_year,
         flag_for_using_only_part_of_data,
