@@ -66,6 +66,7 @@ def get_train_data(
         "volume"
     ].transform("sum")
     training_data = training_data.drop_duplicates()
+    training_data = training_data[training_data["po_net_value"] > 0]
 
     data = training_data.merge(invoices, how="left", left_index=True, right_index=True)
 
