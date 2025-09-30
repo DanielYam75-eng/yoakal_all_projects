@@ -13,8 +13,18 @@ import numpy as np
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 
 
-def main(path, type, past_year, curr_year, curr_month, months_back, coin_type):
+class DummyModel:
+    def __init__(self, index):
+        self.index = index
 
+    def fit(self):
+        return self
+
+    def forecast(self, steps_to_forecast) -> pd.Series:
+        return pd.Series(0, index=self.index)
+
+
+def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
     year_to_predict = past_year
     how_much_month_in_curr_year_in_data = curr_month
     how_much_month_back_to_use = months_back
@@ -268,27 +278,42 @@ def main(path, type, past_year, curr_year, curr_month, months_back, coin_type):
         data_we_got_to_use_in_prediction,
         flag_for_using_only_part_of_data,
         how_much_month_back_to_use,
+        forecast_index,
     ):
         forcast_data_specific_year = {}
         for i, kvotzat_otzar_sahar in enumerate(wining_model_specific_year):
             if flag_for_using_only_part_of_data:
-                model = templates[wining_model_specific_year[kvotzat_otzar_sahar][0]](
-                    data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][
-                        -how_much_month_back_to_use:
-                    ]
-                )
+                if data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][
+                    -how_much_month_back_to_use:
+                ].empty:
+                    model = DummyModel(forecast_index)
+                else:
+                    model = templates[
+                        wining_model_specific_year[kvotzat_otzar_sahar][0]
+                    ](
+                        data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][
+                            -how_much_month_back_to_use:
+                        ]
+                    )
             else:
-                model = templates[wining_model_specific_year[kvotzat_otzar_sahar][0]](
-                    data_we_got_to_use_in_prediction[kvotzat_otzar_sahar]
-                )
+                if data_we_got_to_use_in_prediction[kvotzat_otzar_sahar].empty:
+                    model = DummyModel(forecast_index)
+                else:
+                    model = templates[
+                        wining_model_specific_year[kvotzat_otzar_sahar][0]
+                    ](data_we_got_to_use_in_prediction[kvotzat_otzar_sahar])
             model_fit = model.fit()
             forecast = model_fit.forecast(month_to_predict)
-            forecast.index = pd.date_range(
-                data_we_got_to_use_in_prediction[kvotzat_otzar_sahar].index[-1]
-                + pd.offsets.MonthEnd(1),
-                periods=month_to_predict,
-                freq="ME",
-            )
+            if not data_we_got_to_use_in_prediction[kvotzat_otzar_sahar].empty:
+                forecast.index = pd.date_range(
+                    data_we_got_to_use_in_prediction[kvotzat_otzar_sahar].index[-1]
+                    + pd.offsets.MonthEnd(1),
+                    periods=month_to_predict,
+                    freq="ME",
+                )
+
+            else:
+                forecast.index = forecast_index
             forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
         return forcast_data_specific_year
 
@@ -670,6 +695,9 @@ def main(path, type, past_year, curr_year, curr_month, months_back, coin_type):
         data_we_got_to_use_in_prediction_specific_year,
         flag_for_using_only_part_of_data,
         how_much_month_back_to_use,
+        pd.DatetimeIndex(
+            pd.date_range(f"{curr_year - 1}-01-31", f"{curr_year - 1}-12-31", freq="ME")
+        ),
     )
     actual_data_sum_specific_year = (
         actual_data_specific_year.sum(axis=1).resample("YE").sum()
@@ -694,6 +722,13 @@ def main(path, type, past_year, curr_year, curr_month, months_back, coin_type):
         data_we_got_to_use_in_prediction_2025_year,
         flag_for_using_only_part_of_data,
         how_much_month_back_to_use,
+        pd.DatetimeIndex(
+            pd.date_range(
+                pd.Timestamp(f"{curr_year}-{curr_month}-01") + pd.offsets.MonthEnd(1),
+                f"{curr_year}-12-31",
+                freq="ME",
+            )
+        ),
     )
 
     data_so_far_2025 = data_by_ozar_groups.loc[str(current_year)].head(
