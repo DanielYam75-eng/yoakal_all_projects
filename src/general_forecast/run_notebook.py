@@ -29,7 +29,6 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
     how_much_month_in_curr_year_in_data = curr_month
     how_much_month_back_to_use = months_back
     current_year = curr_year
-    type_ = type
     coin_type = coin_type
     how_much_months_in_year = 12
     flag_for_using_only_part_of_data = how_much_month_back_to_use != -1
