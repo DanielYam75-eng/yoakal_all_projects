@@ -215,6 +215,7 @@ def main():
             disabled_data=disabled_data,
             CPI_changes=CPI_changes,
             CPI_health_changes=CPI_health_changes,
+            war_year=war_year,
         )
         disabled_predictions.columns = ["forcast_disabled_2025"]
         forcasts = pd.concat([forcasts, disabled_predictions], axis=1)
