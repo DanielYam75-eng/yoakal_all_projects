@@ -134,15 +134,7 @@ def augmentation_by_sum_per_month(data, month_dict):
             specific_month_orders.index = index
             current_index += len(specific_month_orders)
             specific_month_dates = pd.DataFrame(index=index, columns=["order_date"])
-            specific_month_dates["order_date"] = pd.to_datetime(
-                f"01.{month.zfill(2)}.{year}", format="%d.%m.%Y"
-            )
-            specific_month_dates["order_month"] = specific_month_dates[
-                "order_date"
-            ].dt.month
-            specific_month_dates["order_year"] = specific_month_dates[
-                "order_date"
-            ].dt.year
+            specific_month_dates["order_date"] = f"01.{month.zfill(2)}.{year}"
             all_dates.append(specific_month_dates)
             all_predictions.append(specific_month_orders)
     if len(all_predictions) == 0:
@@ -156,13 +148,11 @@ def augmentation_by_sum_per_month(data, month_dict):
         concatenated_predictions = pd.concat(all_predictions)
     if len(all_dates) == 0:
         concatenated_dates = pd.DataFrame(
-            columns=["order_date", "order_month", "order_year"],
+            columns=["order_date"],
             index=data.index[:0],
         ).astype(
             {
                 "order_date": "datetime64[ns]",
-                "order_month": "Int64",
-                "order_year": "Int64",
             }
         )
     else:

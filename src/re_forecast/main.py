@@ -254,6 +254,9 @@ def preprocess_and_simulate_data(
             orders, augmentation_dict
         )
     )
+    simulated_orders = combine_dates(
+        simulated_orders, simulated_dates
+    )  # adding to order the column order_date, order_year, order_month
     orders_for_inference = pd.concat(
         [orders, simulated_orders], ignore_index=False
     )  # combine simulated orders and actual orders
