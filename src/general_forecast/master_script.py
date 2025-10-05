@@ -165,60 +165,61 @@ def main():
         forcasts = forcasts.pivot_table(
             index=IND, columns=COL, values=VAL, aggfunc="sum"
         )
-        orphans_predictions = forecast_families(
-            h=1,
-            curr_year=int(curr_year),
-            hesh_data=hesh_data_orphans,
-            families_data=families_data,
-            CPI_changes=CPI_changes,
-            fund_code=fund_codes["orphans"],
-            war_year=war_year,
-        )
-        widows_predictions = forecast_families(
-            h=1,
-            curr_year=int(curr_year),
-            hesh_data=hesh_data_widows,
-            families_data=families_data,
-            CPI_changes=CPI_changes,
-            fund_code=fund_codes["widows"],
-            war_year=war_year,
-        )
-        parents_predictions = forecast_families(
-            h=1,
-            curr_year=int(curr_year),
-            hesh_data=hesh_data_parents,
-            families_data=families_data,
-            CPI_changes=CPI_changes,
-            fund_code=fund_codes["parents"],
-            war_year=war_year,
-        )
+        if coin_type == 1:
+            orphans_predictions = forecast_families(
+                h=1,
+                curr_year=int(curr_year),
+                hesh_data=hesh_data_orphans,
+                families_data=families_data,
+                CPI_changes=CPI_changes,
+                fund_code=fund_codes["orphans"],
+                war_year=war_year,
+            )
+            widows_predictions = forecast_families(
+                h=1,
+                curr_year=int(curr_year),
+                hesh_data=hesh_data_widows,
+                families_data=families_data,
+                CPI_changes=CPI_changes,
+                fund_code=fund_codes["widows"],
+                war_year=war_year,
+            )
+            parents_predictions = forecast_families(
+                h=1,
+                curr_year=int(curr_year),
+                hesh_data=hesh_data_parents,
+                families_data=families_data,
+                CPI_changes=CPI_changes,
+                fund_code=fund_codes["parents"],
+                war_year=war_year,
+            )
 
-        orphans_predictions.columns = ["forcast_orphans_2025"]
-        widows_predictions.columns = ["forcast_widows_2025"]
-        parents_predictions.columns = ["forcast_parents_2025"]
+            orphans_predictions.columns = ["forcast_orphans_2025"]
+            widows_predictions.columns = ["forcast_widows_2025"]
+            parents_predictions.columns = ["forcast_parents_2025"]
 
-        families_predictions = pd.concat(
-            [orphans_predictions, widows_predictions, parents_predictions], axis=1
-        )
-        forcasts = pd.concat(
-            [
-                forcasts,
-                families_predictions,
-            ],
-            axis=1,
-        )
+            families_predictions = pd.concat(
+                [orphans_predictions, widows_predictions, parents_predictions], axis=1
+            )
+            forcasts = pd.concat(
+                [
+                    forcasts,
+                    families_predictions,
+                ],
+                axis=1,
+            )
 
-        disabled_predictions = forecast_disabled(
-            h=1,
-            curr_year=int(curr_year),
-            hesh_data=hesh_data_disabled,
-            disabled_data=disabled_data,
-            CPI_changes=CPI_changes,
-            CPI_health_changes=CPI_health_changes,
-            war_year=war_year,
-        )
-        disabled_predictions.columns = ["forcast_disabled_2025"]
-        forcasts = pd.concat([forcasts, disabled_predictions], axis=1)
+            disabled_predictions = forecast_disabled(
+                h=1,
+                curr_year=int(curr_year),
+                hesh_data=hesh_data_disabled,
+                disabled_data=disabled_data,
+                CPI_changes=CPI_changes,
+                CPI_health_changes=CPI_health_changes,
+                war_year=war_year,
+            )
+            disabled_predictions.columns = ["forcast_disabled_2025"]
+            forcasts = pd.concat([forcasts, disabled_predictions], axis=1)
 
         forcasts["sum"] = forcasts.select_dtypes(include="number").fillna(0).sum(axis=1)
 

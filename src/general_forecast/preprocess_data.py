@@ -50,13 +50,15 @@ def main(path, current_year, coin_type):
 
     # %%
     data = data[~data["doc_type"].isin(["RE", "ZY", "ZF", "ZH"])]
-    data = data[~data["fund_code"].isin([1410, 1407, 1405, 1400, 1406])]
+    data = data[~data["fund_code"].isin([1410])]
+
 
     # %%
     data["type"] = "rest"
 
     # %%
     if coin_type == 1:
+        data = data[~data["fund_code"].isin([1407, 1405, 1400, 1406])]
         data.loc[data["doc_type"] == "ZC", "type"] = (
             "affilated_other"  # Should be before the salary specification
         )
