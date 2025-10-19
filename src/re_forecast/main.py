@@ -229,6 +229,7 @@ def set_cli_args():
         help="Path to the data file",
     )
     parser.add_argument("-c", "--config", type=str, help="Path to config file")
+    parser.add_argument("--fine", action="store_true")
 
     return parser.parse_args()
 
@@ -350,6 +351,7 @@ def main():
                 configuration.curr_year,
                 configuration.curr_month,
                 cli_args.output_path,
+                cli_args.fine,
             )
 
 

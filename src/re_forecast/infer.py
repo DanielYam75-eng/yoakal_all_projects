@@ -37,6 +37,7 @@ def infer(
     curr_year: int,
     curr_month: int,
     output_path: str,
+    fine,
 ):
 
     with open(glb.MODEL, "rb") as f:
@@ -77,10 +78,13 @@ def infer(
     sum_forecasted_orders = sum_forecasted_orders.to_frame().merge(
         data[["fingroup"]], left_index=True, right_index=True
     )
-    sum_forecasted_orders = (
-        sum_forecasted_orders.groupby("fingroup").sum().reset_index()
-    )
-    sum_forecasted_orders.to_csv(output_path, index=False)
+    with_index = True
+    if not fine:
+        sum_forecasted_orders = (
+            sum_forecasted_orders.groupby("fingroup").sum().reset_index()
+        )
+        with_index = False
+    sum_forecasted_orders.to_csv(output_path, index=with_index)
     mlflow.log_artifact(
         os.path.join(os.getcwd(), output_path), artifact_path="forecast_outputs"
     )
