@@ -66,6 +66,7 @@ def infer(
     data[floating_features] = data[floating_features].astype("float32")
     data = data[categorial_features + integer_features + floating_features]
 
+    data = data[data["age"] <= 120]
     forecasted_orders = forecast(model, data, 12 - curr_month)
     forecasted_orders.to_csv("raw_output.csv")
     mlflow.log_artifact("raw_output.csv", artifact_path="forecast_output")
