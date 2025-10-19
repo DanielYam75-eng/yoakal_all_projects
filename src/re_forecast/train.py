@@ -33,14 +33,23 @@ def get_train_data(
         | (orders["order_year"] == curr_year - 1)
         & (orders["order_month"] <= curr_month)
     ].sample(frac=sample_frac, random_state=glb.SEED)
+    training_datasets = []
     n = 12
-    one_year = pd.concat(
-        [sampled_orders] * n,
-        keys=range(n),
-        names=["age"],
-    ).reset_index(level="age")
+    for years_old in range(1, 11):
+        n = 12 * years_old
+        sampled_orders = sampled_orders[
+            (sampled_orders["order_year"] < curr_year - years_old)
+            | (sampled_orders["order_year"] == curr_year - years_old)
+            & (sampled_orders["order_month"] <= curr_month)
+        ]
+        one_year = pd.concat(
+            [sampled_orders] * n,
+            keys=range(n),
+            names=["age"],
+        ).reset_index(level="age")
+        training_datasets.append(one_year)
 
-    training_data = one_year
+    training_data = pd.concat(training_datasets)
     training_data["age"] = training_data["age"].astype(int)
     training_data: pd.DataFrame = training_data.sample(
         frac=sample_frac, random_state=glb.SEED
