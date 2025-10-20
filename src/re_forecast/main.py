@@ -279,10 +279,32 @@ def main():
 
     configuration = Configuration().set_config(cli_args.config)
 
-    orders = rf.read(configuration.key_orders)
-    orders_dates = rf.read(configuration.key_orders_dates)
-    order_edits = rf.read(configuration.key_order_edits, dtype={"order_date": str})
-    invoices = rf.read(configuration.key_invoices)
+    if configuration.key_orders.endswith(".csv"):
+        orders = pd.read_csv(configuration.key_orders)
+        source_key_orders = "disk"
+    else:
+        orders = rf.read(configuration.key_orders)
+        source_key_orders = "bucket"
+    if configuration.key_orders_dates.endswith(".csv"):
+        orders_dates = pd.read_csv(configuration.key_orders_dates)
+        source_orders_dates = "disk"
+    else:
+        orders_dates = rf.read(configuration.key_orders_dates)
+        source_orders_dates = "bucket"
+    if configuration.key_order_edits.endswith(".csv"):
+        order_edits = pd.read_csv(
+            configuration.key_order_edits, dtype={"order_date": str}
+        )
+        source_orders_edits = "disk"
+    else:
+        order_edits = rf.read(configuration.key_order_edits, dtype={"order_date": str})
+        source_orders_edits = "bucket"
+    if configuration.key_invoices.endswith(".csv"):
+        invoices = pd.read_csv(configuration.key_invoices)
+        source_key_invoices = "disk"
+    else:
+        invoices = rf.read(configuration.key_invoices)
+        source_key_invoices = "bucket"
 
     dagshub.init(
         repo_owner="yoacal.data.science",
@@ -296,28 +318,28 @@ def main():
         mlflow.log_input(
             mlflow.data.from_pandas(
                 orders,
-                source="s3://bucket/" + configuration.key_orders,
+                source=f"s3://{source_key_orders}/" + configuration.key_orders,
                 name="data for orders",
             )
         )
         mlflow.log_input(
             mlflow.data.from_pandas(
                 orders_dates,
-                source="s3://bucket/" + configuration.key_orders_dates,
+                source=f"s3://{source_orders_dates}/" + configuration.key_orders_dates,
                 name="data for orders dates",
             )
         )
         mlflow.log_input(
             mlflow.data.from_pandas(
                 order_edits,
-                source="s3://bucket/" + configuration.key_order_edits,
+                source=f"s3://{source_orders_edits}/" + configuration.key_order_edits,
                 name="data for order edits",
             )
         )
         mlflow.log_input(
             mlflow.data.from_pandas(
                 invoices,
-                source="s3://bucket/" + configuration.key_invoices,
+                source=f"s3://{source_key_invoices}/" + configuration.key_invoices,
                 name="data for invoices",
             )
         )
