@@ -114,7 +114,14 @@ class Generator:
 
 def get_simulated_index(start_id, length, fund_year):
     return pd.MultiIndex.from_product(
-        [list(range(start_id, start_id + length)), [fund_year], [10]],
+        [
+            [
+                str(doc_number) + "N"
+                for doc_number in range(start_id, start_id + length)
+            ],
+            [fund_year],
+            [10],
+        ],
         names=glb.KEY,
     )
 
