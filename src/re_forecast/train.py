@@ -24,10 +24,6 @@ def get_train_data(
         sample_frac
     )  # The sampling is two-staged, so we need to take a square root of the sampling fractions for equivalent sample sizes.
 
-    # n = 36
-    # three_years = pd.concat([orders[(orders['order_year'] < curr_year - 3) | (orders['order_year'] == curr_year - 3) & (orders['order_month'] <= curr_month)]] * n, keys=range(n), names=["age"]).reset_index(level='age')
-    # n = 24
-    # two_years = pd.concat([orders[(orders['order_year'] < curr_year - 2) | (orders['order_year'] == curr_year - 2) & (orders['order_month'] <= curr_month)]] * n, keys=range(n), names=["age"]).reset_index(level='age')
     sampled_orders = orders[
         (orders["order_year"] < curr_year - 1)
         | (orders["order_year"] == curr_year - 1)
