@@ -367,7 +367,7 @@ def main():
             pass
         else:
             infer(
-                orders,
+                orders[orders["order_year"] >= configuration.curr_year - 7],
                 invoices,
                 past_sums,
                 configuration.curr_year,
