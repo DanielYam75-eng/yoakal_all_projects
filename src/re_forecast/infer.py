@@ -69,6 +69,7 @@ def infer(
     data = data[data["age"] <= 120]
     forecasted_orders = forecast(model, data, 12 - curr_month)
     forecasted_orders.to_csv("raw_output.csv")
+    past_sums.to_csv("past_sums.csv")
     mlflow.log_artifact("raw_output.csv", artifact_path="forecast_output")
 
     sum_forecasted_orders: pd.Series = (
