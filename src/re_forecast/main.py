@@ -11,6 +11,7 @@ from importlib_metadata import version
 import os
 import json
 from typing import Self
+import pickle
 
 
 class Configuration:
@@ -229,6 +230,9 @@ def set_cli_args():
         help="Path to the data file",
     )
     parser.add_argument("-c", "--config", type=str, help="Path to config file")
+    parser.add_argument(
+        "-m", "--model", type=str, help="Path to model file", default="model.pkl"
+    )
     parser.add_argument("--fine", action="store_true")
 
     return parser.parse_args()
@@ -352,19 +356,22 @@ def main():
             configuration.curr_month,
             configuration.augmentation_dict,
         )
-        train(
-            orders,
-            invoices,
-            order_edits,
-            configuration.curr_year,
-            configuration.curr_month,
-            configuration.sample_frac,
-            configuration.n_estimators,
-            configuration.max_depth,
-            configuration.learning_rate,
-        )
+        if configuration.mode == "infer":
+            trained_model = pickle.load(open(cli_args.model, "rb"))
+        else:
+            trained_model = train(
+                orders,
+                invoices,
+                order_edits,
+                configuration.curr_year,
+                configuration.curr_month,
+                configuration.sample_frac,
+                configuration.n_estimators,
+                configuration.max_depth,
+                configuration.learning_rate,
+            )
         if configuration.mode == "train":
-            pass
+            pickle.dump(trained_model, open(cli_args.output_path, "wb"))
         else:
             infer(
                 orders[orders["order_year"] >= configuration.curr_year - 7],
@@ -373,6 +380,7 @@ def main():
                 configuration.curr_year,
                 configuration.curr_month,
                 cli_args.output_path,
+                trained_model,
                 cli_args.fine,
             )
 

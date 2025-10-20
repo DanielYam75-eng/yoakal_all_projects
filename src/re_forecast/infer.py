@@ -37,11 +37,9 @@ def infer(
     curr_year: int,
     curr_month: int,
     output_path: str,
+    model,
     fine,
 ):
-
-    with open(glb.MODEL, "rb") as f:
-        model = pickle.load(f)
 
     data = orders.merge(invoices, how="left", left_index=True, right_index=True)
 

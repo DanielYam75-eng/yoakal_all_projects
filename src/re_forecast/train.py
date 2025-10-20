@@ -167,5 +167,4 @@ def train(
     print("The length of the training data is " + str(len(training_data)))
     training_data.to_csv("training_data.csv")
     model = train_model(training_data, n_estimators, max_depth, learning_rate)
-    with open(glb.MODEL, "wb") as f:
-        pickle.dump(model, f)
+    return model
