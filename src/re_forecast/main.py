@@ -284,30 +284,92 @@ def main():
     configuration = Configuration().set_config(cli_args.config)
 
     if configuration.key_orders.endswith(".csv"):
-        orders = pd.read_csv(configuration.key_orders)
+        orders = pd.read_csv(
+            configuration.key_orders,
+            dtype={
+                "doc_id": str,
+                "fund_year": str,
+                "item": str,
+                "po_type": str,
+                "huka": str,
+                "porcurment_organization": str,
+                "expanditure_type": str,
+                "fingroup": str,
+                "po_net_value": float,
+            },
+        )
         source_key_orders = "disk"
     else:
-        orders = rf.read(configuration.key_orders)
+        orders = rf.read(
+            configuration.key_orders,
+            dtype={
+                "doc_id": str,
+                "fund_year": str,
+                "item": str,
+                "po_type": str,
+                "huka": str,
+                "porcurment_organization": str,
+                "expanditure_type": str,
+                "fingroup": str,
+                "po_net_value": float,
+            },
+        )
         source_key_orders = "bucket"
     if configuration.key_orders_dates.endswith(".csv"):
-        orders_dates = pd.read_csv(configuration.key_orders_dates)
+        orders_dates = pd.read_csv(
+            configuration.key_orders_dates,
+            dtype={"doc_id": str, "item": str, "fund_year": str, "order_date": str},
+        )
         source_orders_dates = "disk"
     else:
-        orders_dates = rf.read(configuration.key_orders_dates)
+        orders_dates = rf.read(
+            configuration.key_orders_dates,
+            dtype={"doc_id": str, "item": str, "fund_year": str, "order_date": str},
+        )
         source_orders_dates = "bucket"
     if configuration.key_order_edits.endswith(".csv"):
         order_edits = pd.read_csv(
-            configuration.key_order_edits, dtype={"order_date": str}
+            configuration.key_order_edits,
+            dtype={"order_date": str, "doc_id": str, "item": str, "volume": float},
         )
         source_orders_edits = "disk"
     else:
-        order_edits = rf.read(configuration.key_order_edits, dtype={"order_date": str})
+        order_edits = rf.read(
+            configuration.key_order_edits,
+            dtype={"order_date": str, "doc_id": str, "item": str, "volume": float},
+        )
         source_orders_edits = "bucket"
     if configuration.key_invoices.endswith(".csv"):
-        invoices = pd.read_csv(configuration.key_invoices)
+        invoices = pd.read_csv(
+            configuration.key_invoices,
+            dtype={
+                "doc_id": str,
+                "fund_year": str,
+                "item": str,
+                "invoice_year": int,
+                "invoice_month": int,
+                "mof_class": str,
+                "RE": float,
+                "ZY": float,
+                "ZF": float,
+            },
+        )
         source_key_invoices = "disk"
     else:
-        invoices = rf.read(configuration.key_invoices)
+        invoices = rf.read(
+            configuration.key_invoices,
+            dtype={
+                "doc_id": str,
+                "fund_year": str,
+                "item": str,
+                "invoice_year": int,
+                "invoice_month": int,
+                "mof_class": str,
+                "RE": float,
+                "ZY": float,
+                "ZF": float,
+            },
+        )
         source_key_invoices = "bucket"
 
     dagshub.init(
