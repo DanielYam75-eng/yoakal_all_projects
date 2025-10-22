@@ -11,7 +11,6 @@ def prepare_index(df: pd.DataFrame) -> pd.DataFrame:
     df["fund_year"] = df["fund_year"].astype(str).str[:4]
     df[glb.KEY] = df[glb.KEY].astype("str")
     df = df.set_index(glb.KEY)
-    df = df.loc[~df.index.duplicated()]
     return df
 
 

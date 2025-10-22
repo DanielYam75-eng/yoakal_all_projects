@@ -248,6 +248,16 @@ def preprocess_and_simulate_data(
     augmentation_dict: dict[str, dict[str, float]],
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     orders = prepare_index(orders)
+    orders = orders.groupby(level=orders.index.names).agg(
+        {
+            "po_type": "first",
+            "huka": "first",
+            "porcurment_organization": "first",
+            "expanditure_type": "first",
+            "fingroup": "first",
+            "po_net_value": "sum",
+        }
+    )
     orders_dates = prepare_index(orders_dates)
     order_edits = prepare_index(order_edits)
     invoices = prepare_index(invoices)
