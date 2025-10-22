@@ -28,7 +28,7 @@ args = parser.parse_args()
 
 # %%
 PATH  = args.input_path
-GROUP = ["GL"]
+GROUP = ["doc", "tressure group"]
 VAL   = "volume"
 YEAR  = "year"
 MONTH = "month"
@@ -36,6 +36,8 @@ MONTH = "month"
 # %%
 YSIZE  = 12
 THRESH = 1e+6
+LASSO  = 2e-2
+NOISE  = 1e-2
 HIDNS  = args.hidden_size
 PYEAR  = args.target_year
 EPOCHS = args.epochs
@@ -107,7 +109,7 @@ tdataset = TensorDataset(train_ten, target_ten)
 loader : Loader = DataLoader(tdataset, batch_size = BSIZE, shuffle = True)
 
 # %%
-# ### Building architactures
+# ### Building architectures
 
 
 class Forecaster(Module):
@@ -128,35 +130,43 @@ class YearlyRNN(Forecaster):
         x, hid = self.rnn(x, hid)
         x = self.head(x)
         return x, hid
+    
+
+    def lasso(self) -> Tensor:
+        return torch.cat([p.abs().flatten() for n, p in self.named_parameters() if "weight_ih" in n]).mean() * LASSO
+    
+
+    def loss(self, preds: Tensor, target: Tensor) -> Tensor:
+        return mse_loss(preds, target) + self.lasso()
 
 
     def fit(self, loader: Loader, epochs: int, lr: float):
         
-        optimizer = Adam(self.parameters(), lr = lr)
+        optimizer = Adam(self.parameters(), lr=lr)
         self.train()
 
 
-        def train_step(data_batch: Tensor, target_batch: Tensor) -> Tensor:
+        def train_step(data_batch: Tensor, target_batch: Tensor) -> float:
             
-            data_batch += torch.randn_like(data_batch) * 1e-2
+            data_batch += torch.randn_like(data_batch) * NOISE
             optimizer.zero_grad()
             preds, _ = self.forward(data_batch)
-            loss = mse_loss(preds, target_batch)
+            loss = self.loss(preds, target_batch)
             loss.backward()
             clip_grad_norm_(self.parameters(), max_norm = 1.0)
             optimizer.step()
-            return loss
+            return loss.item()
 
-
+        
         last_avg_loss = float('inf')
         strike_count = 0
-
         for epoch in range(1, epochs + 1):
             
-            avg_loss = torch.stack([train_step(data_batch, target_batch) for data_batch, target_batch in loader]).mean()
+            total_loss = sum(train_step(data_batch, target_batch) for data_batch, target_batch in loader)
 
             if epoch % 10 == 0:
-                
+
+                avg_loss = total_loss / len(loader)
                 print(f"Epoch {epoch:3d} | Avg Loss: {avg_loss:.4f}")
 
                 if avg_loss > last_avg_loss:
@@ -232,6 +242,9 @@ results = pred.join(test)
 results.sort_values(by = "actual", inplace = True, ascending = False)
 results.loc[results["actual"] == 0, "forecast"] = 0
 results["abs err"] = results["forecast"].sub(results["actual"]).abs()
-results["rel err"] = results["abs err"].div(results["actual"])
+results["rel err"] = results["abs err"].div(results["actual"]).round(2)
 
-results.to_csv(args.output_path + f"results {PYEAR}.csv")
+
+results = results.reset_index()
+
+results.to_csv(args.output_path + f"results {PYEAR}.csv", index = False)
