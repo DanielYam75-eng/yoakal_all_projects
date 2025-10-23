@@ -215,9 +215,15 @@ def log_configuration(configuration: Configuration) -> None:
     mlflow.log_param("max_depth", configuration.max_depth)
     mlflow.log_param("learning_rate", configuration.learning_rate)
     mlflow.log_param("mode", configuration.mode)
-    mlflow.set_tags(
-        {"mlflow.source.git.commit": package_version.split("+")[1][1:].split(".")[0]}
-    )
+    commit = package_version.split("+")
+    if len(commit) >= 2:
+        mlflow.set_tags(
+            {"mlflow.source.git.commit": commit[1][1:].split(".")[0]}
+        )
+    else:
+        mlflow.set_tags(
+            {"mlflow.source.git.commit": commit}
+        )
 
 
 def set_cli_args():
