@@ -25,7 +25,10 @@ Forecast Generation – The winning model produces a forward-looking forecast, w
 This approach ensures adaptability, empirical validation, and stability over time.
 
 🔹 Most models are generic, designed for wide applicability.
+
 🔹 For specific topics with advanced methodologies, the module integrates external specialized models via APIs from other internal forecasting packages.
+
+🔹 this model is getting its data from the bucket
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -42,6 +45,7 @@ The forecasting framework combines internally implemented models with establishe
 Each model has a consistent structure:
 
 model.fit()       # Train on historical data
+
 model.forecast()  # Produce forward forecast
 
 
@@ -79,7 +83,6 @@ Steps:
 2. Fit linear regression to the trend.
 3. Estimate seasonality using ratios and a MonthlyModel.
 4. Combine both for the final forecast.
-
 Use Case: Data with steady growth and seasonal effects.
 
 🔵 AvgFactorModel
@@ -115,7 +118,8 @@ Extends exponential smoothing by adding a trend component.
 Best for data with consistent upward or downward drift.
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
+this part will be fixed by amir when time comes
+ 
 🧠 Model Usage by Topic and Currency Type
 
 Each topic (type_) uses a tailored combination of models depending on its statistical profile and currency type (coin_type):
