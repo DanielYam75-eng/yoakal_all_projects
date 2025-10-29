@@ -36,7 +36,7 @@ MONTH = "month"
 # %%
 YSIZE  = 12
 THRESH = 1e+6
-LASSO  = 2e-2
+LASSO  = 1e-2
 NOISE  = 1e-2
 HIDNS  = args.hidden_size
 PYEAR  = args.target_year
@@ -117,7 +117,7 @@ class Forecaster(Module):
     def forecast(self, seed: Tensor, fh: int): pass
     
 
-class YearlyRNN(Forecaster):
+class BiYearlyRNN(Forecaster):
 
     def __init__(self, input_dim: int, lstm_hid: int = 300):
         super().__init__()
@@ -133,11 +133,11 @@ class YearlyRNN(Forecaster):
     
 
     def lasso(self) -> Tensor:
-        return torch.cat([p.abs().flatten() for n, p in self.named_parameters() if "weight_ih" in n]).mean() * LASSO
+        return torch.cat([p.abs().flatten() for n, p in self.named_parameters() if "weight_ih" in n or "linear" in n]).mean() * LASSO
     
 
-    def loss(self, preds: Tensor, target: Tensor) -> Tensor:
-        return mse_loss(preds, target) + self.lasso()
+    def loss(self, curr_year_preds: Tensor, target: Tensor) -> Tensor:
+        return mse_loss(curr_year_preds, target) + self.lasso()
 
 
     def fit(self, loader: Loader, epochs: int, lr: float):
@@ -150,8 +150,8 @@ class YearlyRNN(Forecaster):
             
             data_batch += torch.randn_like(data_batch) * NOISE
             optimizer.zero_grad()
-            preds, _ = self.forward(data_batch)
-            loss = self.loss(preds, target_batch)
+            curr_year_preds, _ = self.forward(data_batch)
+            loss = self.loss(curr_year_preds, target_batch)
             loss.backward()
             clip_grad_norm_(self.parameters(), max_norm = 1.0)
             optimizer.step()
@@ -182,24 +182,28 @@ class YearlyRNN(Forecaster):
     def forecast(self, seed: Tensor, fh: int, hid = None):
         
         self.eval()
+        forecast = []
 
         for step in range(seed.size(1)):
             val = seed[:, step, :]
-            yield val
+            forecast.append(val)
             _, hid = self.forward(val, hid)
 
         for step in range(fh):
             val, hid = self.forward(val, hid)
-            yield val
+            forecast.append(val)
+
+        return torch.concat(forecast).relu()
 
 
 # %%
 # ### Training
 
 # %%
-model = YearlyRNN(input_dim = train_ten.size(-1), lstm_hid = HIDNS)
+model = BiYearlyRNN(input_dim = train_ten.size(-1), lstm_hid = HIDNS)
 
 # %%
+# saving / loading the model
 if args.train:
     model.fit(loader, EPOCHS, LRATE)
     torch.save(model.state_dict(), args.model_path)
@@ -209,42 +213,51 @@ else:
 # %%
 # ### Forecasting
 
-pred = torch.concat(tuple(model.forecast(test_ten[:, :YSIZE + SLEN, :], YSIZE - SLEN))).relu()
+curr_year_pred = model.forecast(test_ten[:, : YSIZE + SLEN, :], YSIZE - SLEN)
+curr_year_pred = curr_year_pred.unsqueeze(0)
+next_year_pred = model.forecast(curr_year_pred[:, : YSIZE, :], YSIZE)
+
 
 # %%
-test_ten = test_ten.squeeze()
-assert pred.size(0) == YSIZE * 2
-assert pred.size(1) == test_ten.size(1)
+def organize_forecast(forecast: Tensor, test: pd.DataFrame) -> pd.DataFrame:
+
+    # dimention check
+    forecast = forecast.squeeze()
+    assert forecast.size(0) == YSIZE * 2
+    assert forecast.size(1) == test.shape[1]
+
+    # convertion
+    forecast = forecast.detach().numpy()
+
+    # denormalization
+    forecast = scaler.inverse_transform(forecast)
+
+    # cat out the warm up
+    forecast = forecast[YSIZE:]
+    test = test.iloc[YSIZE:]
+
+    # tabularizing results
+
+    test     : pd.DataFrame = test.transpose()
+    forecast : pd.DataFrame = pd.DataFrame(index = test.index, data = forecast.transpose())
+
+    test = test.sum(axis = 1).to_frame(name = "actual")
+    forecast = forecast.sum(axis = 1).to_frame(name = "forecast")
+    results = forecast.join(test)
+
+    results.sort_values(by = "actual", inplace = True, ascending = False)
+    results.loc[results["actual"] == 0, "forecast"] = 0
+    results["abs err"] = results["forecast"].sub(results["actual"]).abs()
+    results["rel err"] = results["abs err"].div(results["actual"]).round(2)
+
+
+    results = results.reset_index()
+
+    return results
+
 
 # %%
-pred = pred.detach().numpy()
-test_ten = test_ten.detach().numpy()
+# saving results
 
-# %%
-pred = scaler.inverse_transform(pred)
-test_ten = scaler.inverse_transform(test_ten)
-
-# %%
-pred = pred[YSIZE:]
-test_ten = test_ten[YSIZE:]
-test = test.iloc[YSIZE:]
-
-# %%
-# results
-
-test = test.transpose()
-pred = pd.DataFrame(index = test.index, data = pred.transpose())
-
-test = test.sum(axis = 1).to_frame(name = "actual")
-pred = pred.sum(axis = 1).to_frame(name = "forecast")
-results = pred.join(test)
-
-results.sort_values(by = "actual", inplace = True, ascending = False)
-results.loc[results["actual"] == 0, "forecast"] = 0
-results["abs err"] = results["forecast"].sub(results["actual"]).abs()
-results["rel err"] = results["abs err"].div(results["actual"]).round(2)
-
-
-results = results.reset_index()
-
-results.to_csv(args.output_path + f"results {PYEAR}.csv", index = False)
+organize_forecast(curr_year_pred, test).to_csv(args.output_path + f"results {PYEAR}.csv",     index = False)
+organize_forecast(next_year_pred, test).to_csv(args.output_path + f"results {PYEAR + 1}.csv", index = False)
