@@ -107,11 +107,11 @@ target_ten = train_ten[:, 1:, :]
 train_ten  = train_ten[:, :-1, :]
 
 # %%
-assert train_ten.size(2) == target_ten.size(2) == test_ten.size(2)
-assert train_ten.size(1) == target_ten.size(1) == 2 * YSIZE - 1
-assert train_ten.size(0) == target_ten.size(0)
-assert test_ten.size(0) == 1
-assert SLEN < test_ten.size(1) - YSIZE
+assert train_ten.size(2) == target_ten.size(2) == test_ten.size(2), "number of series missmatch"
+assert train_ten.size(1) == target_ten.size(1) == 2 * YSIZE - 1,    "series length missmatch"
+assert train_ten.size(0) == target_ten.size(0),                     "number of years missmatch"
+assert test_ten.size(0) == 1,                                       "test set should contain only one year"
+assert SLEN < test_ten.size(1) - YSIZE,                             "seed length exeeds max month"
 
 # %%
 tdataset = TensorDataset(train_ten, target_ten)
@@ -214,10 +214,15 @@ model = BiYearlyRNN(input_dim = train_ten.size(-1), lstm_hid = HIDNS)
 # %%
 # saving / loading the model
 if args.train:
+
     model.fit(loader, EPOCHS, LRATE)
     torch.save(model.state_dict(), MODEL_PATH)
+
 else:
-    model.load_state_dict(torch.load(MODEL_PATH))
+
+    try: model.load_state_dict(torch.load(MODEL_PATH))
+    except FileNotFoundError: raise FileNotFoundError("Model file not found. Please train the model first.")
+    except Exception as e:    raise RuntimeError(f"Error loading model. Might be model with different architecture from an older run. details: {e}")
 
 # %%
 # ### Forecasting
@@ -232,8 +237,8 @@ def organize_forecast(forecast: Tensor, test: pd.DataFrame) -> pd.DataFrame:
 
     # dimention check
     forecast = forecast.squeeze()
-    assert forecast.size(0) == YSIZE * 2
-    assert forecast.size(1) == test.shape[1]
+    assert forecast.size(0) == YSIZE * 2,     "forecast length mismatch"
+    assert forecast.size(1) == test.shape[1], "forecast series count mismatch"
 
     # convertion
     forecast = forecast.detach().numpy()
