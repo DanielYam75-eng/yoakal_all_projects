@@ -1,5 +1,6 @@
 # %%
 import argparse
+import json
 import pandas as pd
 import torch
 from torch.utils.data import TensorDataset, DataLoader
@@ -48,9 +49,10 @@ SLEN   = args.seed_len
 
 # %%
 DATA_PATH             = args.input_path
-OUTPUT_PATH_CURR_YEAR = args.folder + f"results {PYEAR}.csv"
+OUTPUT_PATH_CURR_YEAR = args.folder + f"results {PYEAR} from {SLEN}.csv"
 OUTPUT_PATH_NEXT_YEAR = args.folder + f"results {PYEAR + 1}.csv"
 MODEL_PATH            = args.folder + "model.pt"
+SPECS_PATH            = args.folder + "parameters.json"
 
 # %%
 # ### Organizing the data
@@ -267,3 +269,6 @@ def organize_forecast(forecast: Tensor, test: pd.DataFrame) -> pd.DataFrame:
 
 organize_forecast(curr_year_pred, test).to_csv(OUTPUT_PATH_CURR_YEAR, index = False)
 organize_forecast(next_year_pred, test).to_csv(OUTPUT_PATH_NEXT_YEAR, index = False)
+
+# %%
+with open(SPECS_PATH, 'w') as file: json.dump(vars(args), file, indent = 4)
