@@ -166,25 +166,13 @@ class BiYearlyRNN(Forecaster):
             optimizer.step()
             return loss.item()
 
-        
-        last_avg_loss = float('inf')
-        strike_count = 0
+
         for epoch in range(1, epochs + 1):
             
             total_loss = sum(train_step(data_batch, target_batch) for data_batch, target_batch in loader)
+            avg_loss = total_loss / len(loader)
 
-            if epoch % 10 == 0:
-
-                avg_loss = total_loss / len(loader)
-                print(f"Epoch {epoch:3d} | Avg Loss: {avg_loss:.4f}")
-
-                if avg_loss > last_avg_loss:
-                    strike_count += 1
-                    if strike_count >= 6:
-                        print("Early stopping due to loss increase.")
-                        break
-
-                last_avg_loss = avg_loss
+            if epoch % 10 == 0: print(f"Epoch {epoch:3d} | Avg Loss: {avg_loss:.4f}")
 
 
     @torch.no_grad
