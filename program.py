@@ -13,21 +13,22 @@ from typing import Iterator
 Loader = Iterator[Tensor]
 
 # %%
+# ### Global settings
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_path",  "-i", type = str,   required = True)
-parser.add_argument("--output_path", "-o", type = str,   required = True)
-parser.add_argument("--model_path",  "-m", type = str,   required = True)
+parser.add_argument("--folder",      "-f", type = str,   required = False,  default = "./")
 parser.add_argument("--target_year", "-y", type = int,   required = True)
 parser.add_argument("--train",       "-t", type = int,   required = False,  default = 1)
 parser.add_argument("--seed_len",    "-s", type = int,   required = False,  default = 1)
 parser.add_argument("--batch_size",  "-b", type = int,   required = False,  default = 3)
 parser.add_argument("--learn_rate",  "-l", type = float, required = False,  default = 1e-3)
+parser.add_argument("--threshold",   "-c", type = float, required = False,  default = 1e+6)
 parser.add_argument("--hidden_size", "-n", type = int,   required = False,  default = 300)
 parser.add_argument("--epochs",      "-e", type = int,   required = False,  default = 250)
 args = parser.parse_args()
 
 # %%
-PATH  = args.input_path
 GROUP = ["doc", "tressure group"]
 VAL   = "volume"
 YEAR  = "year"
@@ -35,9 +36,9 @@ MONTH = "month"
 
 # %%
 YSIZE  = 12
-THRESH = 1e+6
 LASSO  = 1e-2
 NOISE  = 1e-2
+THRESH = args.threshold
 HIDNS  = args.hidden_size
 PYEAR  = args.target_year
 EPOCHS = args.epochs
@@ -46,10 +47,16 @@ LRATE  = args.learn_rate
 SLEN   = args.seed_len
 
 # %%
+DATA_PATH             = args.input_path
+OUTPUT_PATH_CURR_YEAR = args.folder + f"results {PYEAR}.csv"
+OUTPUT_PATH_NEXT_YEAR = args.folder + f"results {PYEAR + 1}.csv"
+MODEL_PATH            = args.folder + "model.pt"
+
+# %%
 # ### Organizing the data
 
 # %%
-data = pd.read_csv(PATH, usecols = [ * GROUP, YEAR, MONTH, VAL])
+data = pd.read_csv(DATA_PATH, usecols = [ * GROUP, YEAR, MONTH, VAL])
 
 # %%
 data : pd.DataFrame = data[data[YEAR] <= PYEAR]
@@ -206,9 +213,9 @@ model = BiYearlyRNN(input_dim = train_ten.size(-1), lstm_hid = HIDNS)
 # saving / loading the model
 if args.train:
     model.fit(loader, EPOCHS, LRATE)
-    torch.save(model.state_dict(), args.model_path)
+    torch.save(model.state_dict(), MODEL_PATH)
 else:
-    model.load_state_dict(torch.load(args.model_path))
+    model.load_state_dict(torch.load(MODEL_PATH))
 
 # %%
 # ### Forecasting
@@ -237,7 +244,6 @@ def organize_forecast(forecast: Tensor, test: pd.DataFrame) -> pd.DataFrame:
     test = test.iloc[YSIZE:]
 
     # tabularizing results
-
     test     : pd.DataFrame = test.transpose()
     forecast : pd.DataFrame = pd.DataFrame(index = test.index, data = forecast.transpose())
 
@@ -259,5 +265,5 @@ def organize_forecast(forecast: Tensor, test: pd.DataFrame) -> pd.DataFrame:
 # %%
 # saving results
 
-organize_forecast(curr_year_pred, test).to_csv(args.output_path + f"results {PYEAR}.csv",     index = False)
-organize_forecast(next_year_pred, test).to_csv(args.output_path + f"results {PYEAR + 1}.csv", index = False)
+organize_forecast(curr_year_pred, test).to_csv(OUTPUT_PATH_CURR_YEAR, index = False)
+organize_forecast(next_year_pred, test).to_csv(OUTPUT_PATH_NEXT_YEAR, index = False)
