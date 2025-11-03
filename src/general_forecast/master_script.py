@@ -160,7 +160,9 @@ def main():
             forcasts.to_csv(
                 r"Data\ALL_" + table_type + "_monthly" + ".csv", index=False
             )
-        forcasts[VAL] = forcasts[months[-12:]].sum(axis=1)
+
+        forcasts = forcasts.set_index([forcasts.columns[0], forcasts.columns[1]])
+        forcasts[VAL] = forcasts.sum(axis=1)
 
         forcasts = forcasts.pivot_table(
             index=IND, columns=COL, values=VAL, aggfunc="sum"
