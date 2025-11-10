@@ -18,6 +18,7 @@ show-templates = "show_templates:main"
 break-key = "break_file:main_break"
 unbreak-key = "break_file:main_unbreak"
 remove = "remove_file:main"
+total-size = "list_files:get_total_size_used"
 
 [tool.setuptools_scm]
 version_scheme = "no-guess-dev"

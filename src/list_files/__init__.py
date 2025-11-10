@@ -72,6 +72,13 @@ def main():
         print(tabulate(last_10_modified_files, headers='keys', tablefmt='plain'))
 
 
+def get_total_size_used():
+    username = 'yoacal.data.science'
+    bucketname = 'exp-repo'
+    list_of_files = load_files(username, bucketname)
+    print(f'The bucket uses {human_readable_size(list_of_files["Size"].sum())}.')
+
+
 if __name__ == "__main__":
     main()
 
