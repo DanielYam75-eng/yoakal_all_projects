@@ -41,6 +41,8 @@ def load_files(username, bucketname,required_template=None):
     return list_of_files
 
 def human_readable_size(size):
+    if size >= 1073741824:
+        return f"{size / 1073741824:.2f}G"
     if size >= 1048576:
         return f"{size / 1048576:.2f}M"
     elif size >= 1024:
