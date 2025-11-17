@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-PATH = "../data/deep learning project data/EMFs"
+PATH = "../../data/deep learning project data/EMFs"
 VARS = ["coin"]
 
 
