@@ -1,0 +1,14 @@
+{
+    "orders" : "oct-po", 
+    "invoices" : "oct-invoices",
+    "order_edits" : "oct-changes",
+    "orders_dates" : "oct-dates",
+    "curr_year" : 2025,
+    "curr_month" : 9,
+    "forecast_to": 1,
+    "sample_frac" : 1e-3,
+    "n_estimators" : 1000,
+    "max_depth" : 2,
+    "learning_rate" : 0.5,
+    "mode": "train"
+}
