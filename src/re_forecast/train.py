@@ -15,11 +15,7 @@ from .utils import get_cumulative_portion, get_target
 
 
 def smooth_labels(invoices, smoothing_window):
-    df = invoices.copy()
-    df = df.T
-    df["helper_index"] = df.index // smoothing_window
-    df = df.groupby("helper_index").transform("mean")
-    return df.T
+    return invoices.T.groupby(pd.Series(invoices.columns).floordiv(smoothing_window)).transform("mean").T
 
 
 def get_train_data(
