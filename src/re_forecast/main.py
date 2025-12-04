@@ -346,6 +346,7 @@ def preprocess_and_simulate_data(
     curr_year: int,
     curr_month: int,
     augmentation_dict: dict[str, dict[str, float]],
+    skip_augmentation: bool,
     debug,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, float]]:
     time1 = time.time()
@@ -366,21 +367,29 @@ def preprocess_and_simulate_data(
     orders = combine_dates(
         orders, orders_dates
     )  # adding to order the column order_date, order_year, order_month
-    simulated_orders, simulated_dates = (
-        augmentation_by_sum_per_month(  # simulated orders are generated here (same format as orders), simulated dates contain for each index ( doc_id, item, fund_year) the corresponding order_date
-            orders.loc[orders['order_year'] >= curr_year - 2], augmentation_dict
     time2 = time.time()
+    if not skip_augmentation:
+        simulated_orders, simulated_dates, times_augmentation = (
+            augmentation_by_sum_per_month(  # simulated orders are generated here (same format as orders), simulated dates contain for each index ( doc_id, item, fund_year) the corresponding order_date
+                orders.loc[orders["order_year"] >= curr_year - 2], augmentation_dict
+            )
         )
-    )
-    simulated_orders = combine_dates(
-        simulated_orders, simulated_dates
-    )  # adding to order the column order_date, order_year, order_month
-    orders_for_inference = pd.concat(
-        [orders, simulated_orders], ignore_index=False
-    )  # combine simulated orders and actual orders
-    dates_for_inference = pd.concat([orders_dates, simulated_dates], ignore_index=False)
-    orders, invoices, past_sums, order_edits = (
+        simulated_orders = combine_dates(
+            simulated_orders, simulated_dates
+        )  # adding to order the column order_date, order_year, order_month
+    else:
+        times_augmentation = {}
     time3 = time.time()
+    if not skip_augmentation:
+        orders_for_inference = pd.concat(
+            [orders, simulated_orders], ignore_index=False
+        )  # combine simulated orders and actual orders
+        dates_for_inference = pd.concat(
+            [orders_dates, simulated_dates], ignore_index=False
+        )
+    else:
+        orders_for_inference = orders
+        dates_for_inference = orders_dates
     time4 = time.time()
     orders, invoices, past_sums, order_edits, times_preprocess = (
         preprocess(  # orders contains all the additional columns needed for inference and training
@@ -640,6 +649,8 @@ def main():
                 configuration.curr_year,
                 configuration.curr_month,
                 configuration.augmentation_dict,
+                # skip augmentation in train mode
+                configuration.mode == "train",
                 cli_args.debug,
             )
         )
