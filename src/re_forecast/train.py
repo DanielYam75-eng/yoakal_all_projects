@@ -103,8 +103,12 @@ def get_train_data(
     time7 = time.time()
 
     # Here we compute the current cumulative portion (which is equivalent to 1 - balance)
-    training_data["cumulative_portion"] = data.apply(get_cumulative_portion, axis=1)
-    training_data["target"] = data.apply(get_target, axis=1)
+
+    # data is the training_data + invoice columns, and is used as intermediate objects in these computations
+    training_data["cumulative_portion"] = get_cumulative_portion(data)
+    training_data["target"] = np.where(
+        training_data["po_net_value"] == 0, 0, get_target(data)
+    )
 
     time8 = time.time()
     # Do not train on POs with very small balance

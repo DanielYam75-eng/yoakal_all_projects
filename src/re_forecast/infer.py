@@ -54,7 +54,7 @@ def infer(
         (curr_year - data["order_year"]).mul(12).add(curr_month - data["order_month"])
     )
 
-    data["cumulative_portion"] = data.apply(get_cumulative_portion, axis=1)
+    data["cumulative_portion"] = get_cumulative_portion(data)
 
     # Do not infer on POs with no balance left
     data = data[data["cumulative_portion"] < 0.98]
