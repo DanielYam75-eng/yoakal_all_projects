@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 from . import globals as glb
+import time
 
 
 INVOL = ["RE", "ZF", "ZY"]
@@ -32,7 +33,8 @@ def preprocess(
     curr_year: int,
     curr_month: int,
     debug,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, float]]:
+    time1 = time.time()
     orders["po_net_value"] = (
         orders["po_net_value"].astype(str).str.replace(",", "").astype(float)
     )
@@ -43,6 +45,7 @@ def preprocess(
         invoices["invoice_month"] <= curr_month
     )
 
+    time2 = time.time()
     past_sums = (
         invoices[mask_for_existing_invoices_this_year]
         .groupby(glb.KEY)[INVOL]
@@ -50,6 +53,7 @@ def preprocess(
         .sum(axis=1)
     )
 
+    time3 = time.time()
     orders = orders[orders["po_net_value"] > 0]
     invoices = invoices.join(
         orders[["order_year", "order_month"]],
@@ -101,5 +105,10 @@ def preprocess(
 
     if debug:
         orders.to_csv(os.path.join("debug-output", "orders-post-preprocessing.csv"))
-
-    return orders, invoices, past_sums, order_edits
+    time4 = time.time()
+    times = {
+        "preprocess:data-cleaning": time2 - time1,
+        "preprocess:calculateing-past-sums": time3 - time2,
+        "preprocess:data-tidying": time4 - time3,
+    }
+    return orders, invoices, past_sums, order_edits, times

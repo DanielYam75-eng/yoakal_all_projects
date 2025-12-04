@@ -1156,7 +1156,7 @@ def test_preprocess_and_simulate_data(
     monkeypatch.setattr(dagshub, "get_repo_bucket_client", fake_get_repo_bucket_client)
     from re_forecast.main import preprocess_and_simulate_data
 
-    orders, invoices, past_sums, order_edits = preprocess_and_simulate_data(
+    orders, invoices, past_sums, order_edits, times = preprocess_and_simulate_data(
         orders,
         dates,
         order_edits,
@@ -1164,6 +1164,8 @@ def test_preprocess_and_simulate_data(
         curr_year,
         curr_month,
         augmentation_dict,
+        False,
+        False,
     )
 
     # dtypes

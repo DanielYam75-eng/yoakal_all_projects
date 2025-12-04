@@ -96,8 +96,8 @@ def data(orders, invoices, order_edits, dates, curr_year, curr_month):
 
     orders = combine_dates(orders, dates)
 
-    orders, invoices, past_sums, order_edits = preprocess(
-        orders, invoices, order_edits, curr_year, curr_month
+    orders, invoices, past_sums, order_edits, times = preprocess(
+        orders, invoices, order_edits, curr_year, curr_month, False
     )
 
     return orders
@@ -136,7 +136,7 @@ def test_generator(data: pd.DataFrame):
 @pytest.mark.filterwarnings("ignore::UserWarning")
 def test_augmentation_by_sum_per_month(data: pd.DataFrame, aug_dict: dict):
 
-    predictions, dates = augmentation_by_sum_per_month(data, aug_dict)
+    predictions, dates, times = augmentation_by_sum_per_month(data, aug_dict)
 
     assert not predictions.empty
     assert not dates.empty
@@ -150,7 +150,7 @@ def test_augmentation_by_sum_per_month(data: pd.DataFrame, aug_dict: dict):
 @pytest.mark.filterwarnings("ignore::UserWarning")
 def test_augmentation_by_sum_per_month(data: pd.DataFrame, empty_aug_dict: dict):
 
-    predictions, dates = augmentation_by_sum_per_month(data, empty_aug_dict)
+    predictions, dates, times = augmentation_by_sum_per_month(data, empty_aug_dict)
 
     assert predictions.empty
     assert dates.empty

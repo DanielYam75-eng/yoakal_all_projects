@@ -100,8 +100,8 @@ def test_preprocess(orders, invoices, order_edits, dates, curr_year, curr_month)
     dates = prepare_index(dates)
 
     orders = combine_dates(orders, dates)
-    orders, invoices, past_sums, order_edits = preprocess(
-        orders, invoices, order_edits, curr_year, curr_month
+    orders, invoices, past_sums, order_edits, times = preprocess(
+        orders, invoices, order_edits, curr_year, curr_month, False
     )
 
     # dtypes
@@ -141,7 +141,7 @@ def test_preprocess_and_simulate_data(
 ):
     from re_forecast.main import preprocess_and_simulate_data
 
-    orders, invoices, past_sums, order_edits = preprocess_and_simulate_data(
+    orders, invoices, past_sums, order_edits, times = preprocess_and_simulate_data(
         orders,
         dates,
         order_edits,
@@ -149,6 +149,8 @@ def test_preprocess_and_simulate_data(
         curr_year,
         curr_month,
         augmentation_dict,
+        False,
+        False,
     )
 
     # dtypes

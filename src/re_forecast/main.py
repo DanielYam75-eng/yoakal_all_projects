@@ -17,6 +17,19 @@ import sys
 import time
 
 
+def pprint(dict_: dict[str, float]):
+    maximum_key_length = max([len(key) for key in dict_])
+    # The length we allocate for each key should suffice for each key with 5 extra spaces, and be at least 15
+    pretty_key_space_length = max(15, maximum_key_length + 5)
+    for key, val in dict_.items():
+        number_of_points = pretty_key_space_length - len(key)
+        print(f"{key}" + "." * number_of_points + f"{val:.2f}s")
+    print("-" * (pretty_key_space_length + 5))
+    total_time = sum(dict_.values())
+    number_of_points = pretty_key_space_length - len("total")
+    print(f"total" + "." * number_of_points + f"{total_time:.2f}s")
+
+
 class Configuration:
     def __init__(self):
         self.experiment = None
@@ -334,7 +347,8 @@ def preprocess_and_simulate_data(
     curr_month: int,
     augmentation_dict: dict[str, dict[str, float]],
     debug,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, float]]:
+    time1 = time.time()
     orders = prepare_index(orders)
     orders = orders.groupby(level=orders.index.names).agg(
         {
@@ -355,6 +369,7 @@ def preprocess_and_simulate_data(
     simulated_orders, simulated_dates = (
         augmentation_by_sum_per_month(  # simulated orders are generated here (same format as orders), simulated dates contain for each index ( doc_id, item, fund_year) the corresponding order_date
             orders.loc[orders['order_year'] >= curr_year - 2], augmentation_dict
+    time2 = time.time()
         )
     )
     simulated_orders = combine_dates(
@@ -365,6 +380,9 @@ def preprocess_and_simulate_data(
     )  # combine simulated orders and actual orders
     dates_for_inference = pd.concat([orders_dates, simulated_dates], ignore_index=False)
     orders, invoices, past_sums, order_edits = (
+    time3 = time.time()
+    time4 = time.time()
+    orders, invoices, past_sums, order_edits, times_preprocess = (
         preprocess(  # orders contains all the additional columns needed for inference and training
             orders_for_inference,
             invoices,
@@ -374,7 +392,18 @@ def preprocess_and_simulate_data(
             debug,
         )
     )
-    return orders, invoices, past_sums, order_edits
+    times = {
+        "preprocess_and_simulate_data::pre-preprocessing": time2 - time1,
+    }
+    times.update(times_augmentation)
+    times.update(
+        {
+            "preprocess_and_simulate-data::combining-simulated-and-real-data": time4
+            - time3,
+        }
+    )
+    times.update(times_preprocess)
+    return orders, invoices, past_sums, order_edits, times
 
 
 def handle_sigint(signum, frame):
@@ -394,6 +423,7 @@ def main():
     configuration = Configuration().set_config(cli_args.config)
     if cli_args.time:
         t1 = time.time()
+        times = {"read-configuration": t1 - t0}
 
     # Reading the datasets
     # Including caching mechanisms to dataset
@@ -546,12 +576,13 @@ def main():
             },
         )
         source_key_invoices = "bucket"
-        if not os.path.isdir('__cache__'):
-            os.mkdir('__cache__')
-        invoices.to_csv(os.path.join('__cache__', f'{configuration.key_invoices}.csv'))
+        if not os.path.isdir("__cache__"):
+            os.mkdir("__cache__")
+        invoices.to_csv(os.path.join("__cache__", f"{configuration.key_invoices}.csv"))
 
     if cli_args.time:
         t2 = time.time()
+        times["read_datasets"] = t2 - t1
     dagshub.init(
         repo_owner="yoacal.data.science",
         repo_name="exp-repo",
@@ -599,24 +630,29 @@ def main():
         # Preprocessing
         if cli_args.time:
             t3 = time.time()
-        orders, invoices, past_sums, order_edits = preprocess_and_simulate_data(
-            orders,
-            orders_dates,
-            order_edits,
-            invoices,
-            configuration.curr_year,
-            configuration.curr_month,
-            configuration.augmentation_dict,
-            cli_args.debug,
+            times["log-in-mlflow"] = t3 - t2
+        orders, invoices, past_sums, order_edits, preprocess_and_simulate_data_times = (
+            preprocess_and_simulate_data(
+                orders,
+                orders_dates,
+                order_edits,
+                invoices,
+                configuration.curr_year,
+                configuration.curr_month,
+                configuration.augmentation_dict,
+                cli_args.debug,
+            )
         )
 
         # mode `infer` means simply that the program won't train a model but rather load an existing one
         if cli_args.time:
             t4 = time.time()
+            times.update(preprocess_and_simulate_data_times)
         if configuration.mode == "infer":
             trained_model = pickle.load(open(cli_args.model, "rb"))
+            times_train = {}
         else:
-            trained_model = train(
+            trained_model, times_train = train(
                 orders,
                 invoices,
                 order_edits,
@@ -673,15 +709,8 @@ def main():
             mlflow.log_metric("total forecast", sum_forecasted_orders[0].sum())
         if cli_args.time:
             t5 = time.time()
-            print(
-                (
-                    f"read-configuration: {t1 - t0:.2f}ms\n"
-                    f"read-datasets: {t2 - t1:.2f}ms\n"
-                    f"log-in-mlflow: {t3 - t2:.2f}ms\n"
-                    f"preprocees: {t4 - t3:.2f}ms\n"
-                    f"train: {t5 - t4:.2f}ms\n"
-                )
-            )
+            times.update(times_train)
+            pprint(times)
 
 
 if __name__ == "__main__":

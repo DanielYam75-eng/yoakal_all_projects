@@ -8,6 +8,7 @@ import argparse
 import json
 from read_file import read
 from . import globals as glb
+import time
 
 
 class NaiveBayes:
@@ -127,10 +128,12 @@ def get_simulated_index(start_id, length, fund_year):
 
 
 def augmentation_by_sum_per_month(data, month_dict):
+    time1 = time.time()
     all_predictions = []
     all_dates = []
     generator = Generator()
     generator = generator.fit(data)
+    time2 = time.time()
     current_index = 0
     for year in month_dict:
         for month in month_dict[year]:
@@ -147,6 +150,7 @@ def augmentation_by_sum_per_month(data, month_dict):
                 specific_month_dates["order_date"] = f"01.{month.zfill(2)}.{year}"
                 all_dates.append(specific_month_dates)
                 all_predictions.append(specific_month_orders)
+    time3 = time.time()
     if len(all_predictions) == 0:
         columns = [col for col in data.columns if col != "order_date"]
         dtypes = data.dtypes.to_dict()
@@ -167,7 +171,13 @@ def augmentation_by_sum_per_month(data, month_dict):
         )
     else:
         concatenated_dates = pd.concat(all_dates)
-    return concatenated_predictions, concatenated_dates
+    time4 = time.time()
+    times = {
+        "augmentation_by_sum_per_month::train-generative-model": time2 - time1,
+        "augmentation_by_sum_per_month::generate-simulated-POs": time3 - time2,
+        "augmentation_by_sum_per_month::finalize-simulated-table": time4 - time3,
+    }
+    return concatenated_predictions, concatenated_dates, times
 
 
 def main():
