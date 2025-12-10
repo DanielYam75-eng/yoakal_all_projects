@@ -296,8 +296,8 @@ class Configuration:
 
 
 def log_configuration(configuration: Configuration) -> None:
-    package_version = version("mof-class-forecaster")
-    mlflow.set_tags({"mlflow.source.name": "mof-class-forecaster"})
+    package_version = version("re-forecast")
+    mlflow.set_tags({"mlflow.source.name": "re-forecast"})
     mlflow.log_param("curr_year", configuration.curr_year)
     mlflow.log_param("curr_month", configuration.curr_month)
     mlflow.log_param("forecast_to", configuration.forecast_to)

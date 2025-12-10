@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mof-class-forecaster"
+name = "re-forecast"
 dynamic = ["version"]
 dependencies = [
 	"pandas",
