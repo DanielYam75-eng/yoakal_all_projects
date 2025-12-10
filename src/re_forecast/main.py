@@ -489,7 +489,7 @@ def main():
         source_key_orders = "bucket"
         if not os.path.isdir('__cache__'):
             os.mkdir('__cache__')
-        orders.to_csv(os.path.join('__cache__', f'{configuration.key_orders}.csv'))
+        orders.to_csv(os.path.join('__cache__', f'{configuration.key_orders}.csv'), index=False)
     if configuration.key_orders_dates.endswith(".csv"):
         orders_dates = pd.read_csv(
             configuration.key_orders_dates,
@@ -512,7 +512,7 @@ def main():
         source_orders_dates = "bucket"
         if not os.path.isdir('__cache__'):
             os.mkdir('__cache__')
-        orders_dates.to_csv(os.path.join('__cache__', f'{configuration.key_orders_dates}.csv'))
+        orders_dates.to_csv(os.path.join('__cache__', f'{configuration.key_orders_dates}.csv'), index=False)
     if configuration.key_order_edits.endswith(".csv"):
         order_edits = pd.read_csv(
             configuration.key_order_edits,
@@ -535,7 +535,7 @@ def main():
         source_orders_edits = "bucket"
         if not os.path.isdir('__cache__'):
             os.mkdir('__cache__')
-        order_edits.to_csv(os.path.join('__cache__', f'{configuration.key_order_edits}.csv'))
+        order_edits.to_csv(os.path.join('__cache__', f'{configuration.key_order_edits}.csv'), index=False)
     if configuration.key_invoices.endswith(".csv"):
         invoices = pd.read_csv(
             configuration.key_invoices,
@@ -588,7 +588,7 @@ def main():
         source_key_invoices = "bucket"
         if not os.path.isdir("__cache__"):
             os.mkdir("__cache__")
-        invoices.to_csv(os.path.join("__cache__", f"{configuration.key_invoices}.csv"))
+        invoices.to_csv(os.path.join("__cache__", f"{configuration.key_invoices}.csv"), index=False)
 
     if cli_args.time:
         t2 = time.time()
