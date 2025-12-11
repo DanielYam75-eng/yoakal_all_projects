@@ -33,7 +33,7 @@ Monthly invoice sequences for a PO are intermittent and difficult to predict. In
 ## User Guide
 ### Synopsis
 ```
-usage: re-forecast [-h] -o OUTPUT_PATH [-c CONFIG] [-m MODEL] [--fine] [--debug] [--time]
+usage: re-forecast [-h] -o OUTPUT_PATH [-c CONFIG] [-m MODEL] [--fine] [--debug] [--time] [--monthly]
 
 The training/inference tool for RE forecast
 ```
@@ -48,6 +48,7 @@ Options:
 - `--fine`             Use fine-grained output format  
 - `--debug`            Log to debug experiment and emit extra artifacts  
 - `--time`             Print execution time
+- `--monthly`          Use monthly output format
 
 ### Modes
 The program may work in three different modes: train mode, infer mode, and mixed mode. They are invoked in the configuration file,
@@ -74,6 +75,7 @@ option) and outputs a csv file of the results, and mixed mode do both training a
 | `-o, --output` | Path where the inference will be written to as a CSV file. The exact format depends on the `--fine` option. |
 | `-m, --model`  | Path of the model `.pkl` binary file used for inference. The default is `model.pkl` in the current working directory. |
 | `--fine`       | If set, the result CSV is a table with a row for each PO (real or generated). Otherwise, the result contains one line for all MOF classes with the total forecast. |
+| `--monthly`    | If set, the result CSV is a table with columns for each forecasted month plus a column for the beginning of the year in cases `forecast_to` is 0. Otherwise, the result contains one column for the forecast. |
 
 #### Mixed mode options
 Mixed mode uses --output and --fine like infer mode, but doesn't use --model, as the model is trained during the program execution.

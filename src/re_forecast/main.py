@@ -334,6 +334,7 @@ def set_cli_args():
     parser.add_argument("--fine", action="store_true")
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--time", action="store_true")
+    parser.add_argument("--monthly", action="store_true")
 
     return parser.parse_args()
 
@@ -687,7 +688,7 @@ def main():
                 cli_args.output_path, artifact_path="model"
             )
         else:
-            sum_forecasted_orders = infer(
+            sum_forecasted_orders, total_forecast = infer(
                 orders[
                     (orders["order_year"] >= configuration.curr_year - 7)
                     & (
@@ -705,6 +706,7 @@ def main():
                 configuration.floating_features,
                 configuration.integer_features,
                 cli_args.debug,
+                cli_args.monthly,
             )
             with_index = True
             if not cli_args.fine:
@@ -717,7 +719,7 @@ def main():
                 os.path.join(os.getcwd(), cli_args.output_path),
                 artifact_path="forecast_outputs",
             )
-            mlflow.log_metric("total forecast", sum_forecasted_orders[0].sum())
+            mlflow.log_metric("total forecast", total_forecast)
         if cli_args.time:
             t5 = time.time()
             times.update(times_train)

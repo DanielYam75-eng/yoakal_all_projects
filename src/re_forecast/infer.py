@@ -42,6 +42,7 @@ def infer(
     floating_features,
     integer_features,
     debug,
+    monthly,
 ):
 
     if debug:
@@ -83,22 +84,39 @@ def infer(
         )
 
     # If forecast_to > 0, only consider forecasted values for the last year
-    if forecast_to > 0:
-        sum_forecasted_orders: pd.Series = (
-            forecasted_orders.iloc[:, -12:]
-            .sum(axis=1)
-            .mul(data["po_net_value"], axis=0)
-        )
+    if monthly:
+        if forecast_to > 0:
+            sum_forecasted_orders = forecasted_orders.iloc[:, -12:].mul(
+                data["po_net_value"], axis=0
+            )
+        else:
+            sum_forecasted_orders = pd.concat(
+                [
+                    past_sums.rename("past-during-year"),
+                    forecasted_orders.mul(data["po_net_value"], axis=0),
+                ]
+            )
+        total_forecast = sum_forecasted_orders.sum(axis=1).sum()
     else:
-        sum_forecasted_orders: pd.Series = (
-            forecasted_orders.sum(axis=1)
-            .mul(data["po_net_value"], axis=0)
-            .add(past_sums, fill_value=0)
-        )
+        if forecast_to > 0:
+            sum_forecasted_orders: pd.Series = (
+                forecasted_orders.iloc[:, -12:]
+                .sum(axis=1)
+                .mul(data["po_net_value"], axis=0)
+            )
+        else:
+            sum_forecasted_orders: pd.Series = (
+                forecasted_orders.sum(axis=1)
+                .mul(data["po_net_value"], axis=0)
+                .add(past_sums, fill_value=0)
+            )
+        total_forecast = sum_forecasted_orders[0].sum()
     if debug:
-        sum_forecasted_orders.to_csv(os.path.join("debug-output", "sum-forecast-pre-merge.csv"))
-        data[['fingroup']].to_csv(os.path.join("debug-output", "data-being-merged.csv"))
-    sum_forecasted_orders = sum_forecasted_orders.to_frame().merge(
+        sum_forecasted_orders.to_csv(
+            os.path.join("debug-output", "sum-forecast-pre-merge.csv")
+        )
+        data[["fingroup"]].to_csv(os.path.join("debug-output", "data-being-merged.csv"))
+    sum_forecasted_orders = pd.DataFrame(sum_forecasted_orders).merge(
         data[["fingroup"]], left_index=True, right_index=True
     )
-    return sum_forecasted_orders
+    return sum_forecasted_orders, total_forecast
