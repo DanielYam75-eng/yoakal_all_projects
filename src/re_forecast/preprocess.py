@@ -105,6 +105,7 @@ def preprocess(
 
     if debug:
         orders.to_csv(os.path.join("debug-output", "orders-post-preprocessing.csv"))
+        invoices.div(orders['po_net_value'], axis=0).to_csv(os.path.join("debug-output", "invoices-for-each-order.csv"))
     time4 = time.time()
     times = {
         "preprocess:data-cleaning": time2 - time1,
