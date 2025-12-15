@@ -336,7 +336,7 @@ def set_cli_args():
     parser.add_argument("--time", action="store_true")
     parser.add_argument("--monthly", action="store_true")
 
-    return parser.parse_args()
+    return vars(parser.parse_args())
 
 
 def preprocess_and_simulate_data(
@@ -423,15 +423,20 @@ def handle_sigint(signum, frame):
 
 def main():
     cli_args = set_cli_args()
+    # Change the key `time` to `time_` to not have name collision with the module `time`
+    cli_args["time_"] = cli_args["time"]
+    del cli_args["time"]
+    train_and_forecast(**cli_args)
 
-    if cli_args.time:
+def train_and_forecast(output_path, config, model, fine, debug, time_, monthly):
+    if time_:
         t0 = time.time()
     # Install signal hangler for SIGINT (user-interruption - CTRL+C)
     signal.signal(signal.SIGINT, handle_sigint)
 
 
-    configuration = Configuration().set_config(cli_args.config)
-    if cli_args.time:
+    configuration = Configuration().set_config(config)
+    if time_:
         t1 = time.time()
         times = {"read-configuration": t1 - t0}
 
@@ -590,7 +595,7 @@ def main():
             os.mkdir("__cache__")
         invoices.to_csv(os.path.join("__cache__", f"{configuration.key_invoices}.csv"), index=False)
 
-    if cli_args.time:
+    if time_:
         t2 = time.time()
         times["read_datasets"] = t2 - t1
     dagshub.init(
@@ -598,7 +603,7 @@ def main():
         repo_name="exp-repo",
         mlflow=True,
     )
-    if cli_args.debug:
+    if debug:
         mlflow.set_experiment("re_forecast_debug")
         if not os.path.exists("debug-output"):
             os.makedirs("debug-output")
@@ -638,7 +643,7 @@ def main():
         )
 
         # Preprocessing
-        if cli_args.time:
+        if time_:
             t3 = time.time()
             times["log-in-mlflow"] = t3 - t2
         orders, invoices, past_sums, order_edits, preprocess_and_simulate_data_times = (
@@ -652,16 +657,16 @@ def main():
                 configuration.augmentation_dict,
                 # skip augmentation in train mode
                 configuration.mode == "train",
-                cli_args.debug,
+                debug,
             )
         )
 
         # mode `infer` means simply that the program won't train a model but rather load an existing one
-        if cli_args.time:
+        if time_:
             t4 = time.time()
             times.update(preprocess_and_simulate_data_times)
         if configuration.mode == "infer":
-            trained_model = pickle.load(open(cli_args.model, "rb"))
+            trained_model = pickle.load(open(model, "rb"))
             times_train = {}
         else:
             trained_model, times_train = train(
@@ -678,14 +683,14 @@ def main():
                 configuration.categorical_features,
                 configuration.floating_features,
                 configuration.integer_features,
-                cli_args.debug,
+                debug,
                 configuration.seed,
             )
         # mode `train` means simply that the program won't infer but rather dump the trained model into the disk
         if configuration.mode == "train":
-            pickle.dump(trained_model, open(cli_args.output_path, "wb"))
+            pickle.dump(trained_model, open(output_path, "wb"))
             mlflow.log_artifact(
-                cli_args.output_path, artifact_path="model"
+                output_path, artifact_path="model"
             )
         else:
             sum_forecasted_orders, total_forecast = infer(
@@ -705,22 +710,22 @@ def main():
                 configuration.categorical_features,
                 configuration.floating_features,
                 configuration.integer_features,
-                cli_args.debug,
-                cli_args.monthly,
+                debug,
+                monthly,
             )
             with_index = True
-            if not cli_args.fine:
+            if not fine:
                 sum_forecasted_orders = (
                     sum_forecasted_orders.groupby("fingroup").sum().reset_index()
                 )
                 with_index = False
-            sum_forecasted_orders.to_csv(cli_args.output_path, index=with_index)
+            sum_forecasted_orders.to_csv(output_path, index=with_index)
             mlflow.log_artifact(
-                os.path.join(os.getcwd(), cli_args.output_path),
+                os.path.join(os.getcwd(), output_path),
                 artifact_path="forecast_outputs",
             )
             mlflow.log_metric("total forecast", total_forecast)
-        if cli_args.time:
+        if time_:
             t5 = time.time()
             times.update(times_train)
             pprint(times)
