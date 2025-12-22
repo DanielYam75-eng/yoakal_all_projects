@@ -15,17 +15,20 @@ def get_cumulative_portion(data: pd.DataFrame):
 
 
 def get_target(data: pd.DataFrame):
-
-    # The age should be a column because the data was built to contain all ages up to the orders.
-
+    rval = data.copy()
     age = data["age"].values
-    po_net_value = data["po_net_value"]
-
-    matrix = data.loc[:, 0:]
-
-    vector_length = len(matrix.columns)
-    logical_age_matrix = (np.arange(vector_length) == age[:, None]).astype(int)
-    return (matrix * logical_age_matrix).sum(axis=1) / data["po_net_value"]
+    for col in data.loc[:, 0:].columns:
+        if col == 0:
+            rval[col] = rval[col] / rval["po_net_value"]
+        else:
+            past = rval.loc[:, 0:(col - 1)]
+            past = 1 / (1 - past).prod(axis=1)
+            rval[col] = rval[col] * past / rval["po_net_value"]
+    vector_length = len(data.loc[:, 0:].columns)
+    # This is a logical mxn matrix that is 1 only when the columns is equal to the row's PO's age
+    logical_age_matrix = (np.arange(vector_length) == age[:, None])
+    result_matrix = rval.loc[:, 0:].to_numpy()
+    return result_matrix.sum(axis=1, where=logical_age_matrix)
 
 
 def cast_to_best_dtype(x):

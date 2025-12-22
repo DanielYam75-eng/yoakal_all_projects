@@ -4,6 +4,7 @@ import xgboost as xgb
 import pickle
 import warnings
 import mlflow
+import numpy as np
 
 warnings.filterwarnings("ignore")
 from . import globals as glb
@@ -17,13 +18,20 @@ def forecast(
     predictions = []
     for h in range(1, horizon + 1):
         prediction = pd.Series(
-            model.predict(data.loc[data["age"] >= 0, model.feature_names_in_]), index=data[data["age"] >= 0].index
+            # The model predicted number is related to the balance at thjs time, so by multiplying it by the balance we get the actual predicted expense divided by po_net_value
+            model.predict(data.loc[data["age"] >= 0, model.feature_names_in_])
+            * np.maximum(1 - data.loc[data["age"] >= 0, "cumulative_portion"], 0),
+            index=data[data["age"] >= 0].index,
         )
         prediction.name = h
 
         # update step
         data["age"] += 1
-        data["cumulative_portion"] += prediction
+        # Each prediction represent the ratio between the predicted expense and the balance, so we get this formula
+        # We have to max between 1 - cumulative_portion to 0 in cases the cumulative portion is negative
+        data["cumulative_portion"] += (
+            np.maximum(1 - data.loc[data["age"] >= 0, "cumulative_portion"], 0)
+        ).mul(prediction, fill_value=0)
         predictions.append(prediction)
 
     total_predictions = pd.concat(predictions, axis=1).fillna(0)
