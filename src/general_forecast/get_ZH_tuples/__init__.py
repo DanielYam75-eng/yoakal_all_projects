@@ -20,9 +20,11 @@ def get_ZH_tuples(in_data: pd.DataFrame) -> pd.DataFrame:
     return out_data
 
 
-def main(input_path):
-
-    input_data = read(input_path, sep="\t")
+def main(input_path, bucket):
+    if bucket=="y":
+        input_data = read(input_path, sep="\t")
+    if bucket=="n":
+        input_data = pd.read_csv(input_path,sep="\t")
     output_data = get_ZH_tuples(input_data)
     output_data = output_data.dropna(
         subset=["MOF_class_out", "MOF_class_in", "value", "year", "month", "law"]

@@ -11,7 +11,9 @@ warnings.filterwarnings("ignore")
 from sklearn.linear_model import LinearRegression
 import numpy as np
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
-
+from . import models
+from .models import TSPreprocessor, SeasonalNaiveModel, AvgFactorModel, NaiveModel, TSModel4, find_r2_score_values_data
+from .models import find_wining_models, forcast_data
 
 class DummyModel:
     def __init__(self, index):
@@ -36,309 +38,31 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
     TSCOL = "IIT_INVOICE_LO_AL_SMAH_NO_EMF_AD_KO"
     INDCOLS = ["OTZAR_GROUP", "DT"]
 
-    class TSPreprocessor:
-        def __init__(self, data: pd.DataFrame, ts_col: str):
-            self._data = data
-            self._epsilon = {}
-            self._sign = {}
-            self.ts_col = ts_col
-            self._cache = {}
-            self.success = {}
-            self._is_calculated = False
 
-        def fit_transform(self) -> dict[str, pd.Series]:
-            if self._is_calculated:
-                return self._cache
-            ts_column = self.ts_col
-            transformed_data = self._data.copy()
-            results = {}
-            for ozar_group in transformed_data.index.get_level_values(0).unique():
-                results[ozar_group] = transformed_data.loc[ozar_group, ts_column]
-                results[ozar_group] = get_monthly_values(results[ozar_group])
-                results[ozar_group] = results[ozar_group].asfreq("ME")
-            self._is_calculated = True
-            self._cache = results
-            return results
-
-    def get_monthly_values(data):
-        temp = data.copy()
-        temp = temp.groupby(temp.index.year).diff()
-        temp.loc[temp.index.month == 1] = data.loc[
-            data.index.month == 1
-        ]  # The first element is not nan but rather the original value.
-        return temp
-
-    class AvgFactorModel:
-        def __init__(self, data):
-            self.data = data
-
-        def fit(self):
-            return self
-
-        def forecast(self, steps_to_forecast) -> pd.Series:
-            last_12_month = self.data.iloc[-12:].sum(axis=0)
-            last_24_month = self.data.iloc[-24:-12].sum(axis=0)
-            if last_24_month != 0:
-                factor = last_12_month / last_24_month
-            else:
-                factor = 0
-            return pd.Series(
-                factor * last_12_month / 12,
-                index=pd.date_range(
-                    self.data.index[-1] + pd.offsets.MonthEnd(1),
-                    periods=steps_to_forecast,
-                    freq="ME",
-                ),
-            )
-
-    class NaiveModel:
-        def __init__(self, data):
-            self.data = data
-
-        def fit(self):
-            return self
-
-        def forecast(self, steps_to_forecast) -> pd.Series:
-            return pd.Series(
-                self.data.values[-1],
-                index=pd.date_range(
-                    self.data.index[-1] + pd.offsets.MonthEnd(1),
-                    periods=steps_to_forecast,
-                    freq="ME",
-                ),
-            )
-
-    class SeasonalNaiveModel:
-        def __init__(self, data, seasonality=12):
-            self.data = data
-            self.seasonality = seasonality
-
-        def fit(self):
-            return self
-
-        def _forecast_h(self, h):
-            p = math.ceil(h / self.seasonality)
-            return self.data.values[h - self.seasonality * p - 1]
-
-        def forecast(self, steps_to_forecast) -> pd.Series:
-            return pd.Series(
-                [self._forecast_h(h) for h in range(1, steps_to_forecast + 1)],
-                index=pd.date_range(
-                    self.data.index[-1] + pd.offsets.MonthEnd(1),
-                    periods=steps_to_forecast,
-                    freq="ME",
-                ),
-            )
-
-    class TSConvergenceError(Exception):
-        pass
-
-    class TSModel4:
-        def __init__(self, data_by_ozar_groups, year_to_forcast):
-            self.data_by_ozar_groups = data_by_ozar_groups
-            self.r2_score_values = {}
-            self.testData = {}
-            self.forecastData = {}
-            self.tillpastYearData = {}
-            self.bad_otzar_groups = []
-            self.year_to_forecast = year_to_forcast
-
-        def fit(self, size_of_validation_data, modelType):
-            for i, group in enumerate(self.data_by_ozar_groups.columns):
-                group_data = self.data_by_ozar_groups[group].dropna()
-                if (
-                    (group_data.count() < 2 * size_of_validation_data)
-                    or (group_data.iloc[-2 * size_of_validation_data :].sum() == 0)
-                    or (group_data.index[-1].year < self.year_to_forecast - 1)
-                ):
-                    self.bad_otzar_groups.append(group)
-                else:
-                    train_data, test_data = (
-                        group_data[:-size_of_validation_data],
-                        group_data[-size_of_validation_data:],
-                    )
-                    model = modelType(train_data)
-                    model_fit = model.fit()
-                    forecast = model_fit.forecast(12)
-                    self.testData[group] = test_data
-                    self.forecastData[group] = forecast
-                    self.tillpastYearData[group] = train_data
-                    r2_score_value = r2_score(test_data, forecast)
-                    self.r2_score_values[group] = r2_score_value
-
-        def bad_otzar(self):
-            return self.bad_otzar_groups
-
-        def r2_score(self):
-            return self.r2_score_values
-
-    class MeanModel:
-        def __init__(self, data):
-            self.data = data
-
-        def fit(self):
-            return self
-
-        def forecast(self, steps_to_forecast) -> pd.Series:
-            return pd.Series(
-                self.data.mean(),
-                index=pd.date_range(
-                    self.data.index[-1] + pd.offsets.MonthEnd(1),
-                    periods=steps_to_forecast,
-                    freq="ME",
-                ),
-            )
-
-    class MonthlylModel:
-        def __init__(self, data):
-            self.data = data
-            self.season = data.groupby(data.index.month).mean()
-
-        def fit(self):
-            return self
-
-        def predict(self, index):
-            prediction = pd.Series(index=index)
-            for i in index:
-                prediction.loc[i] = self.season.loc[i.month]
-            return prediction
-
-        def forecast(self, steps_to_forecast):
-            last_date = self.data.index[-1]
-            forecast_index = pd.date_range(
-                start=last_date + pd.offsets.MonthEnd(1),
-                periods=steps_to_forecast,
-                freq="ME",
-            )
-            return self.predict(forecast_index)
-
-    class SeasonalLinearModel:
-        def __init__(self, data):
-            self.data = data
-            self.data_size = None
-            self.TrendModel = LinearRegression()
-            self.SeasonalModel = None
-
-        def fit(self):
-            y = self.data.rolling(12).mean()
-            X = (
-                np.arange(len(y)).reshape(-1, 1) - 11
-            )  # Adjusting for the loss of the first 11 months due to rolling mean
-            self.TrendModel.fit(np.arange(len(y.dropna())).reshape(-1, 1), y.dropna())
-            self.data_size = len(y.dropna())
-            self.SeasonalModel = MonthlylModel(
-                self.data / pd.Series(self.TrendModel.predict(X), index=y.index)
-            ).fit()
-            return self
-
-        def forecast(self, steps_to_forecast):
-            last_date = self.data.index[-1]
-            forecast_index = pd.date_range(
-                start=last_date + pd.offsets.MonthEnd(1),
-                periods=steps_to_forecast,
-                freq="ME",
-            )
-            forecast_tensor = np.arange(
-                self.data_size, self.data_size + steps_to_forecast
-            ).reshape(-1, 1)
-            return pd.Series(
-                self.TrendModel.predict(forecast_tensor).reshape(-1)
-                * self.SeasonalModel.predict(forecast_index),
-                index=forecast_index,
-            )
-
-    def find_r2_score_values_data(
-        how_much_months_in_year, data_by_ozar_groups, year_to_predict
-    ):
-        r2_score_values_data = {}
-        bad_otzar_groups_specific_year = []
-        for key in templates:
-            model = TSModel4(data_by_ozar_groups, year_to_predict)
-            bad_otzar_groups_specific_year = model.bad_otzar()
-            model.fit(how_much_months_in_year, templates[key])
-            r2_score_values_data[key] = model.r2_score()
-        r2_score_values_data = pd.DataFrame(r2_score_values_data)
-        return r2_score_values_data, bad_otzar_groups_specific_year
-
-    def find_wining_models(r2_score_values_data_specific_year):
-        wining_model = {}
-        r2_of_wining_models = {}
-        for i in r2_score_values_data_specific_year.index:
-            wining_model[i] = r2_score_values_data_specific_year.columns[
-                r2_score_values_data_specific_year.loc[i].values
-                == r2_score_values_data_specific_year.loc[i].values.max()
-            ]
-            r2_of_wining_models[i] = r2_score_values_data_specific_year.loc[i].max()
-        return wining_model, r2_of_wining_models
-
-    def forcast_data(
-        month_to_predict,
-        wining_model_specific_year,
-        data_we_got_to_use_in_prediction,
-        flag_for_using_only_part_of_data,
-        how_much_month_back_to_use,
-        forecast_index,
-    ):
-        forcast_data_specific_year = {}
-        for i, kvotzat_otzar_sahar in enumerate(wining_model_specific_year):
-            if flag_for_using_only_part_of_data:
-                if data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][
-                    -how_much_month_back_to_use:
-                ].empty:
-                    model = DummyModel(forecast_index)
-                else:
-                    model = templates[
-                        wining_model_specific_year[kvotzat_otzar_sahar][0]
-                    ](
-                        data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][
-                            -how_much_month_back_to_use:
-                        ]
-                    )
-            else:
-                if data_we_got_to_use_in_prediction[kvotzat_otzar_sahar].empty:
-                    model = DummyModel(forecast_index)
-                else:
-                    model = templates[
-                        wining_model_specific_year[kvotzat_otzar_sahar][0]
-                    ](data_we_got_to_use_in_prediction[kvotzat_otzar_sahar])
-            model_fit = model.fit()
-            forecast = model_fit.forecast(month_to_predict)
-            if not data_we_got_to_use_in_prediction[kvotzat_otzar_sahar].empty:
-                forecast.index = pd.date_range(
-                    data_we_got_to_use_in_prediction[kvotzat_otzar_sahar].index[-1]
-                    + pd.offsets.MonthEnd(1),
-                    periods=month_to_predict,
-                    freq="ME",
-                )
-
-            else:
-                forecast.index = forecast_index
-            forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
-        return forcast_data_specific_year
 
     # Define the templates based on the type
     if coin_type == 1:
         if type_ == "career_salary":
             templates = {
                 # "SeasonalLinear": SeasonalLinearModel,
-                "avg_factor": AvgFactorModel,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
+                "avg_factor": models.AvgFactorModel,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
             }
 
         elif type_ == "drafted_salary":
 
             templates = {
-                "SeasonalLinear": SeasonalLinearModel,
-                "avg_factor": AvgFactorModel,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
+                "SeasonalLinear": models.SeasonalLinearModel,
+                "avg_factor": models.AvgFactorModel,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
             }
 
         elif type_ == "pensions":
 
             templates = {
-                "SeasonalLinear": SeasonalLinearModel,
+                "SeasonalLinear": models.SeasonalLinearModel,
                 #'avg_factor' : AvgFactorModel,
                 # "naive": NaiveModel,
                 # "snaive": SeasonalNaiveModel,
@@ -348,25 +72,25 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
 
             templates = {
                 # "SeasonalLinear": SeasonalLinearModel,
-                "avg_factor": AvgFactorModel,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
+                "avg_factor": models.AvgFactorModel,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
             }
 
         elif type_ == "dd_workers_salary":
 
             templates = {
                 # "SeasonalLinear": SeasonalLinearModel,
-                "avg_factor": AvgFactorModel,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
+                "avg_factor": models.AvgFactorModel,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
             }
 
         elif type_ == "pre_draft_salary":
 
             templates = {
-                "SeasonalLinear": SeasonalLinearModel,
-                "avg_factor": AvgFactorModel,
+                "SeasonalLinear": models.SeasonalLinearModel,
+                "avg_factor": models.AvgFactorModel,
                 # "naive": NaiveModel,
                 # "snaive": SeasonalNaiveModel,
             }
@@ -375,7 +99,7 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
 
             templates = {
                 # "SeasonalLinear": SeasonalLinearModel,
-                "avg_factor": AvgFactorModel,
+                "avg_factor": models.AvgFactorModel,
                 # "naive": NaiveModel,
                 # "snaive": SeasonalNaiveModel,
             }
@@ -387,11 +111,11 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
                 #'sarima': SARIMAX,
                 #'naive': NaiveModel,
                 #'snaive': SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # "SeasonalLinear": SeasonalLinearModel,
                 #'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
-                "avg_factor": AvgFactorModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "affilated_other":
@@ -399,9 +123,9 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
             templates = {
                 "holt": Holt,
                 #'sarima': SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
             }
 
         elif type_ == "arnona":
@@ -410,21 +134,21 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
                 "holt": Holt,
                 #'sarima': SARIMAX,
                 #'naive': NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
-                "SimpleExpSmoothing": SimpleExpSmoothing,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                "SimpleExpSmoothing": models.SimpleExpSmoothing,
                 #'mean': MeanModel,
-                "avg_factor": AvgFactorModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "KM":
 
             templates = {
-                "holt": Holt,
-                "sarima": SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "holt": models.Holt,
+                "sarima": models.SARIMAX,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -432,11 +156,11 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         elif type_ == "KT":
 
             templates = {
-                "holt": Holt,
-                "sarima": SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "holt": models.Holt,
+                "sarima": models.SARIMAX,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -444,11 +168,11 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         elif type_ == "electricity":
 
             templates = {
-                "holt": Holt,
-                "sarima": SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "holt": models.Holt,
+                "sarima": models.SARIMAX,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -456,24 +180,24 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         elif type_ == "water":
 
             templates = {
-                "seasonal_linear": SeasonalLinearModel,
+                "seasonal_linear": models.SeasonalLinearModel,
                 # "holt": Holt,
                 #'sarima': SARIMAX,
                 #'naive': NaiveModel,
-                "snaive": SeasonalNaiveModel,
+                "snaive": models.SeasonalNaiveModel,
                 # "ExponentialSmoothing": ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
-                "avg_factor": AvgFactorModel,
+                "avg_factor": models.AvgFactorModel,
             }
         elif type_ == "vehicles":
 
             templates = {
-                "holt": Holt,
-                "sarima": SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "holt": models.Holt,
+                "sarima": models.SARIMAX,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -481,11 +205,11 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         elif type_ == "overseas_transportation":
 
             templates = {
-                "holt": Holt,
-                "sarima": SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "holt": models.Holt,
+                "sarima": models.SARIMAX,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -493,11 +217,11 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         elif type_ == "tariffs":
 
             templates = {
-                "holt": Holt,
-                "sarima": SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "holt": models.Holt,
+                "sarima": models.SARIMAX,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -505,11 +229,11 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         elif type_ == "insurance":
 
             templates = {
-                "holt": Holt,
-                "sarima": SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "holt": models.Holt,
+                "sarima": models.SARIMAX,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -517,11 +241,11 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         elif type_ == "special_compensation":
 
             templates = {
-                "holt": Holt,
-                "sarima": SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "holt": models.Holt,
+                "sarima": models.SARIMAX,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -529,11 +253,11 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         elif type_ == "special_research":
 
             templates = {
-                "holt": Holt,
-                "sarima": SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "holt": models.Holt,
+                "sarima": models.SARIMAX,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -541,7 +265,7 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         elif type_ == "SA":
 
             templates = {
-                "mean": MeanModel,
+                "mean": models.MeanModel,
             }
 
         elif type_ == "rest":
@@ -550,12 +274,12 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
                 # "holt": Holt,
                 #'sarima': SARIMAX,
                 #'naive': NaiveModel,
-                "snaive": SeasonalNaiveModel,
+                "snaive": models.SeasonalNaiveModel,
                 # "ExponentialSmoothing": ExponentialSmoothing,
                 #'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
                 #'LinearRegression': SeasonalLinearModel,
-                "avg_factor": AvgFactorModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "hostages":
@@ -564,8 +288,8 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
                 # "holt": Holt,
                 #'sarima': SARIMAX,
                 #'naive': NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -577,7 +301,7 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
                 #'sarima': SARIMAX,
                 #'naive': NaiveModel,
                 "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 # 'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #'mean': MeanModel,
             }
@@ -586,66 +310,66 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
     if coin_type == 5:
         if type_ == "ZW":
             templates = {
-                "holt": Holt,
+                "holt": models.Holt,
                 #  'sarima': SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
                 #  "ExponentialSmoothing": ExponentialSmoothing,
-                "SimpleExpSmoothing": SimpleExpSmoothing,
+                "SimpleExpSmoothing": models.SimpleExpSmoothing,
                 #    'mean': MeanModel,
-                "LinearRegression": SeasonalLinearModel,
-                "avg_factor": AvgFactorModel,
+                "LinearRegression": models.SeasonalLinearModel,
+                "avg_factor": models.AvgFactorModel,
             }
         elif type_ == "ZC":
             templates = {
-                "holt": Holt,
+                "holt": models.Holt,
                 #    'sarima': SARIMAX,
                 #    'naive': NaiveModel,
                 #    'snaive': SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
                 #    'SimpleExpSmoothing' : SimpleExpSmoothing,
                 #    'mean': MeanModel,
-                "LinearRegression": SeasonalLinearModel,
-                "avg_factor": AvgFactorModel,
+                "LinearRegression": models.SeasonalLinearModel,
+                "avg_factor": models.AvgFactorModel,
             }
         elif type_ == "travel-KRKG":
             templates = {
-                "holt": Holt,
+                "holt": models.Holt,
                 #    'sarima': SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
-                "SimpleExpSmoothing": SimpleExpSmoothing,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                "SimpleExpSmoothing": models.SimpleExpSmoothing,
                 #    'mean': MeanModel,
-                "LinearRegression": SeasonalLinearModel,
+                "LinearRegression": models.SeasonalLinearModel,
                 #    'avg_factor' : AvgFactorModel,
             }
         elif type_ == "14-KRKG":
             templates = {
-                "holt": Holt,
+                "holt": models.Holt,
                 #   'sarima': SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
-                "SimpleExpSmoothing": SimpleExpSmoothing,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                "SimpleExpSmoothing": models.SimpleExpSmoothing,
                 #    'mean': MeanModel,
-                "LinearRegression": SeasonalLinearModel,
+                "LinearRegression": models.SeasonalLinearModel,
                 #    'avg_factor' : AvgFactorModel,
             }
         elif type_ == "SA":
             templates = {
-                "mean": MeanModel,
+                "mean": models.MeanModel,
             }
         elif type_ == "rest":
             templates = {
-                "holt": Holt,
+                "holt": models.Holt,
                 #'sarima': SARIMAX,
-                "naive": NaiveModel,
-                "snaive": SeasonalNaiveModel,
-                "ExponentialSmoothing": ExponentialSmoothing,
-                "SimpleExpSmoothing": SimpleExpSmoothing,
+                "naive": models.NaiveModel,
+                "snaive": models.SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                "SimpleExpSmoothing": models.SimpleExpSmoothing,
                 #'mean': MeanModel,
-                "LinearRegression": SeasonalLinearModel,
+                "LinearRegression": models.SeasonalLinearModel,
                 # 'avg_factor' : AvgFactorModel,
             }
         else:
@@ -669,7 +393,7 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
     data_we_got_to_use_in_prediction_specific_year = data_by_ozar_groups.loc[
         : str(year_to_predict - 1)
     ].fillna(0)
-    data_we_got_to_use_in_prediction_2025_year = pd.concat(
+    data_we_got_to_use_in_prediction_current_year_year = pd.concat(
         [
             data_by_ozar_groups.loc[: str(current_year - 1)],
             data_by_ozar_groups.loc[str(current_year)].head(
@@ -682,7 +406,7 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
 
     r2_score_values_data_specific_year, bad_otzar_groups_specific_year = (
         find_r2_score_values_data(
-            how_much_months_in_year, data_by_ozar_groups, year_to_predict
+            how_much_months_in_year, data_by_ozar_groups, year_to_predict, templates
         )
     )
     wining_model_specific_year, r2_of_wining_models_specific_year = find_wining_models(
@@ -697,6 +421,7 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         pd.DatetimeIndex(
             pd.date_range(f"{curr_year - 1}-01-31", f"{curr_year - 1}-12-31", freq="ME")
         ),
+        templates
     )
     actual_data_sum_specific_year = (
         actual_data_specific_year.sum(axis=1).resample("YE").sum()
@@ -705,20 +430,20 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         pd.DataFrame(forcast_data_specific_year).sum(axis=1).resample("YE").sum()
     )
 
-    # forcast by year 2025
+    # forcast by year current_year
 
-    r2_score_values_data_2025_year, bad_otzar_groups_2025_year = (
+    r2_score_values_data_current_year_year, bad_otzar_groups_current_year_year = (
         find_r2_score_values_data(
-            how_much_months_in_year, data_by_ozar_groups, current_year
+            how_much_months_in_year, data_by_ozar_groups, current_year, templates
         )
     )
-    wining_model_2025_year, r2_of_wining_models_2025_year = find_wining_models(
-        r2_score_values_data_2025_year
+    wining_model_current_year_year, r2_of_wining_models_current_year_year = find_wining_models(
+        r2_score_values_data_current_year_year
     )
-    forcast_data_2025_year = forcast_data(
+    forcast_data_current_year_year = forcast_data(
         how_much_months_in_year - how_much_month_in_curr_year_in_data,
-        wining_model_2025_year,
-        data_we_got_to_use_in_prediction_2025_year,
+        wining_model_current_year_year,
+        data_we_got_to_use_in_prediction_current_year_year,
         flag_for_using_only_part_of_data,
         how_much_month_back_to_use,
         pd.DatetimeIndex(
@@ -728,13 +453,14 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
                 freq="ME",
             )
         ),
+        templates
     )
 
-    data_so_far_2025 = data_by_ozar_groups.loc[str(current_year)].head(
+    data_so_far_current_year = data_by_ozar_groups.loc[str(current_year)].head(
         how_much_month_in_curr_year_in_data
     )
-    forcast_2025_combined = pd.concat(
-        [pd.DataFrame(data_so_far_2025), pd.DataFrame(forcast_data_2025_year)]
+    forcast_current_year_combined = pd.concat(
+        [pd.DataFrame(data_so_far_current_year), pd.DataFrame(forcast_data_current_year_year)]
     ).T
 
     # exporting data
@@ -754,11 +480,11 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
     forcast_specific_year.index.name = "kvotzat otzar"
     forcast_specific_year.to_csv(f"forcast_{expanditure_name}_{year_to_predict}.csv")
 
-    forcast_2025_combined.insert(
+    forcast_current_year_combined.insert(
         0, "kvuzat sahar", f"forcast_{expanditure_name}_{current_year}"
     )
-    forcast_2025_combined.index.name = "kvotzat otzar"
-    forcast_2025_combined.to_csv(f"forcast_{expanditure_name}_{current_year}.csv")
+    forcast_current_year_combined.index.name = "kvotzat otzar"
+    forcast_current_year_combined.to_csv(f"forcast_{expanditure_name}_{current_year}.csv")
 
     actual_data_specific_year__bad_otzar_only = data_by_ozar_groups[
         bad_otzar_groups_specific_year
@@ -776,17 +502,17 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         f"actual_data_{year_to_predict}_bad_otzar_only_{expanditure_name}.csv"
     )
 
-    actual_data_2025__bad_otzar_only = data_by_ozar_groups[
-        bad_otzar_groups_2025_year
+    actual_data_current_year__bad_otzar_only = data_by_ozar_groups[
+        bad_otzar_groups_current_year_year
     ].loc[str(current_year)]
-    actual_data_2025__bad_otzar_only = actual_data_2025__bad_otzar_only.T
-    actual_data_2025__bad_otzar_only.insert(
+    actual_data_current_year__bad_otzar_only = actual_data_current_year__bad_otzar_only.T
+    actual_data_current_year__bad_otzar_only.insert(
         0,
         "kvuzat sahar",
         f"actual_data_{current_year}_bad_otzar_only_{expanditure_name}",
     )
-    actual_data_2025__bad_otzar_only.index.name = "kvotzat otzar"
-    actual_data_2025__bad_otzar_only.to_csv(
+    actual_data_current_year__bad_otzar_only.index.name = "kvotzat otzar"
+    actual_data_current_year__bad_otzar_only.to_csv(
         f"actual_data_{current_year}_bad_otzar_only_{expanditure_name}.csv"
     )
 

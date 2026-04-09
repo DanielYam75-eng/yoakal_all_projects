@@ -1,13 +1,21 @@
-import subprocess
-
+import glob
+import os
 
 def main():
-    subprocess.run(["rm", "*forcast*.csv"])
-    subprocess.run(["rm", "*actual*.csv"])
-    subprocess.run(["rm", "*full*.csv"])
-    subprocess.run(["rm", "*grades*.csv"])
-    subprocess.run(["rm", "*result*.csv"])
+    # רשימת תבניות קבצים למחיקה
+    patterns = [
+        "*forcast*.csv",
+        "*actual*.csv",
+        "*full*.csv",
+        "*grades*.csv",
+        "*result*.csv"
+    ]
 
+    # מחיקה לפי כל תבנית
+    for pattern in patterns:
+        for file in glob.glob(pattern):
+            os.remove(file)
+            print(f"Deleted: {file}")
 
 if __name__ == "__main__":
     main()

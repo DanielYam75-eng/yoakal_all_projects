@@ -4,11 +4,12 @@ import sys
 from read_file import read
 
 
-def main(path, current_year, coin_type):
-    # %%
-    data = read(path, sep="\t")
-
-    # %%
+def main(path, current_year, coin_type, bucket):
+    if bucket=="y":
+        data = read(path, sep="\t")
+    if bucket=="n":
+        data= pd.read_csv(path,sep="\t")
+    
     data = data.melt(
         id_vars=[
             "financial_year",
@@ -23,7 +24,7 @@ def main(path, current_year, coin_type):
         value_name="volume",
     )
 
-    # %%
+    
     data.loc[
         data["volume"].astype(str).str.replace(",", "").str.replace(" ", "") == "-",
         "volume",
@@ -36,27 +37,27 @@ def main(path, current_year, coin_type):
         .astype(float)
     )
 
-    # %%
+    
     data = data.dropna(subset=["financial_year"])
 
-    # %%
+    
     data.index = pd.to_datetime(
         data["financial_year"].astype(int).astype(str) + data["month"].astype(str),
         format="%Y%m",
     ) + pd.offsets.MonthEnd(0)
 
-    # %%
+    
     data.fillna({"volume": 0}, inplace=True)
 
-    # %%
+    
     data = data[~data["doc_type"].isin(["RE", "ZY", "ZF", "ZH"])]
     data = data[~data["fund_code"].isin([1410])]
 
 
-    # %%
+    
     data["type"] = "rest"
 
-    # %%
+    
     if coin_type == 1:
         data = data[~data["fund_code"].isin([1407, 1405, 1400, 1406])]
         data.loc[data["doc_type"] == "ZC", "type"] = (
@@ -131,17 +132,17 @@ def main(path, current_year, coin_type):
 
         data.loc[data["doc_type"].isin(["SA"]), "type"] = "SA"
 
-    # %%
+    
     frames: dict[str, pd.DataFrame] = {
         name: data[data["type"] == name] for name in data["type"].unique()
     }
 
-    # %%
+    
     frames = {
         name: frames[name].groupby("fingroup").resample("ME").sum()["volume"]
         for name in frames
     }
-    # %%
+    
     frames = {
         name: frames[name]
         .groupby(
@@ -154,11 +155,11 @@ def main(path, current_year, coin_type):
         for name in frames
     }
 
-    # %%
+    
     for frame in frames.values():
         frame.index.set_names(["OTZAR_GROUP", "DT"], inplace=True)
 
-    # %%
+    
     for name, frame in frames.items():
         if not frame.empty and f"{current_year}-01-31" in frame.index.levels[1]:
             frame.to_csv("result-" + name + "-data-preprocessed-by-posting-date.csv")

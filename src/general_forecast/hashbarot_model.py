@@ -8,9 +8,11 @@ import warnings
 from .get_ZH_tuples import main as get_ZH_tuples_main
 
 warnings.filterwarnings("ignore")
+from . import models
+from .models import TSPreprocessor, SeasonalNaiveModel, AvgFactorModel, NaiveModel, TSModel4, find_r2_score_values_data
+from .models import find_wining_models, forcast_data
 
-
-def main(path, past_year, curr_year, curr_month, months_back, coin_type):
+def main(path, past_year, curr_year, curr_month, months_back, coin_type, bucket):
     IND = "kvotzat otzar"
 
     year_to_predict = past_year
@@ -24,7 +26,9 @@ def main(path, past_year, curr_year, curr_month, months_back, coin_type):
     # %% [markdown]
     # # export DATA
     # %%
-    data = get_ZH_tuples_main(path)
+    data = get_ZH_tuples_main(path, bucket)
+
+        
     data = data.dropna(subset=["MOF_class_in"])
     data["date"] = pd.to_datetime(
         data["year"].astype(str) + "-" + data["month"].astype(str), format="%Y-%m"
@@ -34,162 +38,16 @@ def main(path, past_year, curr_year, curr_month, months_back, coin_type):
     ].sum()
     data_as_frame = time_serieses.unstack(level=[0, 1]).fillna(0)
 
-    # %% [markdown]
-    # # models
-    #
 
-    # %%
-    class NaiveModel:
-        def __init__(self, data):
-            self.data = data
-
-        def fit(self):
-            return self
-
-        def forecast(self, steps_to_forecast) -> pd.Series:
-            return pd.Series(
-                self.data.values[-1],
-                index=pd.date_range(
-                    self.data.index[-1] + pd.offsets.MonthEnd(1),
-                    periods=steps_to_forecast,
-                    freq="ME",
-                ),
-            )
-
-    class MeanModel:
-        def __init__(self, data):
-            self.data = data
-
-        def fit(self):
-            return self
-
-        def forecast(self, steps_to_forecast) -> pd.Series:
-            return pd.Series(
-                self.data.mean(),
-                index=pd.date_range(
-                    self.data.index[-1] + pd.offsets.MonthEnd(1),
-                    periods=steps_to_forecast,
-                    freq="ME",
-                ),
-            )
-
-    class SeasonalNaiveModel:
-        def __init__(self, data, seasonality=12):
-            self.data = data
-            self.seasonality = seasonality
-
-        def fit(self):
-            return self
-
-        def _forecast_h(self, h):
-            p = math.ceil(h / self.seasonality)
-            return self.data.values[h - self.seasonality * p - 1]
-
-        def forecast(self, steps_to_forecast) -> pd.Series:
-            return pd.Series(
-                [self._forecast_h(h) for h in range(1, steps_to_forecast + 1)],
-                index=pd.date_range(
-                    self.data.index[-1] + pd.offsets.MonthEnd(1),
-                    periods=steps_to_forecast,
-                    freq="ME",
-                ),
-            )
-
-    class TSConvergenceError(Exception):
-        pass
-
-        def forecast(self, steps_to_forecast):
-            try:
-                return self.model.predict(steps_to_forecast)
-            except ValueError as e:
-                raise TSConvergenceError from e
-
-    class TSModel4:
-        def __init__(self, data_by_ozar_groups, year_to_forcast):
-            self.data_by_ozar_groups = data_by_ozar_groups
-            self.r2_score_values = {}
-            self.testData = {}
-            self.forecastData = {}
-            self.tillpastYearData = {}
-            self.year_to_forecast = year_to_forcast
-
-        def fit(self, size_of_validation_data, modelType):
-            for i, group in enumerate(self.data_by_ozar_groups.columns):
-                group_data = self.data_by_ozar_groups[group].dropna()
-                train_data, test_data = (
-                    group_data[:-size_of_validation_data],
-                    group_data[-size_of_validation_data:],
-                )
-                model = modelType(train_data)
-                model_fit = model.fit()
-                forecast = model_fit.forecast(12)
-                self.testData[group] = test_data
-                self.forecastData[group] = forecast
-                self.tillpastYearData[group] = train_data
-                r2_score_value = r2_score(test_data, forecast)
-                self.r2_score_values[group] = r2_score_value
-
-        def r2_score(self):
-            return self.r2_score_values
 
     templates = {
-        "naive": NaiveModel,
-        "seasonal_naive": SeasonalNaiveModel,
-        "mean": MeanModel,
-        "SimpleExpSmoothing": SimpleExpSmoothing,
+        "naive": models.NaiveModel,
+        "seasonal_naive": models.SeasonalNaiveModel,
+        "mean": models.MeanModel,
+        "SimpleExpSmoothing": models.SimpleExpSmoothing,
     }
 
-    def find_r2_score_values_data(
-        how_much_months_to_forcast, data_by_ozar_groups, year_to_predict
-    ):
-        r2_score_values_data = {}
-        for key in templates:
-            model = TSModel4(data_by_ozar_groups, year_to_predict)
-            model.fit(how_much_months_in_year, templates[key])
-            r2_score_values_data[key] = model.r2_score()
-        r2_score_values_data = pd.DataFrame(r2_score_values_data)
-        return r2_score_values_data
-
-    def find_wining_models(r2_score_values_data_specific_year):
-        wining_model = {}
-        r2_of_wining_models = {}
-        for i in r2_score_values_data_specific_year.index:
-            wining_model[i] = r2_score_values_data_specific_year.columns[
-                r2_score_values_data_specific_year.loc[i].values
-                == r2_score_values_data_specific_year.loc[i].values.max()
-            ]
-            r2_of_wining_models[i] = r2_score_values_data_specific_year.loc[i].max()
-        return wining_model, r2_of_wining_models
-
-    def forcast_data(
-        month_to_predict,
-        wining_model_specific_year,
-        data_we_got_to_use_in_prediction,
-        flag_for_using_only_part_of_data,
-        how_much_month_back_to_use,
-    ):
-        forcast_data_specific_year = {}
-        for i, kvotzat_otzar_sahar in enumerate(wining_model_specific_year):
-            if flag_for_using_only_part_of_data:
-                model = templates[wining_model_specific_year[kvotzat_otzar_sahar][0]](
-                    data_we_got_to_use_in_prediction[kvotzat_otzar_sahar][
-                        -how_much_month_back_to_use:
-                    ]
-                )
-            else:
-                model = templates[wining_model_specific_year[kvotzat_otzar_sahar][0]](
-                    data_we_got_to_use_in_prediction[kvotzat_otzar_sahar]
-                )
-            model_fit = model.fit()
-            forecast = model_fit.forecast(month_to_predict)
-            forecast.index = pd.date_range(
-                data_we_got_to_use_in_prediction[kvotzat_otzar_sahar].index[-1]
-                + pd.offsets.MonthEnd(1),
-                periods=month_to_predict,
-                freq="ME",
-            )
-            forcast_data_specific_year[kvotzat_otzar_sahar] = forecast
-        return forcast_data_specific_year
+    
 
     # %% [markdown]
     # # pre process for forecasting by specific year
@@ -215,8 +73,8 @@ def main(path, past_year, curr_year, curr_month, months_back, coin_type):
     # # data forcaast specific year
 
     # %%
-    r2_score_values_data_specific_year = find_r2_score_values_data(
-        how_much_months_in_year, data_as_frame, year_to_predict
+    r2_score_values_data_specific_year,  bad_otzar_groups_specific_year = find_r2_score_values_data(
+        how_much_months_in_year, data_as_frame, year_to_predict, templates
     )
     wining_model_specific_year, r2_of_wining_models_specific_year = find_wining_models(
         r2_score_values_data_specific_year
@@ -227,6 +85,14 @@ def main(path, past_year, curr_year, curr_month, months_back, coin_type):
         data_we_got_to_use_in_prediction_specific_year,
         flag_for_using_only_part_of_data,
         how_much_month_back_to_use,
+        pd.DatetimeIndex(
+            pd.date_range(
+                pd.Timestamp(f"{curr_year}-{curr_month}-01") + pd.offsets.MonthEnd(1),
+                f"{curr_year}-12-31",
+                freq="ME",
+            )
+        ),
+        templates
     )
 
     # %%
@@ -241,8 +107,8 @@ def main(path, past_year, curr_year, curr_month, months_back, coin_type):
     # #  data forcast current_year year
 
     # %%
-    r2_score_values_data_current_year_year = find_r2_score_values_data(
-        how_much_months_in_year, data_as_frame, current_year
+    r2_score_values_data_current_year_year,  bad_otzar_groups_specific_year = find_r2_score_values_data(
+        how_much_months_in_year, data_as_frame, current_year, templates
     )
     wining_model_current_year_year, r2_of_wining_models_current_year_year = (
         find_wining_models(r2_score_values_data_current_year_year)
@@ -253,6 +119,14 @@ def main(path, past_year, curr_year, curr_month, months_back, coin_type):
         data_we_got_to_use_in_prediction_current_year_year,
         flag_for_using_only_part_of_data,
         how_much_month_back_to_use,
+        pd.DatetimeIndex(
+            pd.date_range(
+                pd.Timestamp(f"{curr_year}-{curr_month}-01") + pd.offsets.MonthEnd(1),
+                f"{curr_year}-12-31",
+                freq="ME",
+            )
+        ),
+        templates
     )
 
     # data_so_far_current_year = data_as_frame[f'{current_year}-01-01':]
