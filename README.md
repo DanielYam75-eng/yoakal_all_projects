@@ -171,24 +171,15 @@ Models: NaiveModel, SeasonalLinearModel, ExponentialSmoothing, Holt
 The system remains modular, transparent, and adaptive — key qualities for reliable public-sector forecasting.
 
 🗂️ to run this type this with the proper inputs:
-forecast --hashbarot_data zh-data-september --main_data no-re-monim-data-september-1 --past_year 2024 --curr_year 2025 --curr_month 8 --coin_type 1 --war_year 2023 --hesh_data_widows 1400-hesh-september --hesh_data_orphans 1405-hesh-september --hesh_data_parents 1406-hesh-september --families_data 1500-quantity-estimated --hesh_data_disabled disabled-invoices-september --disabled_data augmented-data-v2 --CPI_health_changes madad_health --CPI_changes madad_data
+forecast --hashbarot_data zh-data-september --main_data no-re-monim-data-september-1 --curr_year 2025 --curr_month 8 --coin_type 1 --bucket y
 
 all the data from the bucket. should add option to read from csv
 hashbarot_data - the data for hashbarot_data
 main_data - the data no ren monim
-past_year - past yuear to forecast 
 curr_year - current year to forecast
 curr_month - from what month to forecast
 coin_type - coin type to forecast
-war_year - start of war year. used for disabled and families forecast
-hesh_data_widows - data for widows
-hesh_data_orphans - data for orphans
-hesh_data_parents - data for parents
-families_data - quantity families data
-hesh_data_disabled - invoices for disabled
-disabled_data - data for disabled
-CPI_health_changes - cpi health from halamas 
-CPI_changes - cpi changes from halamas 
+bucket - yes (y) or no (n) use the bucket
 experimient_mode - optional . 1 for running forecast without hashbarot. 0   or empty for running with hashbarot. 
 
 
