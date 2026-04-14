@@ -9,7 +9,7 @@ from .get_ZH_tuples import main as get_ZH_tuples_main
 
 warnings.filterwarnings("ignore")
 from . import models
-from .models import TSPreprocessor, SeasonalNaiveModel, AvgFactorModel, NaiveModel, TSModel4, find_r2_score_values_data
+from .models import TSPreprocessor, SeasonalNaiveModel, AvgFactorModel, NaiveModel, TSModel4, find_metric_values_data
 from .models import find_wining_models, forcast_data
 
 def main(path, past_year, curr_year, curr_month, months_back, coin_type, bucket):
@@ -73,11 +73,11 @@ def main(path, past_year, curr_year, curr_month, months_back, coin_type, bucket)
     # # data forcaast specific year
 
     # %%
-    r2_score_values_data_specific_year,  bad_otzar_groups_specific_year = find_r2_score_values_data(
+    metric_values_data_specific_year,  bad_otzar_groups_specific_year = find_metric_values_data(
         how_much_months_in_year, data_as_frame, year_to_predict, templates
     )
     wining_model_specific_year, r2_of_wining_models_specific_year = find_wining_models(
-        r2_score_values_data_specific_year
+        metric_values_data_specific_year
     )
     forcast_data_specific_year = forcast_data(
         how_much_months_in_year,
@@ -107,11 +107,11 @@ def main(path, past_year, curr_year, curr_month, months_back, coin_type, bucket)
     # #  data forcast current_year year
 
     # %%
-    r2_score_values_data_current_year_year,  bad_otzar_groups_specific_year = find_r2_score_values_data(
+    metric_values_data_current_year_year,  bad_otzar_groups_specific_year = find_metric_values_data(
         how_much_months_in_year, data_as_frame, current_year, templates
     )
     wining_model_current_year_year, r2_of_wining_models_current_year_year = (
-        find_wining_models(r2_score_values_data_current_year_year)
+        find_wining_models(metric_values_data_current_year_year)
     )
     forcast_data_current_year_year = forcast_data(
         how_much_months_in_year - how_much_month_in_current_year_in_data,

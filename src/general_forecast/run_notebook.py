@@ -12,7 +12,7 @@ from sklearn.linear_model import LinearRegression
 import numpy as np
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
 from . import models
-from .models import TSPreprocessor, SeasonalNaiveModel, AvgFactorModel, NaiveModel, TSModel4, find_r2_score_values_data
+from .models import TSPreprocessor, SeasonalNaiveModel, AvgFactorModel, NaiveModel, TSModel4, find_metric_values_data
 from .models import find_wining_models, forcast_data
 
 class DummyModel:
@@ -44,100 +44,140 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
     if coin_type == 1:
         if type_ == "career_salary":
             templates = {
-                # "SeasonalLinear": SeasonalLinearModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
             }
 
         elif type_ == "drafted_salary":
 
             templates = {
-                "SeasonalLinear": models.SeasonalLinearModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
             }
 
         elif type_ == "pensions":
 
             templates = {
-                "SeasonalLinear": models.SeasonalLinearModel,
-                #'avg_factor' : AvgFactorModel,
-                # "naive": NaiveModel,
-                # "snaive": SeasonalNaiveModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "idf_workers_salary":
 
             templates = {
-                # "SeasonalLinear": SeasonalLinearModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
             }
 
         elif type_ == "dd_workers_salary":
 
             templates = {
-                # "SeasonalLinear": SeasonalLinearModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
             }
 
         elif type_ == "pre_draft_salary":
 
             templates = {
-                "SeasonalLinear": models.SeasonalLinearModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
-                # "naive": NaiveModel,
-                # "snaive": SeasonalNaiveModel,
             }
 
         elif type_ == "additional_drafted_service_salary":
 
             templates = {
-                # "SeasonalLinear": SeasonalLinearModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
-                # "naive": NaiveModel,
-                # "snaive": SeasonalNaiveModel,
             }
 
         elif type_ == "commemoration":
 
             templates = {
-                "holt": Holt,
-                #'sarima': SARIMAX,
-                #'naive': NaiveModel,
-                #'snaive': SeasonalNaiveModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # "SeasonalLinear": SeasonalLinearModel,
-                #'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "affilated_other":
 
             templates = {
-                "holt": Holt,
-                #'sarima': SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "arnona":
 
             templates = {
-                "holt": Holt,
-                #'sarima': SARIMAX,
-                #'naive': NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                "SimpleExpSmoothing": models.SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
             }
 
@@ -145,165 +185,195 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
 
             templates = {
                 "holt": models.Holt,
-                "sarima": models.SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "KT":
 
             templates = {
                 "holt": models.Holt,
-                "sarima": models.SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "electricity":
 
             templates = {
                 "holt": models.Holt,
-                "sarima": models.SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "water":
 
             templates = {
-                "seasonal_linear": models.SeasonalLinearModel,
-                # "holt": Holt,
-                #'sarima': SARIMAX,
-                #'naive': NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
-                # "ExponentialSmoothing": ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
             }
         elif type_ == "vehicles":
 
             templates = {
                 "holt": models.Holt,
-                "sarima": models.SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "overseas_transportation":
 
             templates = {
                 "holt": models.Holt,
-                "sarima": models.SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "tariffs":
 
             templates = {
                 "holt": models.Holt,
-                "sarima": models.SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "insurance":
 
             templates = {
                 "holt": models.Holt,
-                "sarima": models.SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "special_compensation":
 
             templates = {
                 "holt": models.Holt,
-                "sarima": models.SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "special_research":
 
             templates = {
                 "holt": models.Holt,
-                "sarima": models.SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "SA":
 
             templates = {
-                "mean": models.MeanModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "rest":
 
             templates = {
-                # "holt": Holt,
-                #'sarima': SARIMAX,
-                #'naive': NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
-                # "ExponentialSmoothing": ExponentialSmoothing,
-                #'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
-                #'LinearRegression': SeasonalLinearModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "hostages":
 
             templates = {
-                # "holt": Holt,
-                #'sarima': SARIMAX,
-                #'naive': NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
 
         elif type_ == "fiancees":
 
             templates = {
-                # "holt": Holt,
-                #'sarima': SARIMAX,
-                #'naive': NaiveModel,
-                "snaive": SeasonalNaiveModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                # 'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #'mean': MeanModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
         else:
             raise Exception(f"Type {type_} doesn't exist for path {PATH}.")
@@ -311,66 +381,74 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
         if type_ == "ZW":
             templates = {
                 "holt": models.Holt,
-                #  'sarima': SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
-                #  "ExponentialSmoothing": ExponentialSmoothing,
-                "SimpleExpSmoothing": models.SimpleExpSmoothing,
-                #    'mean': MeanModel,
-                "LinearRegression": models.SeasonalLinearModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
             }
         elif type_ == "ZC":
             templates = {
                 "holt": models.Holt,
-                #    'sarima': SARIMAX,
-                #    'naive': NaiveModel,
-                #    'snaive': SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                #    'SimpleExpSmoothing' : SimpleExpSmoothing,
-                #    'mean': MeanModel,
-                "LinearRegression": models.SeasonalLinearModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
             }
         elif type_ == "travel-KRKG":
             templates = {
                 "holt": models.Holt,
-                #    'sarima': SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                "SimpleExpSmoothing": models.SimpleExpSmoothing,
-                #    'mean': MeanModel,
-                "LinearRegression": models.SeasonalLinearModel,
-                #    'avg_factor' : AvgFactorModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
         elif type_ == "14-KRKG":
             templates = {
                 "holt": models.Holt,
-                #   'sarima': SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                "SimpleExpSmoothing": models.SimpleExpSmoothing,
-                #    'mean': MeanModel,
-                "LinearRegression": models.SeasonalLinearModel,
-                #    'avg_factor' : AvgFactorModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
         elif type_ == "SA":
             templates = {
-                "mean": models.MeanModel,
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
         elif type_ == "rest":
             templates = {
                 "holt": models.Holt,
-                #'sarima': SARIMAX,
-                "naive": models.NaiveModel,
-                "snaive": models.SeasonalNaiveModel,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
                 "ExponentialSmoothing": models.ExponentialSmoothing,
-                "SimpleExpSmoothing": models.SimpleExpSmoothing,
-                #'mean': MeanModel,
-                "LinearRegression": models.SeasonalLinearModel,
-                # 'avg_factor' : AvgFactorModel,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
             }
         else:
             raise Exception(f"Type {type_} doesn't exist for path {PATH}.")
@@ -404,13 +482,13 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
 
     # forcast by specific year
 
-    r2_score_values_data_specific_year, bad_otzar_groups_specific_year = (
-        find_r2_score_values_data(
+    metric_values_data_specific_year, bad_otzar_groups_specific_year = (
+        find_metric_values_data(
             how_much_months_in_year, data_by_ozar_groups, year_to_predict, templates
         )
     )
     wining_model_specific_year, r2_of_wining_models_specific_year = find_wining_models(
-        r2_score_values_data_specific_year
+        metric_values_data_specific_year
     )
     forcast_data_specific_year = forcast_data(
         how_much_months_in_year,
@@ -432,13 +510,13 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
 
     # forcast by year current_year
 
-    r2_score_values_data_current_year_year, bad_otzar_groups_current_year_year = (
-        find_r2_score_values_data(
+    metric_values_data_current_year_year, bad_otzar_groups_current_year_year = (
+        find_metric_values_data(
             how_much_months_in_year, data_by_ozar_groups, current_year, templates
         )
     )
     wining_model_current_year_year, r2_of_wining_models_current_year_year = find_wining_models(
-        r2_score_values_data_current_year_year
+        metric_values_data_current_year_year
     )
     forcast_data_current_year_year = forcast_data(
         how_much_months_in_year - how_much_month_in_curr_year_in_data,

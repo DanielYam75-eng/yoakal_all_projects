@@ -4,6 +4,8 @@ import pandas as pd
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.holtwinters import ExponentialSmoothing, SimpleExpSmoothing
 from sklearn.metrics import r2_score
+from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_percentage_error
 from statsmodels.tsa.holtwinters import Holt
 import warnings
 
@@ -11,7 +13,7 @@ warnings.filterwarnings("ignore")
 from sklearn.linear_model import LinearRegression
 import numpy as np
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
-
+metric = mean_absolute_error
 class DummyModel:
     def __init__(self, index):
         self.index = index
@@ -123,7 +125,7 @@ class TSConvergenceError(Exception):
 class TSModel4:
     def __init__(self, data_by_ozar_groups, year_to_forcast):
         self.data_by_ozar_groups = data_by_ozar_groups
-        self.r2_score_values = {}
+        self.metric_values = {}
         self.testData = {}
         self.forecastData = {}
         self.tillpastYearData = {}
@@ -150,14 +152,14 @@ class TSModel4:
                 self.testData[group] = test_data
                 self.forecastData[group] = forecast
                 self.tillpastYearData[group] = train_data
-                r2_score_value = r2_score(test_data, forecast)
-                self.r2_score_values[group] = r2_score_value
+                metric_value = metric(test_data, forecast)
+                self.metric_values[group] = metric_value
 
     def bad_otzar(self):
         return self.bad_otzar_groups
 
-    def r2_score(self):
-        return self.r2_score_values
+    def metric(self):
+        return self.metric_values
 
 class MeanModel:
     def __init__(self, data):
@@ -234,28 +236,28 @@ class SeasonalLinearModel:
             index=forecast_index,
         )
 
-def find_r2_score_values_data(
+def find_metric_values_data(
     how_much_months_in_year, data_by_ozar_groups, year_to_predict, templates
 ):
-    r2_score_values_data = {}
+    metric_values_data = {}
     bad_otzar_groups_specific_year = []
     for key in templates:
         model = TSModel4(data_by_ozar_groups, year_to_predict)
         bad_otzar_groups_specific_year = model.bad_otzar()
         model.fit(how_much_months_in_year, templates[key])
-        r2_score_values_data[key] = model.r2_score()
-    r2_score_values_data = pd.DataFrame(r2_score_values_data)
-    return r2_score_values_data, bad_otzar_groups_specific_year
+        metric_values_data[key] = model.metric()
+    metric_values_data = pd.DataFrame(metric_values_data)
+    return metric_values_data, bad_otzar_groups_specific_year
 
-def find_wining_models(r2_score_values_data_specific_year):
+def find_wining_models(metric_values_data_specific_year):
     wining_model = {}
     r2_of_wining_models = {}
-    for i in r2_score_values_data_specific_year.index:
-        wining_model[i] = r2_score_values_data_specific_year.columns[
-            r2_score_values_data_specific_year.loc[i].values
-            == r2_score_values_data_specific_year.loc[i].values.max()
+    for i in metric_values_data_specific_year.index:
+        wining_model[i] = metric_values_data_specific_year.columns[
+            metric_values_data_specific_year.loc[i].values
+            == metric_values_data_specific_year.loc[i].values.max()
         ]
-        r2_of_wining_models[i] = r2_score_values_data_specific_year.loc[i].max()
+        r2_of_wining_models[i] = metric_values_data_specific_year.loc[i].max()
     return wining_model, r2_of_wining_models
 
 def forcast_data(
