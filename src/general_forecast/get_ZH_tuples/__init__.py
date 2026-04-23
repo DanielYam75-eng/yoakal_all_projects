@@ -3,8 +3,9 @@ from read_file import read
 
 
 def get_ZH_tuples(in_data: pd.DataFrame) -> pd.DataFrame:
-    in_data["000"] = in_data["000"].astype(str).str.replace(",", "").astype(float)
+    in_data["0"] = in_data["0"].astype(str).str.replace(",", "").astype(float)
     in_data["110"] = in_data["110"].astype(str).str.replace(",", "").astype(float)
+    in_data = in_data[~in_data["fund_code"].isin([1410])]
     in_data = in_data.set_index(["doc_id", "doc_item"])
     in_data = in_data.unstack()
     out_data = pd.DataFrame(
@@ -22,9 +23,9 @@ def get_ZH_tuples(in_data: pd.DataFrame) -> pd.DataFrame:
 
 def main(input_path, bucket):
     if bucket=="y":
-        input_data = read(input_path, sep="\t")
+        input_data = read(input_path)
     if bucket=="n":
-        input_data = pd.read_csv(input_path,sep="\t")
+        input_data = pd.read_csv(input_path)
     output_data = get_ZH_tuples(input_data)
     output_data = output_data.dropna(
         subset=["MOF_class_out", "MOF_class_in", "value", "year", "month", "law"]

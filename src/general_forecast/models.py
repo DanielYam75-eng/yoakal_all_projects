@@ -6,6 +6,7 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing, SimpleExpSmoothing
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_absolute_percentage_error
+from sklearn.metrics import mean_squared_log_error
 from statsmodels.tsa.holtwinters import Holt
 import warnings
 
@@ -13,7 +14,7 @@ warnings.filterwarnings("ignore")
 from sklearn.linear_model import LinearRegression
 import numpy as np
 from statsmodels.tsa.holtwinters import SimpleExpSmoothing
-metric = mean_absolute_error
+metric = mean_absolute_percentage_error
 class DummyModel:
     def __init__(self, index):
         self.index = index
@@ -134,26 +135,45 @@ class TSModel4:
 
     def fit(self, size_of_validation_data, modelType):
         for i, group in enumerate(self.data_by_ozar_groups.columns):
+
             group_data = self.data_by_ozar_groups[group].dropna()
+
             if (
-                (group_data.count() < 2 * size_of_validation_data)
-                or (group_data.iloc[-2 * size_of_validation_data :].sum() == 0)
-                or (group_data.index[-1].year < self.year_to_forecast - 1)
+                  group_data.count() < 2 * size_of_validation_data
+                or group_data.iloc[-2 * size_of_validation_data:].sum() == 0
+                or group_data.index[-1].year < self.year_to_forecast - 1
             ):
-                self.bad_otzar_groups.append(group)
+              self.bad_otzar_groups.append(group)
+              continue
+
+            train_data, test_data = (
+            group_data[:-size_of_validation_data],
+            group_data[-size_of_validation_data:]
+        )
+
+            model = modelType(train_data)
+            model_fit = model.fit()
+            forecast = model_fit.forecast(len(test_data)) 
+
+            self.testData[group] = test_data
+            self.forecastData[group] = forecast
+            self.tillpastYearData[group] = train_data
+
+
+            test_yearly = test_data.resample("YE").sum()
+            forecast_yearly = forecast.resample("YE").sum()
+
+            df = pd.DataFrame({
+                "actual": test_yearly,
+                "forecast": forecast_yearly
+            }).dropna()
+
+            if df.empty:
+               metric_value = np.nan
             else:
-                train_data, test_data = (
-                    group_data[:-size_of_validation_data],
-                    group_data[-size_of_validation_data:],
-                )
-                model = modelType(train_data)
-                model_fit = model.fit()
-                forecast = model_fit.forecast(12)
-                self.testData[group] = test_data
-                self.forecastData[group] = forecast
-                self.tillpastYearData[group] = train_data
-                metric_value = metric(test_data, forecast)
-                self.metric_values[group] = metric_value
+                metric_value = metric(df["actual"], df["forecast"])
+
+            self.metric_values[group] = metric_value
 
     def bad_otzar(self):
         return self.bad_otzar_groups
@@ -251,14 +271,14 @@ def find_metric_values_data(
 
 def find_wining_models(metric_values_data_specific_year):
     wining_model = {}
-    r2_of_wining_models = {}
+    scores_of_wining_models = {}
     for i in metric_values_data_specific_year.index:
         wining_model[i] = metric_values_data_specific_year.columns[
             metric_values_data_specific_year.loc[i].values
             == metric_values_data_specific_year.loc[i].values.max()
         ]
-        r2_of_wining_models[i] = metric_values_data_specific_year.loc[i].max()
-    return wining_model, r2_of_wining_models
+        scores_of_wining_models[i] = metric_values_data_specific_year.loc[i].max()
+    return wining_model, scores_of_wining_models
 
 def forcast_data(
     month_to_predict,

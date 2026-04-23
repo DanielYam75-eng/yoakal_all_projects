@@ -79,6 +79,7 @@ def main(path, past_year, curr_year, curr_month, months_back, coin_type, bucket)
     wining_model_specific_year, r2_of_wining_models_specific_year = find_wining_models(
         metric_values_data_specific_year
     )
+    
     forcast_data_specific_year = forcast_data(
         how_much_months_in_year,
         wining_model_specific_year,
@@ -128,7 +129,12 @@ def main(path, past_year, curr_year, curr_month, months_back, coin_type, bucket)
         ),
         templates
     )
-
+    df_winners = pd.DataFrame({
+    "group": list(wining_model_current_year_year.keys()),
+    "winning_model": list(wining_model_current_year_year.values()),
+    "score": list(r2_of_wining_models_current_year_year.values())
+})
+    df_winners.to_csv(f"wining_models\winning_models_current_year_ZH.csv", index=False)
     # data_so_far_current_year = data_as_frame[f'{current_year}-01-01':]
     # data_so_far_current_year = data_as_frame[data_as_frame.index>"2024-12-31"]
     # data_current_year = pd.concat([data_so_far_current_year, pd.DataFrame(forcast_data_current_year_year)], axis=0)

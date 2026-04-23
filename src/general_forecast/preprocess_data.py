@@ -6,9 +6,9 @@ from read_file import read
 
 def main(path, current_year, coin_type, bucket):
     if bucket=="y":
-        data = read(path, sep="\t")
+        data = read(path)
     if bucket=="n":
-        data= pd.read_csv(path,sep="\t")
+        data= pd.read_csv(path)
     
     data = data.melt(
         id_vars=[
@@ -48,12 +48,12 @@ def main(path, current_year, coin_type, bucket):
 
     
     data.fillna({"volume": 0}, inplace=True)
-
+    print(data.loc[data["doc_type"].isin(["ZJ"])])
     
     data = data[~data["doc_type"].isin(["RE", "ZY", "ZF", "ZH"])]
     data = data[~data["fund_code"].isin([1410])]
 
-
+   
     
     data["type"] = "rest"
 
@@ -114,6 +114,8 @@ def main(path, current_year, coin_type, bucket):
         data.loc[data["doc_type"].isin(["KM"]), "type"] = "KM"
         data.loc[data["doc_type"].isin(["KT"]), "type"] = "KT"
         data.loc[data["doc_type"].isin(["SA"]), "type"] = "SA"
+        
+        data.loc[data["doc_type"].isin(["ZJ"]), "type"] = "ZJ"
         data.to_csv("result-data-preprocessed-by-posting-date_all.csv")
     if coin_type == 5:
         data.loc[(data["doc_type"] == "ZW"), "type"] = "ZW"

@@ -16,6 +16,10 @@ from .evaluate import main as evaluate_main
 
 def main():
     # general data
+    for folder_name in ["Data", "wining_models"]:
+        if not os.path.exists(folder_name):                
+            os.makedirs(folder_name)
+    
     parser = argparse.ArgumentParser(description="The Main Program")
     parser.add_argument(
         "--hashbarot_data", type=str, required=True, help="Path to the hashbarot data"

@@ -375,6 +375,18 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
                 'mean': models.MeanModel,
                 "avg_factor": models.AvgFactorModel,
             }
+        elif type_ == "ZJ":
+            templates = {
+                "holt": models.Holt,
+                'sarima': models.SARIMAX,
+                'naive': models.NaiveModel,
+                'snaive': SeasonalNaiveModel,
+                "ExponentialSmoothing": models.ExponentialSmoothing,
+                 "SeasonalLinear": models.SeasonalLinearModel,
+                'SimpleExpSmoothing' : models.SimpleExpSmoothing,
+                'mean': models.MeanModel,
+                "avg_factor": models.AvgFactorModel,
+            }
         else:
             raise Exception(f"Type {type_} doesn't exist for path {PATH}.")
     if coin_type == 5:
@@ -518,6 +530,12 @@ def main(path, type_, past_year, curr_year, curr_month, months_back, coin_type):
     wining_model_current_year_year, r2_of_wining_models_current_year_year = find_wining_models(
         metric_values_data_current_year_year
     )
+    df_winners = pd.DataFrame({
+    "group": list(wining_model_current_year_year.keys()),
+    "winning_model": list(wining_model_current_year_year.values()),
+    "score": list(r2_of_wining_models_current_year_year.values())
+})
+    df_winners.to_csv(f"wining_models\winning_models_current_year_{type_}.csv", index=False)
     forcast_data_current_year_year = forcast_data(
         how_much_months_in_year - how_much_month_in_curr_year_in_data,
         wining_model_current_year_year,
