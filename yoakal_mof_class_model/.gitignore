@@ -1,0 +1,6 @@
+*.csv
+*.ipynb
+*.txt
+*.pkl
+*.pyc
+tags

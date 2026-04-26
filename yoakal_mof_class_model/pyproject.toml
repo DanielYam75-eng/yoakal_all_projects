@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools", "wheel", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mof-class-forecaster"
+dynamic = ["version"]
+dependencies = [
+	"pandas",
+	"numpy",
+	"statsmodels",
+	"scikit-learn",
+	"xgboost",
+    "mlflow",
+	]
+
+
+[project.scripts]
+forecast = "general_forecast.master_script:main"
+
+[tool.setuptools_scm]
+version_scheme = "no-guess-dev"
+local_scheme = "node-and-date"
