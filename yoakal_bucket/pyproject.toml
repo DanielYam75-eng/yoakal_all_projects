@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "experiment-management"
+dynamic = ["version"]
+dependencies = [
+    "dagshub",
+    "tabulate",
+]
+
+[project.scripts]
+download = "download_file:main"
+upload = "upload_file:main"
+list = "list_files:main"
+show-templates = "show_templates:main"
+break-key = "break_file:main_break"
+unbreak-key = "break_file:main_unbreak"
+remove = "remove_file:main"
+total-size = "list_files:get_total_size_used"
+
+[tool.setuptools_scm]
+version_scheme = "no-guess-dev"
+local_scheme = "no-local-version"
+
